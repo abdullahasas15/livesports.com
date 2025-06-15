@@ -1,0 +1,129 @@
+{% extends 'base.html' %} {% load static %} {% block title %}Live Tournaments -
+LiveSports{% endblock %} {% block content %}
+<section class="py-16 px-4">
+  <div class="container mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1
+        class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400 mb-4"
+      >
+        Live Tournaments
+      </h1>
+      <p class="text-gray-400">Watch live sports action as it happens</p>
+    </div>
+
+    <!-- Live Match Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Sample Live Match 1 -->
+      <div class="tournament-card live">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-sm font-medium text-gray-300">Cricket</span>
+          <span class="status-badge live">
+            <i data-lucide="play" class="w-3 h-3"></i>
+            LIVE
+          </span>
+        </div>
+
+        <div class="text-center">
+          <h3 class="text-lg font-bold text-white mb-2">CBIT Championship</h3>
+
+          <!-- Teams and Score -->
+          <div
+            class="flex items-center justify-between bg-gray-800/50 rounded-lg p-4 mb-3"
+          >
+            <div class="text-center">
+              <div class="text-sm text-gray-400">Team A</div>
+              <div class="text-2xl font-bold text-white">124/3</div>
+            </div>
+            <div class="text-gray-400 text-sm">VS</div>
+            <div class="text-center">
+              <div class="text-sm text-gray-400">Team B</div>
+              <div class="text-2xl font-bold text-white">98/5</div>
+            </div>
+          </div>
+
+          <div class="text-xs text-gray-400 mb-3">HYD Stadium</div>
+
+          <button class="btn-black">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+            Watch Live
+          </button>
+        </div>
+      </div>
+
+      <!-- Sample Live Match 2 -->
+      <div class="tournament-card live">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-sm font-medium text-gray-300">Football</span>
+          <span class="status-badge live">
+            <i data-lucide="play" class="w-3 h-3"></i>
+            LIVE
+          </span>
+        </div>
+
+        <div class="text-center">
+          <h3 class="text-lg font-bold text-white mb-2">IIT Cup</h3>
+
+          <!-- Teams and Score -->
+          <div
+            class="flex items-center justify-between bg-gray-800/50 rounded-lg p-4 mb-3"
+          >
+            <div class="text-center">
+              <div class="text-sm text-gray-400">Eagles</div>
+              <div class="text-2xl font-bold text-white">2</div>
+            </div>
+            <div class="text-gray-400 text-sm">VS</div>
+            <div class="text-center">
+              <div class="text-sm text-gray-400">Lions</div>
+              <div class="text-2xl font-bold text-white">1</div>
+            </div>
+          </div>
+
+          <div class="text-xs text-gray-400 mb-3">Main Ground</div>
+
+          <button class="btn-black">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+            Watch Live
+          </button>
+        </div>
+      </div>
+
+      <!-- Add more sample cards -->
+      <div class="tournament-card upcoming">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-sm font-medium text-gray-300">Basketball</span>
+          <span class="status-badge upcoming">
+            <i data-lucide="clock" class="w-3 h-3"></i>
+            STARTING SOON
+          </span>
+        </div>
+
+        <div class="text-center">
+          <h3 class="text-lg font-bold text-white mb-2">College League</h3>
+
+          <div
+            class="flex items-center justify-between bg-gray-800/50 rounded-lg p-4 mb-3"
+          >
+            <div class="text-center">
+              <div class="text-sm text-gray-400">Titans</div>
+              <div class="text-lg text-gray-500">vs</div>
+            </div>
+            <div class="text-gray-400 text-sm">Starting at 6:00 PM</div>
+            <div class="text-center">
+              <div class="text-sm text-gray-400">Wolves</div>
+              <div class="text-lg text-gray-500"></div>
+            </div>
+          </div>
+
+          <button
+            class="w-full bg-gradient-upcoming text-white py-3 px-4 rounded-xl text-sm font-semibold"
+          >
+            <i data-lucide="clock" class="w-4 h-4"></i>
+            Set Reminder
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

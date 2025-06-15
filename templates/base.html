@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% block title %}LiveSports - Every Game. Every Point. Live, Right Here!{%endblock %}
+    </title>
+    {% load static %}
+    <link href="{% static 'css/livesports.css' %}" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body class="bg-gradient-main text-white font-inter">
+    <!-- Header -->
+    <header class="header-glass sticky top-0 z-50">
+      <div class="container">
+        <div class="logo-section">
+          <div class="logo-icon">L</div>
+          <a href="/" class="text-gradient-primary">LiveSports</a>
+        </div>
+
+        <!-- Navigation -->
+        <nav>
+          <a href="#" class="text-gradient-purple">Tournaments</a>
+          <a href="#" class="text-gradient-pink">About</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>{% block content %}{% endblock %}</main>
+
+    <!-- Footer -->
+    <footer class="bg-gradient-footer border-t border-purple-500/20 py-12 px-4">
+      <div class="container mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <!-- Logo and description -->
+          <div class="col-span-1 md:col-span-2">
+            <div class="flex items-center gap-3 mb-4">
+              <div
+                class="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-lg"
+              >
+                <span class="text-white font-bold text-xl">L</span>
+              </div>
+              <span class="text-gradient-primary font-bold text-xl"
+                >LiveSports</span
+              >
+            </div>
+            <p class="text-gray-400 max-w-md">
+              The ultimate platform for live sports tournament tracking and
+              management. Join thousands of sports enthusiasts worldwide.
+            </p>
+          </div>
+
+          <!-- Quick Links -->
+          <div>
+            <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+            <ul class="space-y-2">
+              <li>
+                <a href="#" class="footer-link text-gradient-purple"
+                  >Tournaments</a
+                >
+              </li>
+              <li>
+                <a href="#" class="footer-link text-gradient-cyan">Sports</a>
+              </li>
+              <li>
+                <a href="#" class="footer-link text-gradient-yellow"
+                  >Leaderboards</a
+                >
+              </li>
+              <li>
+                <a href="#" class="footer-link text-gradient-pink">About Us</a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Contact -->
+          <div>
+            <h4 class="text-white font-semibold mb-4">Contact</h4>
+            <ul class="space-y-2">
+              <li>
+                <a href="#" class="footer-link text-gradient-green">Support</a>
+              </li>
+              <li>
+                <a href="#" class="footer-link text-gradient-blue"
+                  >Privacy Policy</a
+                >
+              </li>
+              <li>
+                <a href="#" class="footer-link text-gradient-orange"
+                  >Terms of Service</a
+                >
+              </li>
+              <li>
+                <a href="#" class="footer-link text-gradient-purple"
+                  >Contact Us</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="border-t border-purple-500/20 mt-8 pt-8 text-center">
+          <p class="text-gray-400">
+            © 2024 LiveSports. All rights reserved. Built with
+            <span class="text-gradient-red">♥</span> for sports enthusiasts.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/livesports.js' %}"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
