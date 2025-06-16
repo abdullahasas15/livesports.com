@@ -1,125 +1,61 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      {% block title %}LiveSports - Every Game. Every Point. Live, Right Here!{%endblock %}
-    </title>
-    {% load static %}
-    <link href="{% static 'css/livesports.css' %}" rel="stylesheet" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    {% block extra_css %}{% endblock %}
-  </head>
-  <body class="bg-gradient-main text-white font-inter">
-    <!-- Header -->
-    <header class="header-glass sticky top-0 z-50">
-      <div class="container">
-        <div class="logo-section">
-          <div class="logo-icon">L</div>
-          <a href="/" class="text-gradient-primary">LiveSports</a>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LiveSports.com{% endblock %}</title>
+    
+    {% load static %} {# This line is essential for loading static files in Django #}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN (essential for icons) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <header class="navbar">
+        <div class="container">
+            <div class="logo">
+                <a href="{% url 'home:home' %}"> {# Changed href to Django URL #}
+                    <i data-lucide="zap" class="logo-icon"></i>
+                    LiveSports.com
+                </a>
+            </div>
+            <nav class="nav-links">
+                <ul>
+                    <li><a href="#">Tournaments</a></li> {# You'll link this to your tournaments app URL later #}
+                    <li><a href="#">About</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn" id="loginDropdown">
+                            <i data-lucide="ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="#">Admin Login</a> {# You'll link this to your adminpanel app URL later #}
+                            <a href="#">Owner Panel</a> {# You'll link this to your owner app URL later #}
+                            <a href="#">Sign Up</a> {# You'll link this to your signup URL later #}
+                        </div>
+                    </li>
+                </ul>
+            </nav>
         </div>
-
-        <!-- Navigation -->
-        <nav>
-          <a href="#" class="text-gradient-purple">Tournaments</a>
-          <a href="#" class="text-gradient-pink">About</a>
-        </nav>
-      </div>
     </header>
 
-    <!-- Main Content -->
-    <main>{% block content %}{% endblock %}</main>
+    <main>
+        {% block content %}
+            {# Content from individual app templates will be inserted here #}
+        {% endblock %}
+    </main>
 
-    <!-- Footer -->
-    <footer class="bg-gradient-footer border-t border-purple-500/20 py-12 px-4">
-      <div class="container mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <!-- Logo and description -->
-          <div class="col-span-1 md:col-span-2">
-            <div class="flex items-center gap-3 mb-4">
-              <div
-                class="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-lg"
-              >
-                <span class="text-white font-bold text-xl">L</span>
-              </div>
-              <span class="text-gradient-primary font-bold text-xl"
-                >LiveSports</span
-              >
-            </div>
-            <p class="text-gray-400 max-w-md">
-              The ultimate platform for live sports tournament tracking and
-              management. Join thousands of sports enthusiasts worldwide.
-            </p>
-          </div>
-
-          <!-- Quick Links -->
-          <div>
-            <h4 class="text-white font-semibold mb-4">Quick Links</h4>
-            <ul class="space-y-2">
-              <li>
-                <a href="#" class="footer-link text-gradient-purple"
-                  >Tournaments</a
-                >
-              </li>
-              <li>
-                <a href="#" class="footer-link text-gradient-cyan">Sports</a>
-              </li>
-              <li>
-                <a href="#" class="footer-link text-gradient-yellow"
-                  >Leaderboards</a
-                >
-              </li>
-              <li>
-                <a href="#" class="footer-link text-gradient-pink">About Us</a>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Contact -->
-          <div>
-            <h4 class="text-white font-semibold mb-4">Contact</h4>
-            <ul class="space-y-2">
-              <li>
-                <a href="#" class="footer-link text-gradient-green">Support</a>
-              </li>
-              <li>
-                <a href="#" class="footer-link text-gradient-blue"
-                  >Privacy Policy</a
-                >
-              </li>
-              <li>
-                <a href="#" class="footer-link text-gradient-orange"
-                  >Terms of Service</a
-                >
-              </li>
-              <li>
-                <a href="#" class="footer-link text-gradient-purple"
-                  >Contact Us</a
-                >
-              </li>
-            </ul>
-          </div>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 LiveSports.com. All rights reserved.</p>
         </div>
-
-        <div class="border-t border-purple-500/20 mt-8 pt-8 text-center">
-          <p class="text-gray-400">
-            © 2024 LiveSports. All rights reserved. Built with
-            <span class="text-gradient-red">♥</span> for sports enthusiasts.
-          </p>
-        </div>
-      </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="{% static 'js/livesports.js' %}"></script>
+    {% comment %} Load script.js at the end of body for performance {% endcomment %}
+    <script src="{% static 'js/script.js' %}"></script>
     <script>
-      lucide.createIcons();
+        // This line is crucial for Lucide Icons to render
+        lucide.createIcons();
     </script>
-    {% block extra_js %}{% endblock %}
-  </body>
+</body>
 </html>

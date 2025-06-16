@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %} {# <-- ADD THIS LINE HERE! #} 
+
+{% block title %}LiveSports.com - Homepage{% endblock %}
+
+{% block content %}
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>Experience Sports Like Never Before</h1>
+            <p>Track live scores, manage tournaments, and connect with the game in real-time.</p>
+            <div class="cta-buttons">
+                <a href="#" class="btn primary-btn">Get Started</a>
+                <a href="#" class="btn secondary-btn">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <div class="container">
+            <h2>Why Choose LiveSports.com?</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <i data-lucide="activity"></i>
+                    <h3>Real-time Updates</h3>
+                    <p>Stay on top of every score with instant, live updates pushed directly to your screen.</p>
+                </div>
+                <div class="feature-item">
+                    <i data-lucide="trophy"></i>
+                    <h3>Seamless Tournament Management</h3>
+                    <p>Easily create, organize, and manage tournaments for various sports with intuitive tools.</p>
+                </div>
+                <div class="feature-item">
+                    <i data-lucide="users"></i>
+                    <h3>Multi-role Access</h3>
+                    <p>Dedicated dashboards for viewers, admins, and owners ensure smooth operations and control.</p>
+                </div>
+                <div class="feature-item">
+                    <i data-lucide="zap"></i>
+                    <h3>Blazing Fast & Reliable</h3>
+                    <p>Powered by Django Channels and deployed on Render for a lightning-fast and stable experience.</p>
+                </div>
+                <div class="feature-item">
+                    <i data-lucide="swords"></i>
+                    <h3>Diverse Sports Coverage</h3>
+                    <p>From Cricket to Chess, we cover a wide range of sports to keep every fan engaged.</p>
+                </div>
+                <div class="feature-item">
+                    <i data-lucide="settings"></i>
+                    <h3>Scalable & Secure</h3>
+                    <p>Built with a modular design and robust security, ready for future enhancements and growth.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="sports-gallery">
+        <div class="container">
+            <h2>Our Passion for Sports</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item" style="background-image: url('{% static 'images/cricket.jpg' %}');">
+                    <div class="overlay">Cricket</div>
+                </div>
+                <div class="gallery-item" style="background-image: url('{% static 'images/football.jpg' %}');">
+                    <div class="overlay">Football</div>
+                </div>
+                <div class="gallery-item" style="background-image: url('{% static 'images/volleyball.jpg' %}');">
+                    <div class="overlay">Volleyball</div>
+                </div>
+                <div class="gallery-item" style="background-image: url('{% static 'images/basketball.jpg' %}');">
+                    <div class="overlay">Basketball</div>
+                </div>
+                <div class="gallery-item" style="background-image: url('{% static 'images/badminton.jpg' %}');">
+                    <div class="overlay">Badminton</div>
+                </div>
+                <div class="gallery-item" style="background-image: url('{% static 'images/chess.jpg' %}');">
+                    <div class="overlay">Chess</div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

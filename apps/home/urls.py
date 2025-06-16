@@ -1,8 +1,8 @@
 from django.urls import path
-from . import views
+from apps.home import views
+
+app_name = 'home' # Defines the namespace for your app
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('live/', views.live_view, name='live'),
-    path('admin/', views.admin_panel, name='admin'),
+    path('', views.home_view, name='home'), # Your homepage view
 ]

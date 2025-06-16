@@ -16,7 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+import os
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.home.urls')),
@@ -26,3 +29,13 @@ urlpatterns = [
     path('tournaments/', include('apps.tournaments.urls')),
     path('scores/', include('apps.scores.urls')),
 ]
+
+# Serve static files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    # If STATIC_ROOT is not set, or for local testing only:
+    urlpatterns += static(settings.STATIC_URL, document_root=os.path.join(settings.BASE_DIR, 'static'))
+
+# This is often needed for media files if you plan to upload user content
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
