@@ -79,14 +79,16 @@ WSGI_APPLICATION = 'livesports_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+from decouple import config
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': '9440802460live',
-        'HOST': 'db.yhkrlmfgvjjikbwbsmfg.supabase.co',
-        'PORT': '5432',
+        'NAME': config('postgres'),
+        'USER': config('postgres'),
+        'PASSWORD': config('9440802460live'),
+        'HOST': config('db.yhkrlmfgvjjikbwbsmfg.supabase.co'),
+        'PORT': config('5432'),
     }
 }
 
