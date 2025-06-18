@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Login / Sign Up - LiveSports.com{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+
+<section class="auth-section">
+    <div class="auth-container">
+        <div class="auth-header">
+            <h2>Welcome, Admin!</h2>
+            <p>Please login or sign up to manage your tournaments.</p>
+        </div>
+
+        <div class="auth-forms">
+            <div class="form-toggle">
+                <button id="loginTab" class="active">Login</button>
+                <button id="signupTab">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active-form" method="post">
+                {% csrf_token %} {# Django's CSRF token for form security #}
+                <h3>Login to Your Account</h3>
+
+                {# Display non-field errors for login_form if any #}
+                {% if login_form.errors %}
+                    <div class="form-error-messages">
+                        {{ login_form.non_field_errors }}
+                        {% for field in login_form %}
+                            {% for error in field.errors %}
+                                <p>{{ field.label }}: {{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    {{ login_form.username.label_tag }}
+                    {{ login_form.username }}
+                </div>
+                <div class="form-group">
+                    {{ login_form.password.label_tag }}
+                    {{ login_form.password }}
+                </div>
+                <button type="submit" class="btn primary-btn" name="login_submit">Login</button>
+                <p class="form-footer">Forgot password? <a href="#">Reset here</a></p>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form id="signupForm" class="auth-form" method="post" style="display: none;">
+                {% csrf_token %} {# Django's CSRF token for form security #}
+                <h3>Create a New Account</h3>
+                
+                {# Display non-field errors for signup_form if any #}
+                {% if signup_form.errors %}
+                    <div class="form-error-messages">
+                        {{ signup_form.non_field_errors }}
+                        {% for field in signup_form %}
+                            {% for error in field.errors %}
+                                <p>{{ field.label }}: {{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    {{ signup_form.username.label_tag }}
+                    {{ signup_form.username }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ signup_form.password.id_for_label }}">Password</label> 
+                    <input type="password" 
+                           name="password" {# Directly set name to "password" #}
+                           id="{{ signup_form.password.id_for_label }}" 
+                           placeholder="Create a password" 
+                           required 
+                           class="form-control">
+                </div>
+                <div class="form-group">
+                    {{ signup_form.password2.label_tag }} 
+                    {{ signup_form.password2 }}
+                </div>
+                <button type="submit" class="btn primary-btn" name="signup_submit">Sign Up</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+{# Django messages for user feedback #}
+<div class="django-messages-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginTab = document.getElementById('loginTab');
+        const signupTab = document.getElementById('signupTab');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+
+        function showLoginForm() {
+            loginForm.style.display = 'block';
+            signupForm.style.display = 'none';
+            loginTab.classList.add('active');
+            signupTab.classList.remove('active');
+        }
+
+        function showSignupForm() {
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'block';
+            loginTab.classList.remove('active');
+            signupTab.classList.add('active');
+        }
+
+        loginTab.addEventListener('click', showLoginForm);
+        signupTab.addEventListener('click', showSignupForm);
+
+        // Logic to show correct form after POST based on which form had errors
+        {% if signup_form and signup_form.errors %}
+            showSignupForm();
+        {% elif login_form and login_form.errors %}
+            showLoginForm();
+        {% else %}
+            showLoginForm();
+        {% endif %}
+    });
+</script>
+{% endblock %}

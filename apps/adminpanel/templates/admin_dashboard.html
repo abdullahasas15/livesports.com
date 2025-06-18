@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - LiveSports.com{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}"> {# Can reuse for general dashboard styling #}
+{# You might create a new CSS like 'dashboard.css' later for more specific dashboard layouts #}
+
+<section class="dashboard-section container">
+    <div class="dashboard-header">
+        <h2>Your Tournaments, {{ user.username }}</h2>
+        <p>Manage your events, update scores, and track progress.</p>
+        <a href="{% url 'adminpanel:create_tournament' %}" class="btn primary-btn small-btn">
+            <i data-lucide="plus-circle"></i> Create New Tournament
+        </a>
+    </div>
+
+    {% if tournaments %}
+        <div class="tournament-list">
+            {% for tournament in tournaments %}
+            <div class="tournament-card">
+                <h3>{{ tournament.name }}</h3>
+                <p><strong>Starts:</strong> {{ tournament.start_date|date:"F d, Y" }}</p>
+                <p><strong>Games:</strong> 
+                    {% for game in tournament.games.all %}
+                        <span class="game-tag">{{ game.name }}</span>{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        No games specified.
+                    {% endfor %}
+                </p>
+                <div class="card-actions">
+                    <a href="#" class="btn secondary-btn small-btn">View Details</a>
+                    <a href="#" class="btn primary-btn small-btn">Manage Matches</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-tournaments">
+            <p>You haven't created any tournaments yet. Let's get started!</p>
+            <a href="{% url 'adminpanel:create_tournament' %}" class="btn primary-btn">Create Your First Tournament</a>
+        </div>
+    {% endif %}
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons(); // Re-render Lucide icons if new ones are dynamically added
+    });
+</script>
+{% endblock %}

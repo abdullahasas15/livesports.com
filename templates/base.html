@@ -29,9 +29,11 @@
                             <i data-lucide="ellipsis"></i>
                         </a>
                         <div class="dropdown-content">
-                            <a href="#">Admin Login</a> {# You'll link this to your adminpanel app URL later #}
+                            <a href="{% url 'adminpanel:login_signup' %}" id="adminLoginLink">Admin Login</a>
                             <a href="#">Owner Panel</a> {# You'll link this to your owner app URL later #}
                             <a href="#">Sign Up</a> {# You'll link this to your signup URL later #}
+                            {# Add this line below #}
+                            <a href="{% url 'adminpanel:logout' %}" id="logoutLink">Log Out</a> 
                         </div>
                     </li>
                 </ul>

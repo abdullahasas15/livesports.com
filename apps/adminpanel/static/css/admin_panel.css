@@ -1,0 +1,396 @@
+/* admin_panel.css */
+
+/* Use variables defined in style.css for consistency */
+:root {
+    --primary-color: #4CAF50; /* Green */
+    --secondary-color: #337ab7; /* Blue */
+    --dark-text: #333;
+    --light-text: #f4f4f4;
+    --background-light: #ffffff;
+    --background-dark: #2c3e50; /* Darker blue-grey */
+    --border-color: #ddd;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --hover-effect: rgba(0, 0, 0, 0.05);
+}
+
+body {
+    /* Override body background from global style.css for this page only */
+    background: var(--background-light); /* Default to light, will be covered by section background */
+}
+
+.auth-section {
+    min-height: calc(100vh - 100px); /* Adjust based on navbar/footer height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url('https://placehold.co/1920x1080/4CAF50/FFFFFF/png?text=Sports+Background') no-repeat center center/cover;
+    background-attachment: fixed; /* Parallax effect */
+    color: var(--light-text);
+}
+
+.auth-container {
+    background: rgba(255, 255, 255, 0.95); /* Slightly transparent white background */
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 450px; /* Max width for the form container */
+    text-align: center;
+    color: var(--dark-text);
+    position: relative;
+    overflow: hidden; /* For rounded corners of toggle buttons */
+}
+
+.auth-header h2 {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    color: var(--background-dark);
+}
+
+.auth-header p {
+    font-size: 1rem;
+    margin-bottom: 30px;
+    color: #555;
+}
+
+.form-toggle {
+    display: flex;
+    width: 100%;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-toggle button {
+    flex: 1;
+    padding: 15px 0;
+    border: none;
+    background-color: var(--border-color); /* Light grey for inactive */
+    color: var(--dark-text);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    outline: none; /* Remove outline on focus */
+}
+
+.form-toggle button.active {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2); /* Inner shadow for active tab */
+}
+
+.form-toggle button:not(.active):hover {
+    background-color: #e0e0e0; /* Slightly darker grey on hover */
+}
+
+.auth-form h3 {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    color: var(--background-dark);
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #444;
+}
+
+/* Ensure all text and password inputs are displayed */
+.form-group input[type="text"],
+.form-group input[type="password"] { /* <-- IMPORTANT: Ensure this targets all password inputs */
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    color: var(--dark-text);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box; /* Ensures padding doesn't add to width */
+    display: block; /* <-- Explicitly set display to block */
+    height: auto; /* <-- Ensure height is not zero */
+    opacity: 1; /* <-- Ensure opacity is not zero */
+    visibility: visible; /* <-- Ensure visibility is not hidden */
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="password"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); /* Primary color glow on focus */
+    outline: none;
+}
+
+.auth-form .btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    background: var(--primary-color);
+    color: var(--light-text);
+    border: none;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form .btn:hover {
+    background-color: darken(var(--primary-color), 10%); /* Use a CSS preprocessor to make this work */
+    /* For pure CSS, you'd define a specific darker color, e.g., #388E3C */
+    background-color: #388E3C; /* Specific darker green */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.form-footer {
+    margin-top: 25px;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.form-footer a {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.form-footer a:hover {
+    color: darken(var(--primary-color), 10%);
+    text-decoration: none;
+}
+
+/* --- Additions for Tournament Forms and Dashboard --- */
+
+.auth-container .tournament-form {
+    padding-top: 20px; /* Adjust spacing if form is direct child */
+}
+
+/* Specific styling for the games checkbox list */
+.checkbox-group .games-checkbox-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Auto-fit columns */
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: #f9f9f9;
+}
+
+.game-item {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between checkbox and label */
+    cursor: pointer;
+}
+
+.game-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color); /* Colors the checkbox itself */
+    cursor: pointer;
+}
+
+.game-item label {
+    margin-bottom: 0; /* Remove default label margin */
+    cursor: pointer;
+    font-weight: 400; /* Lighter font weight for checkbox labels */
+    color: var(--dark-text);
+}
+
+/* IMPORTANT: Ensure error messages are visible */
+.field-error-messages {
+    color: #dc3545 !important; /* Red for errors, !important to override other rules */
+    font-size: 0.85rem !important;
+    margin-top: 5px !important;
+    text-align: left !important;
+    display: block !important; /* Ensure they are not hidden by display:none */
+    visibility: visible !important; /* Ensure they are not hidden by visibility:hidden */
+    opacity: 1 !important; /* Ensure they are not hidden by opacity:0 */
+}
+
+.form-error-messages {
+    color: #dc3545 !important;
+    background-color: #f8d7da !important;
+    border: 1px solid #f5c6cb !important;
+    border-radius: 5px !important;
+    padding: 10px 15px !important;
+    margin-bottom: 20px !important;
+    font-size: 0.9rem !important;
+    text-align: left !important;
+    display: block !important; /* Ensure they are not hidden */
+    visibility: visible !important; /* Ensure they are not hidden */
+    opacity: 1 !important; /* Ensure they are not hidden */
+}
+
+
+/* Dashboard Styling */
+.dashboard-section {
+    padding: 80px 0;
+    background: #f9f9f9;
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.dashboard-header h2 {
+    font-size: 2.5rem;
+    color: var(--background-dark);
+    margin-bottom: 15px;
+}
+
+.dashboard-header p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.dashboard-header .btn {
+    display: inline-flex; /* To align icon and text */
+    align-items: center;
+    gap: 8px;
+    padding: 10px 25px;
+    font-size: 1rem;
+}
+
+.tournament-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.tournament-card {
+    background: var(--background-light);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px var(--shadow-light);
+    padding: 30px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tournament-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.tournament-card h3 {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.tournament-card p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.game-tag {
+    display: inline-block;
+    background-color: #e0f7fa; /* Light blue */
+    color: #00796b; /* Darker teal */
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.card-actions {
+    margin-top: 25px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+}
+
+.card-actions .btn.small-btn {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+}
+
+.no-tournaments {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    margin-top: 40px;
+}
+
+.no-tournaments p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.no-tournaments .btn {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-header h2 {
+        font-size: 2rem;
+    }
+
+    .tournament-list {
+        grid-template-columns: 1fr; /* Stack cards vertically on small screens */
+    }
+
+    .tournament-card {
+        padding: 25px;
+    }
+}
+
+/* Styling for Django Messages */
+.django-messages-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    word-break: break-word; /* Ensure long messages break */
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+.alert-error { /* Django uses 'error' tag for messages.error */
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
