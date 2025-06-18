@@ -19,29 +19,31 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // You can add event listeners to the actual links here for demonstration
-    document.getElementById('adminLoginLink').addEventListener('click', function(event) {
-        event.preventDefault();
-        alert('Admin Login clicked! (Implement your Django URL here)');
-    });
+
+    // The 'adminLoginLink' alert has been removed, as the link will now directly navigate via Django URL.
 
     document.getElementById('ownerPanelLink').addEventListener('click', function(event) {
         event.preventDefault();
-        alert('Owner Panel clicked! (Implement your Django URL here)');
+        // Changed alert to console.log to avoid pop-ups during development
+        console.log('Owner Panel clicked! (Implement your Django URL here)');
     });
 
     document.getElementById('signupLink').addEventListener('click', function(event) {
         event.preventDefault();
-        alert('Sign Up clicked! (Implement your Django URL here)');
+        // Changed alert to console.log
+        console.log('Sign Up clicked! (Implement your Django URL here)');
     });
 
     // Example for "Get Started" and "Learn More" buttons
     document.querySelector('.btn.primary-btn').addEventListener('click', function(event) {
         event.preventDefault();
-        alert('Get Started button clicked!');
+        // Changed alert to console.log
+        console.log('Get Started button clicked!');
     });
 
     document.querySelector('.btn.secondary-btn').addEventListener('click', function(event) {
         event.preventDefault();
-        alert('Learn More button clicked!');
+        // Changed alert to console.log
+        console.log('Learn More button clicked!');
     });
 });

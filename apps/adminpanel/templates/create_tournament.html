@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create New Tournament - LiveSports.com{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}"> {# Re-use or extend admin_panel.css for forms #}
+
+<section class="auth-section"> {# Re-using the background/center styling #}
+    <div class="auth-container">
+        <div class="auth-header">
+            <h2>Create Your First Tournament!</h2>
+            <p>Define the details of your new sports event.</p>
+        </div>
+
+        <form method="post" class="tournament-form">
+            {% csrf_token %} {# Django's CSRF token for form security #}
+            
+            {% if form.non_field_errors %}
+                <div class="form-error-messages">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div class="field-error-messages">
+                        {% for error in form.name.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.start_date.label_tag }}
+                {{ form.start_date }}
+                {% if form.start_date.errors %}
+                    <div class="field-error-messages">
+                        {% for error in form.start_date.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group checkbox-group">
+                {{ form.games.label_tag }}
+                <div class="games-checkbox-list">
+                    {% for checkbox in form.games %}
+                        <div class="game-item">
+                            {{ checkbox.tag }}
+                            <label for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if form.games.errors %}
+                    <div class="field-error-messages">
+                        {% for error in form.games.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn primary-btn">Create Tournament</button>
+        </form>
+    </div>
+</section>
+{% endblock %}
