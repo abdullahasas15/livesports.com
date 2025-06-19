@@ -1,11 +1,12 @@
-# adminpanel/views.py
+# livesports_project/apps/adminpanel/views.py
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages # For showing success/error messages
+from django.db import transaction # Import transaction for atomic operations
 
 from .forms import AdminSignUpForm, AdminLoginForm, TournamentCreationForm
-from apps.tournaments.models import Tournament # Ensure correct import path for Tournament model
+from apps.tournaments.models import Tournament, Team # Ensure correct import path for Tournament and Team models
 
 def admin_login_signup(request):
     """
@@ -39,9 +40,7 @@ def admin_login_signup(request):
                         return redirect('adminpanel:create_tournament')
                 else:
                     messages.error(request, "Invalid username or password.")
-            else:
-                # Form is invalid, but try to be specific for user feedback
-                messages.error(request, "Please correct the errors in the login form.")
+            # If login_form is invalid, it will fall through to the final render
 
         elif 'signup_submit' in request.POST:
             signup_form = AdminSignUpForm(request.POST)
@@ -51,24 +50,15 @@ def admin_login_signup(request):
                 login(request, user)
                 messages.success(request, f"Account created for {user.username}! Please create your first tournament.")
                 return redirect('adminpanel:create_tournament')
-            else:
-                # Form is invalid, pass errors back to template
-                messages.error(request, "Please correct the errors in the signup form.")
+            # If signup_form is invalid, it will fall through to the final render
         
-        # If any form was submitted and had errors, re-render with context
+        # This single return statement handles re-rendering the forms with errors for both login and signup
         return render(request, 'login_signup.html', {
             'login_form': login_form,
             'signup_form': signup_form,
         })
 
-    # For GET request or initial load
-    # adminpanel/views.py (inside admin_login_signup view, just before the final return render)
-    print("Signup Form Fields:", signup_form.fields.keys())
-# ... rest of the view ...
-    return render(request, 'login_signup.html', {
-    'login_form': login_form,
-    'signup_form': signup_form,
-})
+    # For GET request or initial load, render empty forms
     return render(request, 'login_signup.html', {
         'login_form': login_form,
         'signup_form': signup_form,
@@ -77,25 +67,52 @@ def admin_login_signup(request):
 @login_required # Ensures only logged-in users can access this view
 def create_tournament_view(request):
     """
-    Handles displaying and processing the tournament creation form.
+    Handles displaying and processing the tournament creation form, including teams.
     """
-    # Check if the user is an admin (e.g., is_staff or is_superuser) if you have such a requirement.
-    # For now, any logged-in user can create a tournament.
-
     if request.method == 'POST':
         form = TournamentCreationForm(request.POST)
         if form.is_valid():
-            tournament = form.save(commit=False) # Don't save to DB yet
-            tournament.created_by = request.user # Link tournament to current user
-            tournament.save() # Save the tournament instance
+            num_teams = form.cleaned_data['num_teams']
+            team_names = []
             
-            # Save ManyToMany relations (games) after the tournament instance is saved
-            form.save_m2m() # This is crucial for ManyToManyField (like 'games')
+            # Manually collect team names from POST data and validate them
+            for i in range(1, num_teams + 1):
+                team_name = request.POST.get(f'team_name_{i}', '').strip()
+                if not team_name:
+                    # If any team name is empty, add a form error and re-render
+                    messages.error(request, f"Team {i} name cannot be empty. Please fill all team name fields.")
+                    # Re-render form with submitted data to preserve other fields
+                    return render(request, 'create_tournament.html', {'form': form})
+                team_names.append(team_name) # <--- CORRECTED LINE: Changed 'name' to 'team_name'
+            
+            # Use a transaction for atomic creation of tournament and teams
+            try:
+                with transaction.atomic():
+                    tournament = form.save(commit=False) # Don't save Tournament yet
+                    tournament.created_by = request.user # Link tournament to current user
+                    tournament.save() # Save the Tournament instance
+                    form.save_m2m() # Save ManyToMany relations (games)
 
-            messages.success(request, f"Tournament '{tournament.name}' created successfully!")
-            return redirect('adminpanel:dashboard') # Redirect to dashboard after creation
+                    # Create and save Team instances
+                    for name in team_names: # 'name' here is iterating over items in team_names list
+                        # Add a check for duplicate team names within the current submission
+                        # Although unique_together is in model, this provides immediate feedback
+                        if Team.objects.filter(tournament=tournament, name=name).exists():
+                            raise ValueError(f"Team '{name}' already exists in this tournament.")
+                        Team.objects.create(tournament=tournament, name=name)
+
+                messages.success(request, f"Tournament '{tournament.name}' and {len(team_names)} teams created successfully!")
+                return redirect('adminpanel:dashboard') # Redirect to dashboard after creation
+            except ValueError as e: # Catch custom ValueError for duplicate team names
+                messages.error(request, str(e)) # Display the specific error message
+                return render(request, 'create_tournament.html', {'form': form})
+            except Exception as e: # Catch any other unexpected database or server errors
+                messages.error(request, f"An unexpected error occurred: {e}")
+                # Re-render form with current data in case of unexpected errors
+                return render(request, 'create_tournament.html', {'form': form})
         else:
-            messages.error(request, "Please correct the errors below.")
+            # If main form (tournament name, date, games, num_teams) is invalid
+            messages.error(request, "Please correct the errors in the tournament form.")
     else:
         form = TournamentCreationForm() # An empty form for GET request
 
@@ -118,4 +135,3 @@ def admin_logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out.")
     return redirect('adminpanel:login_signup')
-

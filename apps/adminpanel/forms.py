@@ -1,4 +1,4 @@
-# adminpanel/forms.py
+# livesports_project/apps/adminpanel/forms.py
 from django import forms
 from apps.tournaments.models import Tournament, Game # Ensure correct import path
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -22,9 +22,18 @@ class TournamentCreationForm(forms.ModelForm):
         help_text="Select all games included in this tournament."
     )
 
+    # Add a field for the number of teams
+    num_teams = forms.IntegerField(
+        label='Number of Teams',
+        min_value=2, # Require at least 2 teams for a tournament
+        max_value=64, # Set a reasonable maximum
+        initial=4, # Default to 4 teams
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 8'})
+    )
+
     class Meta:
         model = Tournament
-        fields = ['name', 'start_date', 'games']
+        fields = ['name', 'start_date', 'games', 'num_teams'] # Add num_teams here
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Summer Cricket Cup'}),

@@ -23,27 +23,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // --- REMOVED SPECIFIC EVENT LISTENERS FOR NAV LINKS ---
-    // These links (adminLoginLink, ownerPanelLink, signupLink, logoutLink)
-    // now use Django URLs directly via their href attributes in base.html.
-    // Their JavaScript event listeners were causing errors because the elements
-    // might not always exist or their IDs might be dynamically generated/removed.
-    // The previous alerts/console.logs for these links are also removed.
+    // --- REMOVED GENERIC EVENT LISTENERS FOR BUTTONS THAT PREVENT DEFAULT ---
+    // These listeners were preventing proper form submission for buttons sharing these classes.
+    // The "Get Started" and "Learn More" buttons should now rely on their href attributes or specific form logic.
 
-    // Example for "Get Started" and "Learn More" buttons (on home.html)
-    const getStartedBtn = document.querySelector('.btn.primary-btn');
-    if (getStartedBtn) {
-        getStartedBtn.addEventListener('click', function(event) {
-            event.preventDefault();
-            console.log('Get Started button clicked!');
-        });
-    }
+    // Removed:
+    // const getStartedBtn = document.querySelector('.btn.primary-btn');
+    // if (getStartedBtn) {
+    //     getStartedBtn.addEventListener('click', function(event) {
+    //         event.preventDefault(); // This was the likely culprit for the create tournament button
+    //         console.log('Get Started button clicked!');
+    //     });
+    // }
 
-    const learnMoreBtn = document.querySelector('.btn.secondary-btn');
-    if (learnMoreBtn) {
-        learnMoreBtn.addEventListener('click', function(event) {
-            event.preventDefault();
-            console.log('Learn More button clicked!');
-        });
-    }
+    // Removed:
+    // const learnMoreBtn = document.querySelector('.btn.secondary-btn');
+    // if (learnMoreBtn) {
+    //     learnMoreBtn.addEventListener('click', function(event) {
+    //         event.preventDefault();
+    //         console.log('Learn More button clicked!');
+    //     });
+    // }
 });

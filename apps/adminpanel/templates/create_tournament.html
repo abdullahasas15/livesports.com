@@ -10,7 +10,7 @@
     <div class="auth-container">
         <div class="auth-header">
             <h2>Create Your First Tournament!</h2>
-            <p>Define the details of your new sports event.</p>
+            <p>Define the details of your new sports event and participating teams.</p>
         </div>
 
         <form method="post" class="tournament-form">
@@ -28,8 +28,36 @@
                 </div>
             {% endif %}
 
-            {# Render the form fields using Django's as_p for simplicity and robustness #}
-            {{ form.as_p }}
+            {# Render the core tournament fields (name, start_date, num_teams, games) #}
+            <div class="form-group">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+            </div>
+            <div class="form-group">
+                {{ form.start_date.label_tag }}
+                {{ form.start_date }}
+            </div>
+            <div class="form-group checkbox-group">
+                {{ form.games.label_tag }}
+                <div class="games-checkbox-list">
+                    {% for checkbox in form.games %}
+                        <div class="game-item">
+                            {{ checkbox.tag }}
+                            <label for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {{ form.num_teams.label_tag }}
+                {{ form.num_teams }}
+            </div>
+
+            {# Container for dynamically generated team name inputs #}
+            <div id="team_names_container" class="team-names-container">
+                {# Team name inputs will be inserted here by JavaScript #}
+            </div>
 
             <button type="submit" class="btn primary-btn">Create Tournament</button>
         </form>
@@ -37,6 +65,53 @@
 </section>
 
 <script>
-    lucide.createIcons(); // Re-render Lucide icons if new ones are dynamically added
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons(); // Re-render Lucide icons if new ones are dynamically added
+
+        const numTeamsInput = document.getElementById('id_num_teams');
+        const teamNamesContainer = document.getElementById('team_names_container');
+
+        // Function to generate team name input fields
+        function generateTeamNameFields() {
+            teamNamesContainer.innerHTML = ''; // Clear existing fields
+            const numTeams = parseInt(numTeamsInput.value);
+
+            // Get min/max values from Django's form data if possible, or use hardcoded values
+            // These values come from forms.py
+            const minTeams = 2; 
+            const maxTeams = 64; 
+
+            if (isNaN(numTeams) || numTeams < minTeams || numTeams > maxTeams) {
+                // If input is invalid, clear container and show a message (optional)
+                teamNamesContainer.innerHTML = `<p class="field-error-messages" style="text-align: center;">Please enter a number between ${minTeams} and ${maxTeams} for teams.</p>`;
+                return; 
+            }
+
+            for (let i = 1; i <= numTeams; i++) {
+                const teamGroup = document.createElement('div');
+                teamGroup.classList.add('form-group');
+                teamGroup.innerHTML = `
+                    <label for="id_team_name_${i}">Team ${i} Name</label>
+                    <input type="text" 
+                           name="team_name_${i}" 
+                           id="id_team_name_${i}" 
+                           placeholder="Enter Team ${i} Name" 
+                           required 
+                           class="form-control">
+                `;
+                teamNamesContainer.appendChild(teamGroup);
+            }
+        }
+
+        // Event listener for changes in num_teams input
+        // Check if numTeamsInput and teamNamesContainer exist before adding listeners
+        if (numTeamsInput && teamNamesContainer) { 
+            numTeamsInput.addEventListener('input', generateTeamNameFields);
+            // Initial generation on page load based on default/initial value
+            generateTeamNameFields(); 
+        } else {
+            console.error("Could not find num_teams input or team names container. Dynamic team fields will not be generated.");
+        }
+    });
 </script>
 {% endblock %}

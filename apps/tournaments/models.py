@@ -1,3 +1,4 @@
+# livesports_project/apps/tournaments/models.py
 from django.db import models
 from django.contrib.auth.models import User # Django's built-in User model
 
@@ -31,4 +32,15 @@ class Tournament(models.Model):
 
     def __str__(self):
         return f"{self.name} (Starts: {self.start_date})"
+
+class Team(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='teams')
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = ('tournament', 'name') # A team name must be unique within a tournament
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name} ({self.tournament.name})"
 

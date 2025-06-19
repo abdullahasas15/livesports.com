@@ -63,7 +63,18 @@
                 {% csrf_token %} {# Django's CSRF token for form security #}
                 <h3>Create a New Account</h3>
                 
-                {# This will render all fields (username, password, password2) with their labels and errors #}
+                {# Display non-field errors for signup_form if any #}
+                {# This section will render all non-field and field errors from signup_form #}
+                {% if signup_form.non_field_errors %}
+                    <div class="form-error-messages">
+                        {% for error in signup_form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {# Render the form fields using Django's as_p for simplicity and robustness #}
+                {# We will style the p tags and their children in CSS to ensure proper layout #}
                 {{ signup_form.as_p }} 
 
                 <button type="submit" class="btn primary-btn" name="signup_submit">Sign Up</button>
