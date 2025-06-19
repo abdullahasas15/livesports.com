@@ -16,59 +16,27 @@
         <form method="post" class="tournament-form">
             {% csrf_token %} {# Django's CSRF token for form security #}
             
-            {% if form.non_field_errors %}
+            {# Display non-field errors and field-specific errors if any #}
+            {% if form.errors %}
                 <div class="form-error-messages">
-                    {% for error in form.non_field_errors %}
-                        <p>{{ error }}</p>
+                    {{ form.non_field_errors }}
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <p>{{ field.label }}: {{ error }}</p>
+                        {% endfor %}
                     {% endfor %}
                 </div>
             {% endif %}
 
-            <div class="form-group">
-                {{ form.name.label_tag }}
-                {{ form.name }}
-                {% if form.name.errors %}
-                    <div class="field-error-messages">
-                        {% for error in form.name.errors %}
-                            <p>{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                {{ form.start_date.label_tag }}
-                {{ form.start_date }}
-                {% if form.start_date.errors %}
-                    <div class="field-error-messages">
-                        {% for error in form.start_date.errors %}
-                            <p>{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group checkbox-group">
-                {{ form.games.label_tag }}
-                <div class="games-checkbox-list">
-                    {% for checkbox in form.games %}
-                        <div class="game-item">
-                            {{ checkbox.tag }}
-                            <label for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
-                        </div>
-                    {% endfor %}
-                </div>
-                {% if form.games.errors %}
-                    <div class="field-error-messages">
-                        {% for error in form.games.errors %}
-                            <p>{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
+            {# Render the form fields using Django's as_p for simplicity and robustness #}
+            {{ form.as_p }}
 
             <button type="submit" class="btn primary-btn">Create Tournament</button>
         </form>
     </div>
 </section>
+
+<script>
+    lucide.createIcons(); // Re-render Lucide icons if new ones are dynamically added
+</script>
 {% endblock %}
