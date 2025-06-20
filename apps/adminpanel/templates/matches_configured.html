@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Matches Configured! - LiveSports.com{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+
+<section class="dashboard-section container text-center-placeholder">
+    <div class="auth-container" style="max-width: 600px; padding: 50px;">
+        <h2>Matches Configured Successfully!</h2>
+        <p class="lead-text">Thank you for managing the games in LiveSports.com. Your matches have been set up.</p>
+        <p>You can now click the "View Details" button on your dashboard to see and update scores.</p>
+        <a href="{% url 'adminpanel:dashboard' %}" class="btn primary-btn" style="margin-top: 30px;">
+            Go to Admin Dashboard
+        </a>
+    </div>
+</section>
+
+<style>
+    /* Add specific styles for lead-text here or in admin_panel.css if not already present */
+    .lead-text {
+        font-size: 1.15rem;
+        color: #555;
+        margin-bottom: 20px;
+    }
+</style>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

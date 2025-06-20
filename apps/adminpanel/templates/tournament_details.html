@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Details for {{ tournament.name }} - LiveSports.com{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+
+<section class="dashboard-section container">
+    <div class="dashboard-header">
+        <h2>{{ tournament.name }} Details</h2>
+        <p>Overview of teams, points, and matches.</p>
+        <p class="tournament-info">Starts: {{ tournament.start_date|date:"F d, Y" }}</p>
+    </div>
+
+    {# Django Messages for user feedback #}
+    <div class="django-messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="tournament-details-container">
+        <h3>Points Table</h3>
+        {% if points_table %}
+            <table class="points-table">
+                <thead>
+                    <tr>
+                        <th>Team</th>
+                        <th>Points</th>
+                        <th>Played</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                        <th>Draws</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in points_table %}
+                    <tr>
+                        <td>{{ entry.team_name }}</td> {# Use team_name #}
+                        <td>{{ entry.points }}</td>
+                        <td>{{ entry.matches_played }}</td>
+                        <td>{{ entry.wins }}</td>
+                        <td>{{ entry.losses }}</td>
+                        <td>{{ entry.draws }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-data-message">No teams have been configured for this tournament yet. Go to "Manage Matches" to add teams.</p>
+        {% endif %}
+
+        <h3 style="margin-top: 40px;">Matches by Game</h3>
+        {% if tournament_games %}
+            <div class="game-selection-tabs match-tabs"> {# Reuse styling, add match-tabs class #}
+                {% for game in tournament_games %}
+                    <button type="button" class="game-tab-btn" data-game-name="{{ game.name }}" data-game-id="{{ game.id }}">
+                        {{ game.name }}
+                    </button>
+                {% empty %}
+                    <p class="no-data-message">No games configured for this tournament.</p>
+                {% endfor %}
+            </div>
+
+            <div id="game_matches_display_container" class="game-matches-display-container">
+                <p class="text-center-placeholder">Select a game above to view its matches.</p>
+            </div>
+        {% else %}
+            <p class="no-data-message">No games have been selected for this tournament. Please edit the tournament to add games.</p>
+        {% endif %}
+    </div>
+</section>
+
+<script>
+    lucide.createIcons();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const gameTabButtons = document.querySelectorAll('.game-tab-btn');
+        const gameMatchesDisplayContainer = document.getElementById('game_matches_display_container');
+        
+        let matchesByGameData = {};
+        try {
+            // Correctly parse the JSON string passed from Django
+            matchesByGameData = JSON.parse('{{ matches_by_game|safe|escapejs }}');
+        } catch (e) {
+            console.error("Error parsing matches by game JSON:", e);
+            gameMatchesDisplayContainer.innerHTML = '<p class="field-error-messages text-center">Error loading match data. Please ensure matches are configured correctly.</p>';
+            return; // Stop script execution if critical data is missing
+        }
+        
+        function renderMatchesForGame(gameName) {
+            gameMatchesDisplayContainer.innerHTML = ''; // Clear previous content
+
+            const matches = matchesByGameData[gameName];
+
+            if (!matches || matches.length === 0) {
+                gameMatchesDisplayContainer.innerHTML = `<p class="no-data-message text-center">No matches configured for ${gameName} yet.</p>`;
+                return;
+            }
+
+            const matchesList = document.createElement('div');
+            matchesList.classList.add('matches-listing');
+
+            matches.forEach(match => {
+                const matchItem = document.createElement('div');
+                matchItem.classList.add('match-display-item');
+                matchItem.innerHTML = `
+                    <h4>Match ${match.match_number}</h4>
+                    <p class="match-teams">
+                        ${match.team1__name || 'N/A'} <span class="vs-text">vs</span> ${match.team2__name || 'N/A'}
+                    </p>
+                    <p class="match-score">Score: ${match.score_team1} - ${match.score_team2}</p>
+                    {# Add more details if available, e.g., status, date_time #}
+                `;
+                matchesList.appendChild(matchItem);
+            });
+            gameMatchesDisplayContainer.appendChild(matchesList);
+        }
+
+        gameTabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                gameTabButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                const gameName = this.dataset.gameName;
+                renderMatchesForGame(gameName);
+            });
+        });
+
+        // Auto-click the first game tab on load if any
+        if (gameTabButtons.length > 0) {
+            gameTabButtons[0].click();
+        } else {
+            gameMatchesDisplayContainer.innerHTML = '<p class="no-data-message text-center">No games selected for this tournament to display matches.</p>';
+        }
+    });
+</script>
+{% endblock %}

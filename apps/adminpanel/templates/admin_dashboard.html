@@ -4,8 +4,7 @@
 {% block title %}Admin Dashboard - LiveSports.com{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}"> {# Can reuse for general dashboard styling #}
-{# You might create a new CSS like 'dashboard.css' later for more specific dashboard layouts #}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}"> {# Link to the refreshed admin_panel.css #}
 
 <section class="dashboard-section container">
     <div class="dashboard-header">
@@ -30,8 +29,9 @@
                     {% endfor %}
                 </p>
                 <div class="card-actions">
-                    <a href="#" class="btn secondary-btn small-btn">View Details</a>
-                    <a href="#" class="btn primary-btn small-btn">Manage Matches</a>
+                    {# View Details button is now primary-btn for consistent green styling #}
+                    <a href="{% url 'adminpanel:tournament_details' tournament_id=tournament.id %}" class="btn primary-btn small-btn">View Details</a>
+                    <a href="{% url 'adminpanel:manage_matches' tournament_id=tournament.id %}" class="btn primary-btn small-btn">Manage Matches</a>
                 </div>
             </div>
             {% endfor %}

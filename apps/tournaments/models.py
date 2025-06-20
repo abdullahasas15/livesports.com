@@ -44,3 +44,32 @@ class Team(models.Model):
     def __str__(self):
         return f"{self.name} ({self.tournament.name})"
 
+class Match(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='matches')
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='matches_in_game')
+    
+    # Use ManyToManyField for teams if a match could involve more than 2 teams in some sports,
+    # or if you want flexible team assignments (e.g., pairs in doubles).
+    # For a simple Team A vs Team B scenario, two ForeignKey fields are often simpler.
+    team1 = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='matches_as_team1', verbose_name='Team 1')
+    team2 = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='matches_as_team2', verbose_name='Team 2')
+    
+    # Optional fields for score tracking (initial state)
+    score_team1 = models.IntegerField(default=0)
+    score_team2 = models.IntegerField(default=0)
+    
+    match_number = models.IntegerField(default=1) # E.g., Match 1, Match 2 within a game/tournament
+    
+    # You can add more fields like:
+    # date_time = models.DateTimeField(null=True, blank=True)
+    # venue = models.CharField(max_length=200, blank=True, null=True)
+    # status = models.CharField(max_length=50, default='scheduled') # e.g., 'scheduled', 'live', 'completed'
+
+    class Meta:
+        # Order matches by game and then match number
+        ordering = ['game__name', 'match_number']
+        # Optionally, ensure uniqueness per match number within a game and tournament
+        unique_together = ('tournament', 'game', 'match_number')
+
+    def __str__(self):
+        return f"{self.tournament.name} - {self.game.name} Match {self.match_number}: {self.team1.name} vs {self.team2.name}"

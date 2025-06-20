@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Matches for {{ tournament.name }} - LiveSports.com{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+
+<section class="dashboard-section container">
+    <div class="dashboard-header">
+        <h2>Configure Matches for {{ tournament.name }}</h2>
+        <p>Select games and define matches for each.</p>
+        <p class="tournament-info">
+            Starts: {{ tournament.start_date|date:"F d, Y" }} | Games: 
+            {% for game in tournament.games.all %}
+                <span class="game-tag">{{ game.name }}</span>{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                No games selected for this tournament.
+            {% endfor %}
+        </p>
+    </div>
+
+    {# Django Messages for user feedback #}
+    <div class="django-messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <form method="post" class="manage-matches-form">
+        {% csrf_token %}
+
+        <div class="game-selection-tabs">
+            {% for game in tournament_games %}
+                <button type="button" class="game-tab-btn" data-game-id="{{ game.id }}" data-game-name="{{ game.name }}">
+                    {{ game.name }}
+                </button>
+            {% empty %}
+                <p class="no-tournaments">No games found for this tournament. Please edit tournament to add games.</p>
+            {% endfor %}
+        </div>
+
+        <div id="game_match_config_container" class="game-match-config-container">
+            {# Dynamic match configuration for selected game will appear here #}
+            <p class="text-center-placeholder">Select a game above to configure its matches.</p>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn primary-btn large-btn">Submit All Match Configurations</button>
+        </div>
+    </form>
+</section>
+
+<script>
+    lucide.createIcons();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const gameTabButtons = document.querySelectorAll('.game-tab-btn');
+        const gameMatchConfigContainer = document.getElementById('game_match_config_container');
+        const formElement = document.querySelector('.manage-matches-form'); // Reference to the form
+
+        let tournamentTeams = [];
+        try {
+            tournamentTeams = JSON.parse('{{ tournament_teams|safe|escapejs }}');
+            console.log("Loaded Tournament Teams:", tournamentTeams); // Debugging
+        } catch (e) {
+            console.error("Error parsing tournament teams JSON:", e);
+            gameMatchConfigContainer.innerHTML = '<p class="field-error-messages text-center">Error loading team data. Please ensure teams are configured for this tournament.</p>';
+        }
+
+        let configuredGameMatches = {}; 
+        try {
+            const existingMatchesJson = '{{ existing_matches_by_game|safe|escapejs }}';
+            // More robust check for non-empty or non-literal-empty-string JSON
+            if (existingMatchesJson && existingMatchesJson.trim() !== '' && existingMatchesJson.trim() !== '""') { 
+                configuredGameMatches = JSON.parse(existingMatchesJson);
+                console.log("Initialized configuredGameMatches with existing data:", configuredGameMatches); // Debugging
+            }
+        } catch (e) {
+            console.error("Error parsing existing matches JSON for initialization:", e);
+        }
+
+        // Variable to keep track of the currently active game's ID
+        let activeGameId = null;
+
+        // Function to create team select dropdown
+        function createTeamSelect(name, id, selectedTeamId = '') {
+            const select = document.createElement('select');
+            select.name = name;
+            select.id = id;
+            select.required = true;
+            select.classList.add('form-control');
+
+            let defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Select Team';
+            defaultOption.selected = true; 
+            defaultOption.disabled = true;
+            select.appendChild(defaultOption);
+
+            tournamentTeams.forEach(team => {
+                let option = document.createElement('option');
+                option.value = team.id;
+                option.textContent = team.name;
+                // Compare selectedTeamId with team.id as strings for robust matching
+                if (selectedTeamId && String(team.id) === String(selectedTeamId)) { 
+                    option.selected = true;
+                    defaultOption.selected = false; // Deselect default if an option is selected
+                }
+                select.appendChild(option);
+            });
+            return select;
+        }
+
+        // Function to read and save current game's config before switching
+        function saveCurrentGameConfig(currentGameIdToSave) {
+            const numMatchesInput = document.getElementById(`num_matches_${currentGameIdToSave}`);
+            if (!numMatchesInput) {
+                console.log("No numMatchesInput found for game:", currentGameIdToSave, "Skipping save.");
+                return;
+            }
+
+            const numMatches = parseInt(numMatchesInput.value);
+            const matchesData = [];
+
+            if (!isNaN(numMatches) && numMatches >= 1) {
+                for (let i = 1; i <= numMatches; i++) {
+                    const team1Select = document.getElementById(`game_${currentGameIdToSave}_match_${i}_team1`);
+                    const team2Select = document.getElementById(`game_${currentGameIdToSave}_match_${i}_team2`);
+                    if (team1Select && team2Select) {
+                        matchesData.push({
+                            team1Id: team1Select.value,
+                            team2Id: team2Select.value
+                        });
+                    } else {
+                        console.warn(`Missing team selects for game ${currentGameIdToSave}, match ${i} during save.`);
+                    }
+                }
+            }
+            configuredGameMatches[currentGameIdToSave] = {
+                numMatches: numMatches,
+                matches: matchesData
+            };
+            console.log("Saved config for game:", currentGameIdToSave, configuredGameMatches[currentGameIdToSave]); // Debugging
+        }
+
+        // Function to render match input fields for a specific game
+        function renderGameConfig(gameId, gameName) {
+            // STEP 1: Save data of the CURRENTLY ACTIVE game, if any, BEFORE clearing the container.
+            if (activeGameId !== null) { // Only try to save if a game was previously active
+                saveCurrentGameConfig(activeGameId);
+            }
+            
+            // STEP 2: Now set the activeGameId to the one we are about to render
+            activeGameId = gameId;
+
+            gameMatchConfigContainer.innerHTML = ''; // Clear existing fields *after* saving
+
+            // STEP 3: Load data for the current game
+            let currentConfig = configuredGameMatches[gameId] || { numMatches: 1, matches: [] };
+            let initialNumMatches = currentConfig.numMatches;
+            console.log("Rendering game:", gameName, "with initial config:", currentConfig); // Debugging
+
+            gameMatchConfigContainer.innerHTML = `
+                <h3>${gameName} Matches</h3>
+                <div class="form-group">
+                    <label for="num_matches_${gameId}">Number of Matches for ${gameName}:</label>
+                    <input type="number" 
+                           id="num_matches_${gameId}" 
+                           name="num_matches_${gameId}" 
+                           min="1" max="50" value="${initialNumMatches}" 
+                           class="form-control" required>
+                </div>
+                <div id="game_${gameId}_matches_container" class="matches-list-container">
+                    {# Match inputs will be dynamically added here #}
+                </div>
+            `;
+
+            const numMatchesInput = document.getElementById(`num_matches_${gameId}`);
+            const matchesListContainer = document.getElementById(`game_${gameId}_matches_container`);
+
+            // This function will now be called when numMatchesInput value changes
+            // and immediately after rendering the numMatchesInput
+            const doGenerateMatchFields = () => {
+                matchesListContainer.innerHTML = '';
+                const numMatches = parseInt(numMatchesInput.value);
+                console.log("Generating fields for", numMatches, "matches for game:", gameName); // Debugging
+
+                const minMatches = 1; 
+                const maxMatches = 50; 
+
+                if (isNaN(numMatches) || numMatches < minMatches || numMatches > maxMatches) {
+                    matchesListContainer.innerHTML = `<p class="field-error-messages">Please enter a number between ${minMatches} and ${maxMatches} for matches.</p>`;
+                    return; 
+                }
+
+                if (tournamentTeams.length < 2) {
+                    matchesListContainer.innerHTML = `<p class="field-error-messages">You need at least 2 teams to configure matches for ${gameName}. Please add more teams to this tournament.</p>`;
+                    return;
+                }
+
+                for (let i = 1; i <= numMatches; i++) {
+                    const matchGroup = document.createElement('div');
+                    matchGroup.classList.add('match-item');
+                    matchGroup.innerHTML = `
+                        <h4>Match ${i}</h4>
+                        <div class="team-select-group">
+                            <label for="game_${gameId}_match_${i}_team1">Team 1:</label>
+                            <div id="select_container_team1_${gameId}_${i}"></div>
+                        </div>
+                        <span class="vs-text">vs</span>
+                        <div class="team-select-group">
+                            <label for="game_${gameId}_match_${i}_team2">Team 2:</label>
+                            <div id="select_container_team2_${gameId}_${i}"></div>
+                        </div>
+                    `;
+                    matchesListContainer.appendChild(matchGroup);
+
+                    const team1Container = document.getElementById(`select_container_team1_${gameId}_${i}`);
+                    const team2Container = document.getElementById(`select_container_team2_${gameId}_${i}`);
+
+                    // Ensure savedMatch is within bounds for pre-population
+                    const savedMatch = (currentConfig.matches && currentConfig.matches.length >= i) ? currentConfig.matches[i - 1] : null;
+                    const team1_selected = savedMatch ? savedMatch.team1Id : '';
+                    const team2_selected = savedMatch ? savedMatch.team2Id : '';
+
+                    if (team1Container) {
+                        team1Container.appendChild(createTeamSelect(`game_${gameId}_match_${i}_team1`, `game_${gameId}_match_${i}_team1`, team1_selected));
+                    }
+                    if (team2Container) {
+                        team2Container.appendChild(createTeamSelect(`game_${gameId}_match_${i}_team2`, `game_${gameId}_match_${i}_team2`, team2_selected));
+                    }
+                }
+            }
+
+            if (numMatchesInput) {
+                numMatchesInput.addEventListener('input', doGenerateMatchFields);
+                doGenerateMatchFields(); // Initial generation for this game
+            } else {
+                console.error("numMatchesInput not found for game config. Dynamic match fields will not be generated.");
+            }
+        }
+
+        // Event listener for game tab buttons
+        gameTabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                gameTabButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                const gameId = this.dataset.gameId;
+                const gameName = this.dataset.gameName;
+                renderGameConfig(gameId, gameName);
+            });
+        });
+
+        // Handle form submission to send all configured data
+        formElement.addEventListener('submit', function(event) {
+            // Save current active game's config before final submission
+            if (activeGameId !== null) { // Save only if a game tab was active
+                saveCurrentGameConfig(activeGameId);
+            }
+
+            // Remove any previously added hidden inputs to avoid duplicates on re-submit
+            formElement.querySelectorAll('input[type="hidden"][name^="num_matches_"], input[type="hidden"][name^="game_"]').forEach(input => input.remove());
+
+            // Create hidden inputs for all saved data to be sent via POST
+            for (const gameId in configuredGameMatches) {
+                const gameConfig = configuredGameMatches[gameId];
+                
+                // Only create hidden inputs if numMatches is a valid number and > 0
+                if (!isNaN(gameConfig.numMatches) && gameConfig.numMatches > 0) {
+                    const numMatchesInput = document.createElement('input');
+                    numMatchesInput.type = 'hidden';
+                    numMatchesInput.name = `num_matches_${gameId}`;
+                    numMatchesInput.value = gameConfig.numMatches;
+                    formElement.appendChild(numMatchesInput);
+
+                    gameConfig.matches.forEach((match, index) => {
+                        const matchNum = index + 1; // Convert 0-indexed to 1-indexed
+                        
+                        const team1Input = document.createElement('input');
+                        team1Input.type = 'hidden';
+                        team1Input.name = `game_${gameId}_match_${matchNum}_team1`;
+                        team1Input.value = match.team1Id;
+                        formElement.appendChild(team1Input);
+
+                        const team2Input = document.createElement('input');
+                        team2Input.type = 'hidden';
+                        team2Input.name = `game_${gameId}_match_${matchNum}_team2`;
+                        team2Input.value = match.team2Id;
+                        formElement.appendChild(team2Input);
+                    });
+                }
+            }
+        });
+
+        // Auto-select the first game tab on load if available
+        if (gameTabButtons.length > 0) {
+            gameTabButtons[0].click(); // Simulate a click on the first tab
+        } else {
+            gameMatchConfigContainer.innerHTML = '<p class="no-data-message text-center">No games selected for this tournament to display matches.</p>';
+        }
+    });
+</script>
+{% endblock %}
