@@ -22,7 +22,8 @@
             </div>
             <nav class="nav-links">
                 <ul>
-                    <li><a href="#">Tournaments</a></li> {# You'll link this to your tournaments app URL later #}
+                    {# UPDATED: Link to the viewer's tournament list page #}
+                    <li><a href="{% url 'viewer:tournament_list' %}">Tournaments</a></li> 
                     <li><a href="#">About</a></li>
                     <li class="dropdown">
                         <a href="#" class="dropbtn" id="loginDropdown">
@@ -32,7 +33,6 @@
                             <a href="{% url 'adminpanel:login_signup' %}" id="adminLoginLink">Admin Login</a>
                             <a href="#">Owner Panel</a> {# You'll link this to your owner app URL later #}
                             <a href="#">Sign Up</a> {# You'll link this to your signup URL later #}
-                            {# Add this line below #}
                             <a href="{% url 'adminpanel:logout' %}" id="logoutLink">Log Out</a> 
                         </div>
                     </li>

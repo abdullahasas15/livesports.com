@@ -404,7 +404,7 @@ body {
     background: var(--background-light);
     border-radius: 12px;
     margin-top: 50px;
-    box_shadow: 0 5px 15px var(--shadow_light);
+    box-shadow: 0 5px 15px var(--shadow-light);
 }
 
 .no-tournaments p {
@@ -432,7 +432,7 @@ body {
     border: 1px solid transparent;
     border-radius: 8px;
     font-size: 1rem; /* Clearer text */
-    word-break: break_word;
+    word-break: break-word;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
@@ -476,7 +476,7 @@ body {
 
 /* Styling for the game selection tabs on manage_matches.html */
 .manage-matches-form {
-    background: var(--background_light);
+    background: var(--background-light);
     padding: 40px;
     border-radius: 12px;
     box-shadow: 0 10px 30px var(--shadow-medium);
@@ -674,7 +674,7 @@ body {
 .points-table {
     width: 100%;
     border-collapse: separate; /* Use separate to allow spacing */
-    border-spacing: 0 10px; /* Vertical spacing between rows */
+    border-spacing: 0; /* Remove vertical spacing here, handle with flex gap */
     margin-bottom: 50px; /* More margin */
     background: #fdfdfd;
     border-radius: 12px;
@@ -683,42 +683,37 @@ body {
     table-layout: fixed; /* Ensures columns take equal width if not specified */
 }
 
-/* Desktop/Larger Tablet Table Headers */
-.points-table th {
-    padding: 15px 10px;
-    text-align: center;
+.points-table th,
+.points-table td {
+    padding: 15px 10px; /* More padding */
+    text-align: center; /* Centered text */
     vertical-align: middle;
-    border: none; /* No default borders */
+    border: none; /* Remove default borders to use box-shadow on rows */
+}
+
+.points-table thead {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); /* Gradient header */
+    color: var(--light-text);
+    border-radius: 10px 10px 0 0; /* Rounded top corners */
+}
+
+.points-table th {
     font-weight: 700;
     font-size: 1.05rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.points-table thead {
-    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-    color: var(--light-text);
-    border-radius: 10px 10px 0 0;
-}
-
-/* Desktop/Larger Tablet Table Data Cells */
-.points-table td {
-    padding: 15px 10px;
-    text-align: center;
-    vertical-align: middle;
-    border: none; /* No default borders */
-}
-
 .points-table tbody tr {
     background-color: var(--background-light);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color); /* Separator between rows */
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Subtle shadow for rows */
+    border-radius: 8px; /* Rounded rows */
 }
 
 .points-table tbody tr:last-child {
-    border-bottom: none;
+    border-bottom: none; /* No border on last row */
 }
 
 .points-table tbody tr:nth-child(even) {
@@ -726,8 +721,9 @@ body {
 }
 
 .points-table tbody tr:hover {
-    background-color: #e3f2fd;
-    transform: translateY(-3px);
+    background-color: #e8f5e9; /* Light green hover, or pick from new palette */
+    background-color: #e3f2fd; /* Light blue from new palette */
+    transform: translateY(-3px); /* Lift on hover */
     box-shadow: 0 6px 15px rgba(0,0,0,0.15);
 }
 
@@ -741,25 +737,25 @@ body {
 
 .game-matches-display-container {
     background-color: var(--background-grey);
-    padding: 35px;
+    padding: 35px; /* More padding */
     border-radius: 12px;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.08);
     margin-bottom: 30px;
-    min-height: 180px;
+    min-height: 180px; /* Give it some height */
 }
 
 .matches-listing {
     display: grid;
-    gap: 25px;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px; /* More spacing */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Wider responsive items */
 }
 
 .match-display-item {
-    background: linear-gradient(135deg, var(--background-light) 0%, #edf2f7 100%);
+    background: linear-gradient(135deg, var(--background-light) 0%, #edf2f7 100%); /* Subtle cool gradient */
     border: none;
     border-radius: 10px;
-    padding: 20px 25px;
-    box-shadow: 0 5px 18px rgba(0,0,0,0.12);
+    padding: 20px 25px; /* More padding */
+    box-shadow: 0 5px 18px rgba(0,0,0,0.12); /* Stronger shadow */
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -769,30 +765,58 @@ body {
 }
 
 .match-display-item:hover {
-    transform: translateY(-5px) scale(1.03);
+    transform: translateY(-5px) scale(1.03); /* More pronounced lift and scale */
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
 .match-display-item h4 {
     font-size: 1.25rem;
-    color: var(--secondary-color);
+    color: var(--secondary-color); /* Use secondary color for match number */
     margin-bottom: 8px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
 }
 
-.match-display-item .match-teams {
-    font-size: 1.4rem;
-    font-weight: 700;
+.team-select-group {
+    flex: 1;
+    min-width: 160px; /* Slightly larger min-width */
+    margin: 0 12px;
+}
+
+.team-select-group label {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+}
+
+.vs-text {
+    font-size: 1.8rem; /* Larger */
+    font-weight: 800; /* Bolder */
     color: var(--primary-color);
-    margin-bottom: 10px;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+    margin: 0 20px;
+    line-height: 1;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
-.match-display-item .match-score {
-    font-size: 1.2rem;
-    color: var(--dark-text);
-    font-weight: 500;
+/* Final Submit Button */
+.form-actions {
+    margin-top: 45px;
+    text-align: center;
 }
+
+.form-actions .large-btn {
+    padding: 18px 45px; /* Larger button */
+    font-size: 1.3rem;
+    background: linear-gradient(45deg, var(--success-color), #218838); /* Green gradient */
+    color: var(--light-text);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+}
+
+.form-actions .large-btn:hover {
+    background: linear-gradient(45deg, #218838, #1e7e34);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+}
+
 
 /* Responsive adjustments for manage_matches.html */
 @media (max-width: 768px) {
@@ -810,7 +834,7 @@ body {
     }
 
     .matches-list-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Stack vertically */
         gap: 15px;
     }
 
@@ -823,159 +847,769 @@ body {
     }
 
     .team-select-group {
-        min-width: unset;
+        min-width: unset; /* Remove min-width */
         width: 100%;
         margin: 8px 0;
     }
 }
 
-/* Responsive adjustments for tournament_details.html - POINTS TABLE */
-@media (max-width: 768px) {
-    .points-table {
-        font-size: 0.9rem;
-        display: block; /* Make table a block element */
-        overflow-x: hidden; /* No horizontal scroll for main table */
-        white-space: normal; /* Allow text wrap within cells */
-        border-spacing: 0; /* No cell spacing */
-        margin-left: auto; /* Center table itself */
-        margin-right: auto; /* Center table itself */
-        max-width: 95%; /* Constrain width */
-        box-shadow: none; /* Remove table shadow to apply to rows */
-        border-radius: 0; /* Remove table border radius */
-        background: none; /* Remove table background */
-    }
-
-    /* Make table header visible and styled as a distinct block */
-    .points-table thead {
-        display: block; /* Make thead a block element */
-        width: 100%;
-        margin-bottom: 15px; /* Space below header */
-    }
-    .points-table thead tr {
-        display: flex; /* Make header row flex container */
-        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); /* Gradient header */
-        color: var(--light-text);
-        border-radius: 10px; /* Rounded corners for header block */
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Shadow for header block */
-        padding: 10px; /* Padding for header block */
-        justify-content: space-around; /* Distribute items evenly */
-        align-items: center;
-    }
-    .points-table thead th {
-        flex: 1; /* Distribute space among header cells */
-        padding: 5px 0; /* Smaller padding for header cells */
-        font-size: 0.8rem; /* Smaller font size for headers */
-        font-weight: 700;
-        text-align: center;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border: none; /* Remove individual borders */
-    }
-
-    /* Styles for individual table rows as cards */
-    .points-table tbody {
-        display: flex;
-        flex-direction: column; /* Stack rows vertically */
-        gap: 15px; /* Space between row-cards */
-        width: 100%; /* Take full width of parent */
-    }
-
-    .points-table tbody tr {
-        margin-bottom: 0; /* Remove default row margin */
-        border: 1px solid var(--border-color);
-        display: grid; /* Use CSS Grid for the layout within each row-card */
-        grid-template-columns: 1fr 1fr; /* Two columns for label-value pairs */
-        gap: 5px 10px; /* Small gap between items */
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        background-color: var(--background-light);
-        width: 100%;
-    }
-    .points-table tbody tr:nth-child(even) {
-        background-color: var(--background-light); /* No zebra for stacked card */
-    }
-    .points-table tbody tr:last-child {
-        border-bottom: 1px solid var(--border-color); /* Ensure last row has bottom border */
-    }
-
-    /* Style for individual table data cells within a stacked row */
-    .points-table tbody td {
-        padding: 0; /* Remove default padding */
-        border: none;
-        text-align: left; /* Align text within its cell */
-        box-sizing: border-box;
-        display: flex; /* Use flexbox for label and value */
-        align-items: center; /* Vertically align content */
-        font-size: 1rem;
-        color: var(--dark-text);
-    }
-    .points-table tbody td:first-child { /* Special styling for Team Name */
-        grid-column: 1 / -1; /* Make team name span all columns */
-        font-weight: 700;
-        font-size: 1.25rem; /* Slightly larger */
-        color: var(--primary-color);
-        margin-bottom: 8px; /* Space below team name */
-        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        text-align: center; /* Center team name */
-        display: block; /* Ensure it's a block for centering */
-        padding: 10px 0; /* Padding for the team name cell itself */
-        background-color: #f0f8ff; /* Light blue background for team name */
-        border-radius: 5px;
-    }
-
-    .points-table tbody td:not(:first-child) { /* Styling for points/stats */
-        font-size: 0.95rem; /* Diminished size */
-        color: #555; /* Diminished color */
-        padding: 5px 0; /* Vertical padding only */
-        /* Flexbox for label and value within the same line */
-        justify-content: flex-start; /* Align label/value to start */
-        gap: 5px; /* Small gap between label and value */
-    }
-    .points-table tbody td:before {
-        content: attr(data-label);
-        font-weight: 600; /* Slightly less bold than value for distinction */
-        color: var(--secondary-color); /* Labels in secondary color */
-        text-transform: uppercase;
-        font-size: 0.75rem; /* Diminished label size */
-        white-space: nowrap; /* Prevent label wrapping */
-        flex-shrink: 0; /* Prevent label from shrinking */
-    }
+/* New styling for tournament details page */
+.tournament-details-container {
+    background: var(--background-light);
+    padding: 40px;
+    border-radius: 12px; /* More rounded */
+    box-shadow: 0 10px 30px var(--shadow-medium); /* Stronger shadow */
+    max-width: 1000px; /* Wider container for table and matches */
+    margin: 0 auto; /* Center the container */
+    margin-top: 40px; /* Margin from header */
+    text-align: center; /* Center page content */
 }
-@media (max-width: 480px) {
-    .points-table td {
-        font-size: 0.9rem;
-        padding: 8px 5px;
+
+.tournament-details-container h3 {
+    font-size: 2.2rem; /* Larger */
+    color: var(--background-dark);
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Points Table Styling */
+.points-table {
+    width: 100%;
+    border-collapse: separate; /* Use separate to allow spacing */
+    border-spacing: 0; /* Remove vertical spacing here, handle with flex gap */
+    margin-bottom: 50px; /* More margin */
+    background: #fdfdfd;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    table-layout: fixed; /* Ensures columns take equal width if not specified */
+}
+
+.points-table th,
+.points-table td {
+    padding: 15px 10px; /* More padding */
+    text-align: center; /* Centered text */
+    vertical-align: middle;
+    border: none; /* Remove default borders to use box-shadow on rows */
+}
+
+.points-table thead {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); /* Gradient header */
+    color: var(--light-text);
+    border-radius: 10px 10px 0 0; /* Rounded top corners */
+}
+
+.points-table th {
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.points-table tbody tr {
+    background-color: var(--background-light);
+    border-bottom: 1px solid var(--border-color); /* Separator between rows */
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Subtle shadow for rows */
+    border-radius: 8px; /* Rounded rows */
+}
+
+.points-table tbody tr:last-child {
+    border-bottom: none; /* No border on last row */
+}
+
+.points-table tbody tr:nth-child(even) {
+    background-color: var(--background-grey);
+}
+
+.points-table tbody tr:hover {
+    background-color: #e8f5e9; /* Light green hover, or pick from new palette */
+    background-color: #e3f2fd; /* Light blue from new palette */
+    transform: translateY(-3px); /* Lift on hover */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.no-data-message {
+    text-align: center;
+    color: #888;
+    padding: 30px;
+    font-style: italic;
+    font-size: 1.1rem;
+}
+
+.game-matches-display-container {
+    background-color: var(--background-grey);
+    padding: 35px; /* More padding */
+    border-radius: 12px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+    min-height: 180px; /* Give it some height */
+}
+
+.matches-listing {
+    display: grid;
+    gap: 25px; /* More spacing */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Wider responsive items */
+}
+
+.match-display-item {
+    background: linear-gradient(135deg, var(--background-light) 0%, #edf2f7 100%); /* Subtle cool gradient */
+    border: none;
+    border-radius: 10px;
+    padding: 20px 25px; /* More padding */
+    box-shadow: 0 5px 18px rgba(0,0,0,0.12); /* Stronger shadow */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.match-display-item:hover {
+    transform: translateY(-5px) scale(1.03); /* More pronounced lift and scale */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.match-display-item h4 {
+    font-size: 1.25rem;
+    color: var(--secondary-color); /* Use secondary color for match number */
+    margin-bottom: 8px;
+}
+
+.team-select-group {
+    flex: 1;
+    min-width: 160px; /* Slightly larger min-width */
+    margin: 0 12px;
+}
+
+.team-select-group label {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+}
+
+.vs-text {
+    font-size: 1.8rem; /* Larger */
+    font-weight: 800; /* Bolder */
+    color: var(--primary-color);
+    margin: 0 20px;
+    line-height: 1;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Final Submit Button */
+.form-actions {
+    margin-top: 45px;
+    text_align: center;
+}
+
+.form-actions .large-btn {
+    padding: 18px 45px; /* Larger button */
+    font-size: 1.3rem;
+    background: linear-gradient(45deg, var(--success-color), #218838); /* Green gradient */
+    color: var(--light-text);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+}
+
+.form-actions .large-btn:hover {
+    background: linear-gradient(45deg, #218838, #1e7e34);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+}
+
+
+/* Responsive adjustments for manage_matches.html */
+@media (max-width: 768px) {
+    .manage-matches-form {
+        padding: 25px;
     }
 
-    .points-table thead th {
-        font-size: 0.75rem;
-        padding: 5px 4px;
-    }
-
-    .points-table tbody td:before {
-        font-size: 0.7rem;
-    }
-
-    .tournament-details-container {
-        padding: 20px;
-    }
-
-    .dashboard-header h2 {
-        font-size: 1.8rem;
-    }
-
-    .dashboard-header p {
-        font-size: 1rem;
+    .game-selection-tabs {
+        gap: 8px;
     }
 
     .game-tab-btn {
-        font-size: 0.95rem;
-        padding: 10px 16px;
+        padding: 10px 20px;
+        font-size: 0.9rem;
     }
 
-    .match-display-item .match-teams,
-    .match-display-item .match-score {
+    .matches-list-container {
+        grid-template-columns: 1fr; /* Stack vertically */
+        gap: 15px;
+    }
+
+    .match-item {
+        padding: 15px;
+    }
+
+    .match-item h4 {
         font-size: 1.1rem;
     }
+
+    .team-select-group {
+        min-width: unset; /* Remove min-width */
+        width: 100%;
+        margin: 8px 0;
+    }
 }
+
+/* New styling for tournament details page */
+.tournament-details-container {
+    background: var(--background-light);
+    padding: 40px;
+    border-radius: 12px; /* More rounded */
+    box-shadow: 0 10px 30px var(--shadow-medium); /* Stronger shadow */
+    max-width: 1000px; /* Wider container for table and matches */
+    margin: 0 auto; /* Center the container */
+    margin-top: 40px; /* Margin from header */
+    text-align: center; /* Center page content */
+}
+
+.tournament-details-container h3 {
+    font-size: 2.2rem; /* Larger */
+    color: var(--background-dark);
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Points Table Styling */
+.points-table {
+    width: 100%;
+    border-collapse: separate; /* Use separate to allow spacing */
+    border-spacing: 0; /* Remove vertical spacing here, handle with flex gap */
+    margin-bottom: 50px; /* More margin */
+    background: #fdfdfd;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    table-layout: fixed; /* Ensures columns take equal width if not specified */
+}
+
+.points-table th,
+.points-table td {
+    padding: 15px 10px; /* More padding */
+    text-align: center; /* Centered text */
+    vertical-align: middle;
+    border: none; /* Remove default borders to use box-shadow on rows */
+}
+
+.points-table thead {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); /* Gradient header */
+    color: var(--light-text);
+    border-radius: 10px 10px 0 0; /* Rounded top corners */
+}
+
+.points-table th {
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.points-table tbody tr {
+    background-color: var(--background-light);
+    border-bottom: 1px solid var(--border-color); /* Separator between rows */
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Subtle shadow for rows */
+    border-radius: 8px; /* Rounded rows */
+}
+
+.points-table tbody tr:last-child {
+    border-bottom: none; /* No border on last row */
+}
+
+.points-table tbody tr:nth-child(even) {
+    background-color: var(--background-grey);
+}
+
+.points-table tbody tr:hover {
+    background-color: #e8f5e9; /* Light green hover, or pick from new palette */
+    background-color: #e3f2fd; /* Light blue from new palette */
+    transform: translateY(-3px); /* Lift on hover */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.no-data-message {
+    text-align: center;
+    color: #888;
+    padding: 30px;
+    font-style: italic;
+    font-size: 1.1rem;
+}
+
+.game-matches-display-container {
+    background-color: var(--background-grey);
+    padding: 35px; /* More padding */
+    border-radius: 12px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+    min-height: 180px; /* Give it some height */
+}
+
+.matches-listing {
+    display: grid;
+    gap: 25px; /* More spacing */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Wider responsive items */
+}
+
+.match-display-item {
+    background: linear-gradient(135deg, var(--background-light) 0%, #edf2f7 100%); /* Subtle cool gradient */
+    border: none;
+    border-radius: 10px;
+    padding: 20px 25px; /* More padding */
+    box-shadow: 0 5px 18px rgba(0,0,0,0.12); /* Stronger shadow */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.match-display-item:hover {
+    transform: translateY(-5px) scale(1.03); /* More pronounced lift and scale */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.match-display-item h4 {
+    font-size: 1.25rem;
+    color: var(--secondary-color); /* Use secondary color for match number */
+    margin-bottom: 8px;
+}
+
+.team-select-group {
+    flex: 1;
+    min-width: 160px; /* Slightly larger min-width */
+    margin: 0 12px;
+}
+
+.team-select-group label {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+}
+
+.vs-text {
+    font-size: 1.8rem; /* Larger */
+    font-weight: 800; /* Bolder */
+    color: var(--primary-color);
+    margin: 0 20px;
+    line-height: 1;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Final Submit Button */
+.form-actions {
+    margin-top: 45px;
+    text-align: center;
+}
+
+.form-actions .large-btn {
+    padding: 18px 45px; /* Larger button */
+    font-size: 1.3rem;
+    background: linear-gradient(45deg, var(--success-color), #218838); /* Green gradient */
+    color: var(--light-text);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+}
+
+.form-actions .large-btn:hover {
+    background: linear-gradient(45deg, #218838, #1e7e34);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+}
+
+
+/* Responsive adjustments for manage_matches.html */
+@media (max-width: 768px) {
+    .manage-matches-form {
+        padding: 25px;
+    }
+
+    .game-selection-tabs {
+        gap: 8px;
+    }
+
+    .game-tab-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    .matches-list-container {
+        grid-template-columns: 1fr; /* Stack vertically */
+        gap: 15px;
+    }
+
+    .match-item {
+        padding: 15px;
+    }
+
+    .match-item h4 {
+        font-size: 1.1rem;
+    }
+
+    .team-select-group {
+        min-width: unset; /* Remove min-width */
+        width: 100%;
+        margin: 8px 0;
+    }
+}
+
+/* New styling for tournament details page */
+.tournament-details-container {
+    background: var(--background-light);
+    padding: 40px;
+    border-radius: 12px; /* More rounded */
+    box-shadow: 0 10px 30px var(--shadow-medium); /* Stronger shadow */
+    max-width: 1000px; /* Wider container for table and matches */
+    margin: 0 auto; /* Center the container */
+    margin-top: 40px; /* Margin from header */
+    text-align: center; /* Center page content */
+}
+
+.tournament-details-container h3 {
+    font-size: 2.2rem; /* Larger */
+    color: var(--background-dark);
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Points Table Styling */
+.points-table {
+    width: 100%;
+    border-collapse: separate; /* Use separate to allow spacing */
+    border-spacing: 0; /* Remove vertical spacing here, handle with flex gap */
+    margin-bottom: 50px; /* More margin */
+    background: #fdfdfd;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    table-layout: fixed; /* Ensures columns take equal width if not specified */
+}
+
+.points-table th,
+.points-table td {
+    padding: 15px 10px; /* More padding */
+    text-align: center; /* Centered text */
+    vertical-align: middle;
+    border: none; /* Remove default borders to use box-shadow on rows */
+}
+
+.points-table thead {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); /* Gradient header */
+    color: var(--light-text);
+    border-radius: 10px 10px 0 0; /* Rounded top corners */
+}
+
+.points-table th {
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.points-table tbody tr {
+    background-color: var(--background-light);
+    border-bottom: 1px solid var(--border-color); /* Separator between rows */
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Subtle shadow for rows */
+    border-radius: 8px; /* Rounded rows */
+}
+
+.points-table tbody tr:last-child {
+    border-bottom: none; /* No border on last row */
+}
+
+.points-table tbody tr:nth-child(even) {
+    background-color: var(--background-grey);
+}
+
+.points-table tbody tr:hover {
+    background-color: #e8f5e9; /* Light green hover, or pick from new palette */
+    background-color: #e3f2fd; /* Light blue from new palette */
+    transform: translateY(-3px); /* Lift on hover */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.no-data-message {
+    text-align: center;
+    color: #888;
+    padding: 30px;
+    font-style: italic;
+    font-size: 1.1rem;
+}
+
+.game-matches-display-container {
+    background-color: var(--background-grey);
+    padding: 35px; /* More padding */
+    border-radius: 12px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+    min-height: 180px; /* Give it some height */
+}
+
+.matches-listing {
+    display: grid;
+    gap: 25px; /* More spacing */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Wider responsive items */
+}
+
+.match-display-item {
+    background: linear-gradient(135deg, var(--background-light) 0%, #edf2f7 100%); /* Subtle cool gradient */
+    border: none;
+    border-radius: 10px;
+    padding: 20px 25px; /* More padding */
+    box-shadow: 0 5px 18px rgba(0,0,0,0.12); /* Stronger shadow */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.match-display-item:hover {
+    transform: translateY(-5px) scale(1.03); /* More pronounced lift and scale */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.match-display-item h4 {
+    font-size: 1.25rem;
+    color: var(--secondary-color); /* Use secondary color for match number */
+    margin-bottom: 8px;
+}
+
+.team-select-group {
+    flex: 1;
+    min-width: 160px; /* Slightly larger min-width */
+    margin: 0 12px;
+}
+
+.team-select-group label {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+}
+
+.vs-text {
+    font-size: 1.8rem; /* Larger */
+    font-weight: 800; /* Bolder */
+    color: var(--primary-color);
+    margin: 0 20px;
+    line-height: 1;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Final Submit Button */
+.form-actions {
+    margin-top: 45px;
+    text-align: center;
+}
+
+.form-actions .large-btn {
+    padding: 18px 45px; /* Larger button */
+    font-size: 1.3rem;
+    background: linear-gradient(45deg, var(--success-color), #218838); /* Green gradient */
+    color: var(--light-text);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+}
+
+.form-actions .large-btn:hover {
+    background: linear-gradient(45deg, #218838, #1e7e34);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+}
+
+
+/* Responsive adjustments for manage_matches.html */
+@media (max-width: 768px) {
+    .manage-matches-form {
+        padding: 25px;
+    }
+
+    .game-selection-tabs {
+        gap: 8px;
+    }
+
+    .game-tab-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    .matches-list-container {
+        grid-template-columns: 1fr; /* Stack vertically */
+        gap: 15px;
+    }
+
+    .match-item {
+        padding: 15px;
+    }
+
+    .match-item h4 {
+        font-size: 1.1rem;
+    }
+
+    .team-select-group {
+        min-width: unset; /* Remove min-width */
+        width: 100%;
+        margin: 8px 0;
+    }
+}
+
+/* New styling for tournament details page */
+.tournament-details-container {
+    background: var(--background-light);
+    padding: 40px;
+    border-radius: 12px; /* More rounded */
+    box-shadow: 0 10px 30px var(--shadow-medium); /* Stronger shadow */
+    max-width: 1000px; /* Wider container for table and matches */
+    margin: 0 auto; /* Center the container */
+    margin-top: 40px; /* Margin from header */
+    text-align: center; /* Center page content */
+}
+
+.tournament-details-container h3 {
+    font-size: 2.2rem; /* Larger */
+    color: var(--background-dark);
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Points Table Styling */
+.points-table {
+    width: 100%;
+    border-collapse: separate; /* Use separate to allow spacing */
+    border-spacing: 0; /* Remove vertical spacing here, handle with flex gap */
+    margin-bottom: 50px; /* More margin */
+    background: #fdfdfd;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    table-layout: fixed; /* Ensures columns take equal width if not specified */
+}
+
+.points-table th,
+.points-table td {
+    padding: 15px 10px; /* More padding */
+    text-align: center; /* Centered text */
+    vertical-align: middle;
+    border: none; /* Remove default borders to use box-shadow on rows */
+}
+
+.points-table thead {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); /* Gradient header */
+    color: var(--light-text);
+    border-radius: 10px 10px 0 0; /* Rounded top corners */
+}
+
+.points-table th {
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.points-table tbody tr {
+    background-color: var(--background-light);
+    border-bottom: 1px solid var(--border-color); /* Separator between rows */
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Subtle shadow for rows */
+    border-radius: 8px; /* Rounded rows */
+}
+
+.points-table tbody tr:last-child {
+    border-bottom: none; /* No border on last row */
+}
+
+.points-table tbody tr:nth-child(even) {
+    background-color: var(--background-grey);
+}
+
+.points-table tbody tr:hover {
+    background-color: #e8f5e9; /* Light green hover, or pick from new palette */
+    background-color: #e3f2fd; /* Light blue from new palette */
+    transform: translateY(-3px); /* Lift on hover */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.no-data-message {
+    text-align: center;
+    color: #888;
+    padding: 30px;
+    font-style: italic;
+    font-size: 1.1rem;
+}
+
+.game-matches-display-container {
+    background-color: var(--background-grey);
+    padding: 35px; /* More padding */
+    border-radius: 12px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+    min-height: 180px; /* Give it some height */
+}
+
+.matches-listing {
+    display: grid;
+    gap: 25px; /* More spacing */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Wider responsive items */
+}
+
+.match-display-item {
+    background: linear-gradient(135deg, var(--background-light) 0%, #edf2f7 100%); /* Subtle cool gradient */
+    border: none;
+    border-radius: 10px;
+    padding: 20px 25px; /* More padding */
+    box-shadow: 0 5px 18px rgba(0,0,0,0.12); /* Stronger shadow */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.match-display-item:hover {
+    transform: translateY(-5px) scale(1.03); /* More pronounced lift and scale */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.match-display-item h4 {
+    font-size: 1.25rem;
+    color: var(--secondary-color); /* Use secondary color for match number */
+    margin-bottom: 8px;
+}
+
+.team-select-group {
+    flex: 1;
+    min-width: 160px; /* Slightly larger min-width */
+    margin: 0 12px;
+}
+
+.team-select-group label {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+}
+
+.vs-text {
+    font-size: 1.8rem; /* Larger */
+    font-weight: 800; /* Bolder */
+    color: var(--primary-color);
+    margin: 0 20px;
+    line-height: 1;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Final Submit Button */
+.form-actions {
+    margin-top: 45px;
+    text-align: center;
+}
+
+.form-actions .large-btn {
+    padding: 18px 45px; /* Larger button */
+    font-size: 1.3rem;
+    background: linear-gradient(45d

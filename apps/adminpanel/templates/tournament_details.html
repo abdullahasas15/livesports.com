@@ -5,6 +5,7 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+<link rel="stylesheet" href="{% static 'css/points_table_mobile.css' %}"> {# NEW: Link this for mobile table #}
 
 <section class="dashboard-section container">
     <div class="dashboard-header">
@@ -13,6 +14,7 @@
         <p class="tournament-info">Starts: {{ tournament.start_date|date:"F d, Y" }}</p>
     </div>
 
+    {# Django Messages for user feedback #}
     <div class="django-messages-container">
         {% for message in messages %}
         <div class="alert alert-{{ message.tags }}">
@@ -88,10 +90,12 @@
             gameMatchesDisplayContainer.innerHTML = '<p class="field-error-messages text-center">Error loading match data. Please ensure matches are configured correctly.</p>';
             return;
         }
-
+        
         function renderMatchesForGame(gameName) {
             gameMatchesDisplayContainer.innerHTML = '';
+
             const matches = matchesByGameData[gameName];
+
             if (!matches || matches.length === 0) {
                 gameMatchesDisplayContainer.innerHTML = `<p class="no-data-message text-center">No matches configured for ${gameName} yet.</p>`;
                 return;
@@ -109,6 +113,7 @@
                         ${match.team1__name || 'N/A'} <span class="vs-text">vs</span> ${match.team2__name || 'N/A'}
                     </p>
                     <p class="match-score">Score: ${match.score_team1} - ${match.score_team2}</p>
+                    {# Add more details if available, e.g., status, date_time #}
                 `;
                 matchesList.appendChild(matchItem);
             });

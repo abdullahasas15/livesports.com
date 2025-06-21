@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Tournaments - LiveSports.com{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}"> {# Reuse admin_panel.css for card/button styles #}
+<link rel="stylesheet" href="{% static 'css/viewer_app.css' %}"> {# NEW: For viewer specific styles #}
+
+<section class="dashboard-section container">
+    <div class="dashboard-header">
+        <h2>Explore All Tournaments</h2>
+        <p>Find live scores, points tables, and match details from across all events.</p>
+    </div>
+
+    <div class="search-bar-container">
+        <form method="GET" action="{% url 'viewer:tournament_list' %}" class="tournament-search-form">
+            <input type="text" name="q" placeholder="Search tournaments by name or game..." value="{{ query|default:'' }}" class="form-control search-input">
+            <button type="submit" class="btn primary-btn search-btn">
+                <i data-lucide="search"></i> Search
+            </button>
+            {% if query %}
+                <a href="{% url 'viewer:tournament_list' %}" class="btn secondary-btn clear-search-btn">Clear Search</a>
+            {% endif %}
+        </form>
+    </div>
+
+    {% if tournaments %}
+        <div class="tournament-list"> {# Reuse dashboard tournament-list styling #}
+            {% for tournament in tournaments %}
+            <div class="tournament-card">
+                <h3>{{ tournament.name }}</h3>
+                <p><strong>Starts:</strong> {{ tournament.start_date|date:"F d, Y" }}</p>
+                <p><strong>Games:</strong> 
+                    {% for game in tournament.games.all %}
+                        <span class="game-tag">{{ game.name }}</span>{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        No games specified.
+                    {% endfor %}
+                </p>
+                <div class="card-actions">
+                    {# Link to the viewer_tournament_details_view #}
+                    <a href="{% url 'viewer:tournament_details' tournament_id=tournament.id %}" class="btn primary-btn small-btn">View Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-tournaments">
+            {% if query %}
+                <p>No tournaments found matching "<strong>{{ query }}</strong>".</p>
+                <a href="{% url 'viewer:tournament_list' %}" class="btn primary-btn">Show All Tournaments</a>
+            {% else %}
+                <p>No tournaments have been created yet. Check back soon!</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+
+<script>
+    lucide.createIcons(); // Ensure Lucide icons render
+</script>
+{% endblock %}

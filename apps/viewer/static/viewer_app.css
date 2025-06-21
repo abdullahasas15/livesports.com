@@ -1,0 +1,69 @@
+/* livesports_project/static/css/viewer_app.css */
+
+.search-bar-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: var(--background-light);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px var(--shadow-light);
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    justify-content: center;
+}
+
+.tournament-search-form {
+    display: flex;
+    width: 100%;
+    max-width: 600px;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-input {
+    flex-grow: 1; /* Allow input to take available space */
+    min-width: 200px; /* Ensure it doesn't get too small */
+    padding: 12px 18px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    color: var(--dark-text);
+    box-sizing: border-box;
+}
+
+.search-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.search-btn, .clear-search-btn {
+    padding: 12px 25px;
+    font-size: 1rem;
+    white-space: nowrap; /* Prevent button text from wrapping */
+    min-width: 120px; /* Ensure buttons have a minimum width */
+}
+
+/* Responsive adjustments for viewer_app.css */
+@media (max-width: 768px) {
+    .search-bar-container {
+        padding: 15px;
+        margin: 20px auto;
+        flex-direction: column; /* Stack items vertically */
+    }
+
+    .tournament-search-form {
+        flex-direction: column; /* Stack search elements */
+        width: 100%;
+    }
+
+    .search-input, .search-btn, .clear-search-btn {
+        width: 100%; /* Full width on mobile */
+        max-width: 300px; /* Max width for consistency */
+        margin-bottom: 10px; /* Space between stacked items */
+    }
+}
