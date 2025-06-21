@@ -13,7 +13,6 @@
         <p class="tournament-info">Starts: {{ tournament.start_date|date:"F d, Y" }}</p>
     </div>
 
-    {# Django Messages for user feedback #}
     <div class="django-messages-container">
         {% for message in messages %}
         <div class="alert alert-{{ message.tags }}">
@@ -39,12 +38,12 @@
                 <tbody>
                     {% for entry in points_table %}
                     <tr>
-                        <td>{{ entry.team_name }}</td> {# Use team_name #}
-                        <td>{{ entry.points }}</td>
-                        <td>{{ entry.matches_played }}</td>
-                        <td>{{ entry.wins }}</td>
-                        <td>{{ entry.losses }}</td>
-                        <td>{{ entry.draws }}</td>
+                        <td data-label="Team">{{ entry.team_name }}</td>
+                        <td data-label="Points">{{ entry.points }}</td>
+                        <td data-label="Played">{{ entry.matches_played }}</td>
+                        <td data-label="Wins">{{ entry.wins }}</td>
+                        <td data-label="Losses">{{ entry.losses }}</td>
+                        <td data-label="Draws">{{ entry.draws }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -55,7 +54,7 @@
 
         <h3 style="margin-top: 40px;">Matches by Game</h3>
         {% if tournament_games %}
-            <div class="game-selection-tabs match-tabs"> {# Reuse styling, add match-tabs class #}
+            <div class="game-selection-tabs match-tabs">
                 {% for game in tournament_games %}
                     <button type="button" class="game-tab-btn" data-game-name="{{ game.name }}" data-game-id="{{ game.id }}">
                         {{ game.name }}
@@ -83,19 +82,16 @@
         
         let matchesByGameData = {};
         try {
-            // Correctly parse the JSON string passed from Django
             matchesByGameData = JSON.parse('{{ matches_by_game|safe|escapejs }}');
         } catch (e) {
             console.error("Error parsing matches by game JSON:", e);
             gameMatchesDisplayContainer.innerHTML = '<p class="field-error-messages text-center">Error loading match data. Please ensure matches are configured correctly.</p>';
-            return; // Stop script execution if critical data is missing
+            return;
         }
-        
+
         function renderMatchesForGame(gameName) {
-            gameMatchesDisplayContainer.innerHTML = ''; // Clear previous content
-
+            gameMatchesDisplayContainer.innerHTML = '';
             const matches = matchesByGameData[gameName];
-
             if (!matches || matches.length === 0) {
                 gameMatchesDisplayContainer.innerHTML = `<p class="no-data-message text-center">No matches configured for ${gameName} yet.</p>`;
                 return;
@@ -113,7 +109,6 @@
                         ${match.team1__name || 'N/A'} <span class="vs-text">vs</span> ${match.team2__name || 'N/A'}
                     </p>
                     <p class="match-score">Score: ${match.score_team1} - ${match.score_team2}</p>
-                    {# Add more details if available, e.g., status, date_time #}
                 `;
                 matchesList.appendChild(matchItem);
             });
@@ -129,7 +124,6 @@
             });
         });
 
-        // Auto-click the first game tab on load if any
         if (gameTabButtons.length > 0) {
             gameTabButtons[0].click();
         } else {

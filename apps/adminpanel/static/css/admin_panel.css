@@ -942,3 +942,40 @@ body {
         flex-shrink: 0; /* Prevent label from shrinking */
     }
 }
+@media (max-width: 480px) {
+    .points-table td {
+        font-size: 0.9rem;
+        padding: 8px 5px;
+    }
+
+    .points-table thead th {
+        font-size: 0.75rem;
+        padding: 5px 4px;
+    }
+
+    .points-table tbody td:before {
+        font-size: 0.7rem;
+    }
+
+    .tournament-details-container {
+        padding: 20px;
+    }
+
+    .dashboard-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .dashboard-header p {
+        font-size: 1rem;
+    }
+
+    .game-tab-btn {
+        font-size: 0.95rem;
+        padding: 10px 16px;
+    }
+
+    .match-display-item .match-teams,
+    .match-display-item .match-score {
+        font-size: 1.1rem;
+    }
+}
