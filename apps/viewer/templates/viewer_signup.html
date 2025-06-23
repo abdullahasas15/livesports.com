@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Viewer Sign Up - LiveSports.com{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}"> {# Reuse admin_panel.css for auth styles #}
+
+<section class="auth-section">
+    <div class="auth-container">
+        <div class="auth-header">
+            <h2>Join LiveSports.com!</h2>
+            <p>Create your account to track tournaments and stay updated.</p>
+        </div>
+
+        <!-- Viewer Sign Up Form -->
+        <form id="viewerSignupForm" class="auth-form" method="post">
+            {% csrf_token %}
+            <h3>Create Your Viewer Account</h3>
+            
+            {# Display non-field errors if any #}
+            {% if form.non_field_errors %}
+                <div class="form-error-messages">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {# Render form fields using as_p, which now includes new fields #}
+            {{ form.as_p }}
+
+            <button type="submit" class="btn primary-btn">Sign Up</button>
+            <p class="form-footer">Already have an account? <a href="{% url 'adminpanel:login_signup' %}">Login here</a></p>
+        </form>
+    </div>
+</section>
+
+{# Django messages for user feedback #}
+<div class="django-messages-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

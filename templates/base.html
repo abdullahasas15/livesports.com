@@ -15,25 +15,45 @@
     <header class="navbar">
         <div class="container">
             <div class="logo">
-                <a href="{% url 'home:home' %}"> {# Changed href to Django URL #}
+                <a href="{% url 'home:home' %}">
                     <i data-lucide="zap" class="logo-icon"></i>
                     LiveSports.com
                 </a>
             </div>
             <nav class="nav-links">
                 <ul>
-                    {# UPDATED: Link to the viewer's tournament list page #}
-                    <li><a href="{% url 'viewer:tournament_list' %}">Tournaments</a></li> 
+                    {# Conditional "Tournaments" link based on user type #}
+                    {% if user.is_authenticated and user.is_staff %}
+                        <li><a href="{% url 'adminpanel:dashboard' %}">Tournaments</a></li> {# Admin goes to their dashboard #}
+                    {% else %}
+                        <li><a href="{% url 'viewer:tournament_list' %}">Tournaments</a></li> {# Viewer/Logged-out goes to all tournaments #}
+                    {% endif %}
+                    
                     <li><a href="#">About</a></li>
+
+                    {# NEW: Profile Icon - visible only when logged in #}
+                    {% if user.is_authenticated %}
+                        <li class="profile-icon-nav">
+                            <a href="{% url 'viewer:profile' %}" class="profile-icon-link">
+                                <i data-lucide="user-circle" class="profile-icon"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+
                     <li class="dropdown">
                         <a href="#" class="dropbtn" id="loginDropdown">
                             <i data-lucide="ellipsis"></i>
                         </a>
                         <div class="dropdown-content">
+                            {# Always show these primary links #}
                             <a href="{% url 'adminpanel:login_signup' %}" id="adminLoginLink">Admin Login</a>
-                            <a href="#">Owner Panel</a> {# You'll link this to your owner app URL later #}
-                            <a href="#">Sign Up</a> {# You'll link this to your signup URL later #}
-                            <a href="{% url 'adminpanel:logout' %}" id="logoutLink">Log Out</a> 
+                            <a href="#">Owner Panel</a> {# Placeholder #}
+                            <a href="{% url 'viewer:signup' %}" id="viewerSignupLink">Sign Up</a>
+                            
+                            {% if user.is_authenticated %}
+                                {# Show Log Out only if a user is logged in #}
+                                <a href="{% url 'adminpanel:logout' %}" id="logoutLink">Log Out</a> 
+                            {% endif %}
                         </div>
                     </li>
                 </ul>
@@ -53,11 +73,6 @@
         </div>
     </footer>
 
-    {% comment %} Load script.js at the end of body for performance {% endcomment %}
     <script src="{% static 'js/script.js' %}"></script>
-    <script>
-        // This line is crucial for Lucide Icons to render
-        lucide.createIcons();
-    </script>
 </body>
 </html>

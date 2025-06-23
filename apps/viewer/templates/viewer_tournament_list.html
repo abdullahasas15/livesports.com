@@ -4,8 +4,8 @@
 {% block title %}All Tournaments - LiveSports.com{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}"> {# Reuse admin_panel.css for card/button styles #}
-<link rel="stylesheet" href="{% static 'css/viewer_app.css' %}"> {# NEW: For viewer specific styles #}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+<link rel="stylesheet" href="{% static 'css/viewer_app.css' %}">
 
 <section class="dashboard-section container">
     <div class="dashboard-header">
@@ -15,18 +15,18 @@
 
     <div class="search-bar-container">
         <form method="GET" action="{% url 'viewer:tournament_list' %}" class="tournament-search-form">
-            <input type="text" name="q" placeholder="Search tournaments by name or game..." value="{{ query|default:'' }}" class="form-control search-input">
-            <button type="submit" class="btn primary-btn search-btn">
+            <input type="text" name="q" placeholder="Search tournaments" value="{{ query|default:'' }}" class="search-input">
+            <button type="submit" class="search-btn">
                 <i data-lucide="search"></i> Search
             </button>
             {% if query %}
-                <a href="{% url 'viewer:tournament_list' %}" class="btn secondary-btn clear-search-btn">Clear Search</a>
+                <a href="{% url 'viewer:tournament_list' %}" class="clear-search-btn">Clear Search</a>
             {% endif %}
         </form>
     </div>
 
     {% if tournaments %}
-        <div class="tournament-list"> {# Reuse dashboard tournament-list styling #}
+        <div class="tournament-list">
             {% for tournament in tournaments %}
             <div class="tournament-card">
                 <h3>{{ tournament.name }}</h3>
@@ -39,7 +39,6 @@
                     {% endfor %}
                 </p>
                 <div class="card-actions">
-                    {# Link to the viewer_tournament_details_view #}
                     <a href="{% url 'viewer:tournament_details' tournament_id=tournament.id %}" class="btn primary-btn small-btn">View Details</a>
                 </div>
             </div>
@@ -58,6 +57,6 @@
 </section>
 
 <script>
-    lucide.createIcons(); // Ensure Lucide icons render
+    lucide.createIcons();
 </script>
 {% endblock %}

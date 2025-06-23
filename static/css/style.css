@@ -100,6 +100,36 @@ ul {
     color: var(--primary-color);
 }
 
+/* NEW: Profile Icon Styling */
+.navbar .nav-links ul li.profile-icon-nav {
+    margin-left: 20px; /* Space from other nav items */
+    margin-right: -10px; /* Pull closer to ellipsis */
+}
+
+.navbar .nav-links ul li.profile-icon-nav .profile-icon-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; /* Size of the clickable area */
+    height: 40px;
+    border-radius: 50%; /* Circular background */
+    background-color: rgba(255, 255, 255, 0.1); /* Subtle background */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.navbar .nav-links ul li.profile-icon-nav .profile-icon-link:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Darker on hover */
+    transform: scale(1.05); /* Slight zoom */
+}
+
+.navbar .nav-links ul li.profile-icon-nav .profile-icon {
+    width: 28px; /* Size of the icon itself */
+    height: 28px;
+    stroke: var(--light-text); /* Icon color */
+    stroke-width: 2;
+}
+
+
 /* Dropdown */
 .dropdown {
     position: relative;
@@ -149,7 +179,7 @@ ul {
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/static/images/hero_background.jpg') no-repeat center center/cover; /* <-- FIXED PATH */
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/static/images/hero_background.jpg') no-repeat center center/cover;
     color: var(--light-text);
     text-align: center;
     padding: 100px 0;

@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - LiveSports.com{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}"> {# Reuse admin_panel.css for general styling #}
+<link rel="stylesheet" href="{% static 'css/viewer_app.css' %}"> {# For viewer specific styles like profile card #}
+
+<section class="dashboard-section container">
+    <div class="dashboard-header">
+        <h2>Welcome, {{ user.username }}!</h2>
+        <p>This is your LiveSports.com profile.</p>
+    </div>
+
+    <div class="profile-card-container">
+        <div class="profile-card">
+            <div class="profile-avatar">
+                <i data-lucide="user-circle" style="width: 80px; height: 80px;"></i>
+            </div>
+            <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+            <p class="profile-username">@{{ user.username }}</p>
+            
+            <div class="profile-details">
+                <div class="detail-item">
+                    <strong>Email:</strong> <span>{{ user.email }}</span>
+                </div>
+                {% if profile.date_of_birth %}
+                <div class="detail-item">
+                    <strong>Date of Birth:</strong> <span>{{ profile.date_of_birth|date:"F d, Y" }}</span>
+                </div>
+                {% endif %}
+                {% if profile.bio %}
+                <div class="detail-item full-width-detail"> {# New class for bio #}
+                    <strong>About Me:</strong> <span>{{ profile.bio|linebreaksbr }}</span> {# Use linebreaksbr for new lines #}
+                </div>
+                {% endif %}
+                {% if profile.fav_sports.exists %}
+                <div class="detail-item full-width-detail"> {# New class for fav sports #}
+                    <strong>Favorite Sports:</strong> 
+                    <span class="fav-sports-list">
+                        {% for game in profile.fav_sports.all %}
+                            <span class="game-tag">{{ game.name }}</span>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="profile-actions">
+                <a href="#" class="btn secondary-btn small-btn">Edit Profile</a>
+                <a href="{% url 'adminpanel:logout' %}" class="btn primary-btn small-btn">Log Out</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Basic profile card styling */
+    .profile-card-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .profile-card {
+        background: var(--background-light);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px var(--shadow-medium);
+        padding: 40px;
+        max-width: 450px;
+        width: 100%;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    }
+
+    .profile-avatar {
+        margin-bottom: 20px;
+        color: var(--primary-color);
+    }
+
+    .profile-card h3 {
+        font-size: 2.2rem;
+        color: var(--background-dark);
+        margin-bottom: 10px;
+    }
+
+    .profile-username {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-bottom: 25px;
+    }
+
+    .profile-details {
+        text-align: left;
+        margin-bottom: 30px;
+        border-top: 1px solid var(--border-color);
+        padding-top: 20px;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px dashed var(--border-color);
+        font-size: 1rem;
+    }
+    .detail-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .detail-item strong {
+        color: var(--primary-color);
+        flex-shrink: 0; /* Prevent label from shrinking */
+        margin-right: 10px;
+    }
+    .detail-item span {
+        text-align: right;
+        flex-grow: 1; /* Allow value to take space */
+        color: var(--dark-text);
+    }
+
+    /* Specific styling for full-width detail items like bio/fav sports */
+    .detail-item.full-width-detail {
+        display: block; /* Stack label and content vertically */
+        text-align: left;
+    }
+    .detail-item.full-width-detail strong {
+        display: block; /* Label on its own line */
+        margin-bottom: 5px;
+        text-align: center; /* Center label */
+        color: var(--secondary-color); /* Use secondary color for these labels */
+    }
+    .detail-item.full-width-detail span {
+        display: block; /* Content on its own line */
+        text-align: center; /* Center content */
+        font-size: 0.95rem; /* Slightly smaller for text blocks */
+        color: #555;
+    }
+    .detail-item .game-tag { /* Inherit game-tag style for fav sports */
+        margin: 5px; /* Add some margin around tags */
+    }
+
+    .profile-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+    .profile-actions .btn {
+        width: auto; /* Override full width from auth-form */
+        flex-grow: 1;
+        max-width: 180px;
+    }
+</style>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

@@ -2,12 +2,20 @@
 from django import forms
 from apps.tournaments.models import Tournament, Game # Ensure correct import path
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.models import User # Import User model
 
-# Custom UserCreationForm if you need extra fields for admin signup later
+# Custom UserCreationForm to set is_staff=True for new admins
 class AdminSignUpForm(UserCreationForm):
-    # You can add custom fields here if needed for admin signup
-    # For now, it just inherits default username and password
-    pass
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = UserCreationForm.Meta.fields # Inherit default fields (username, password, password2)
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_staff = True # Set is_staff to True
+        if commit:
+            user.save()
+        return user
 
 class AdminLoginForm(AuthenticationForm):
     # This form is for logging in existing users
