@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add More Matches for {{ game.name }} - LiveSports.com{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+
+<section class="dashboard-section container">
+    <div class="dashboard-header">
+        <h2>Add More Matches for {{ game.name }}</h2>
+        <p>Currently configuring matches for {{ tournament.name }} - {{ game.name }}.</p>
+        <p class="tournament-info">Tournament: {{ tournament.name }} | Game: {{ game.name }}</p>
+    </div>
+
+    {# Django Messages for user feedback #}
+    <div class="django-messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <form method="post" class="manage-matches-form"> {# Reuse styling #}
+        {% csrf_token %}
+
+        <div class="game-match-config-container"> {# Reuse styling #}
+            <h3>Number of New Matches for {{ game.name }}:</h3>
+            <div class="form-group">
+                <label for="num_matches_{{ game.id }}">How many more matches?</label>
+                <input type="number" 
+                       id="num_matches_{{ game.id }}" 
+                       name="num_matches_{{ game.id }}" 
+                       min="1" max="20" value="{{ initial_num_matches }}" 
+                       class="form-control" required>
+            </div>
+            <div id="game_{{ game.id }}_matches_container" class="matches-list-container">
+                {# Dynamically generated match fields for new matches #}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn primary-btn large-btn">Add Matches</button>
+            <a href="{% url 'adminpanel:tournament_details' tournament.id %}" class="btn secondary-btn large-btn">Back to Tournament Details</a>
+        </div>
+    </form>
+</section>
+
+<script>
+    lucide.createIcons();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const numMatchesInput = document.getElementById('num_matches_{{ game.id }}');
+        const matchesListContainer = document.getElementById('game_{{ game.id }}_matches_container');
+        
+        let tournamentTeams = [];
+        try {
+            tournamentTeams = JSON.parse('{{ tournament_teams|safe|escapejs }}');
+        } catch (e) {
+            console.error("Error parsing tournament teams JSON:", e);
+            matchesListContainer.innerHTML = '<p class="field-error-messages text-center">Error loading team data. Please ensure teams are configured for this tournament.</p>';
+            return;
+        }
+
+        // Pre-load existing (potentially submitted but errored) match data if passed from view
+        let existingMatchData = [];
+        try {
+            const existingMatchDataJson = '{{ existing_match_data|safe|escapejs }}';
+            if (existingMatchDataJson && existingMatchDataJson.trim() !== '' && existingMatchDataJson.trim() !== '""') {
+                existingMatchData = JSON.parse(existingMatchDataJson);
+            }
+        } catch (e) {
+            console.error("Error parsing existing match data JSON:", e);
+        }
+        
+        function createTeamSelect(name, id, selectedTeamId = '') {
+            const select = document.createElement('select');
+            select.name = name;
+            select.id = id;
+            select.required = true;
+            select.classList.add('form-control');
+
+            let defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Select Team';
+            defaultOption.selected = true; 
+            defaultOption.disabled = true;
+            select.appendChild(defaultOption);
+
+            tournamentTeams.forEach(team => {
+                let option = document.createElement('option');
+                option.value = team.id;
+                option.textContent = team.name;
+                if (selectedTeamId && String(team.id) === String(selectedTeamId)) {
+                    option.selected = true;
+                    defaultOption.selected = false;
+                }
+                select.appendChild(option);
+            });
+            return select;
+        }
+
+        function generateMatchFields() {
+            matchesListContainer.innerHTML = '';
+            const numMatches = parseInt(numMatchesInput.value);
+
+            const minMatches = 1; 
+            const maxMatches = 20; // Max new matches to add at once
+
+            if (isNaN(numMatches) || numMatches < minMatches || numMatches > maxMatches) {
+                matchesListContainer.innerHTML = `<p class="field-error-messages">Please enter a number between ${minMatches} and ${maxMatches} for new matches.</p>`;
+                return; 
+            }
+
+            if (tournamentTeams.length < 2) {
+                matchesListContainer.innerHTML = `<p class="field-error-messages">You need at least 2 teams to create matches. Please add more teams to this tournament.</p>`;
+                return;
+            }
+
+            for (let i = 1; i <= numMatches; i++) {
+                const matchGroup = document.createElement('div');
+                matchGroup.classList.add('match-item');
+                matchGroup.innerHTML = `
+                    <h4>New Match ${i}</h4>
+                    <div class="team-select-group">
+                        <label for="game_{{ game.id }}_match_${i}_team1">Team 1:</label>
+                        <div id="select_container_team1_game_{{ game.id }}_match_${i}"></div>
+                    </div>
+                    <span class="vs-text">vs</span>
+                    <div class="team-select-group">
+                        <label for="game_{{ game.id }}_match_${i}_team2">Team 2:</label>
+                        <div id="select_container_team2_game_{{ game.id }}_match_${i}"></div>
+                    </div>
+                `;
+                matchesListContainer.appendChild(matchGroup);
+
+                const team1Container = document.getElementById(`select_container_team1_game_{{ game.id }}_match_${i}`);
+                const team2Container = document.getElementById(`select_container_team2_game_{{ game.id }}_match_${i}`);
+
+                // Pre-populate if data exists from a failed submission
+                const savedMatch = (existingMatchData && existingMatchData.length >= i) ? existingMatchData[i - 1] : null;
+                const team1_selected = savedMatch ? savedMatch.team1Id : '';
+                const team2_selected = savedMatch ? savedMatch.team2Id : '';
+
+                if (team1Container) {
+                    team1Container.appendChild(createTeamSelect(`game_{{ game.id }}_match_${i}_team1`, `game_{{ game.id }}_match_${i}_team1`, team1_selected));
+                }
+                if (team2Container) {
+                    team2Container.appendChild(createTeamSelect(`game_{{ game.id }}_match_${i}_team2`, `game_{{ game.id }}_match_${i}_team2`, team2_selected));
+                }
+            }
+        }
+
+        if (numMatchesInput) {
+            numMatchesInput.addEventListener('input', generateMatchFields);
+            generateMatchFields(); // Initial generation on load
+        }
+    });
+</script>
+{% endblock %}

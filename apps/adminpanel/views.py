@@ -9,13 +9,29 @@ import json
 from .forms import AdminSignUpForm, AdminLoginForm, TournamentCreationForm
 from apps.tournaments.models import Tournament, Team, Game, Match
 
-def admin_login_signup(request):
+# Renamed from admin_login_signup to user_auth_view for generic use
+def user_auth_view(request):
+    """
+    Handles both user login and signup requests for both admins and viewers.
+    If a GET request, displays the forms.
+    If a POST request, processes either login or signup.
+    """
     if request.user.is_authenticated:
-        return redirect('adminpanel:dashboard')
+        # Redirect based on user type after login
+        if request.user.is_staff:
+            return redirect('adminpanel:dashboard')
+        else:
+            return redirect('viewer:tournament_list') # Viewers go to tournament list after login
 
-    login_form = AdminLoginForm()
-    signup_form = AdminSignUpForm()
-    
+    login_form = AdminLoginForm() # Reusing AdminLoginForm, as it's a standard AuthenticationForm
+    signup_form = AdminSignUpForm() # This is the form that sets is_staff=True
+
+    # We also need a generic signup form for viewers that does NOT set is_staff=True
+    # This implies we might need two signup forms in the context, or dynamically choose one.
+    # For now, if we get a signup_submit from this page, it will be an AdminSignUpForm.
+    # We will provide a separate viewer signup page and not use signup from here for viewers.
+
+    # If the request method is POST, process the submitted form
     if request.method == 'POST':
         if 'login_submit' in request.POST:
             login_form = AdminLoginForm(request, data=request.POST)
@@ -26,31 +42,39 @@ def admin_login_signup(request):
                 if user is not None:
                     login(request, user)
                     messages.success(request, f"Welcome back, {username}!")
-                    if Tournament.objects.filter(created_by=user).exists():
+                    # Redirect based on user type after login
+                    if user.is_staff:
                         return redirect('adminpanel:dashboard')
                     else:
-                        return redirect('adminpanel:create_tournament')
+                        return redirect('viewer:tournament_list') # Viewers go to tournament list after login
                 else:
                     messages.error(request, "Invalid username or password.")
-
+            # If login_form is invalid, it falls through to the final render
+        
+        # Note: Signups on THIS page are assumed to be Admin signups.
+        # Viewer signups happen on the dedicated viewer:signup page.
         elif 'signup_submit' in request.POST:
-            signup_form = AdminSignUpForm(request.POST)
+            signup_form = AdminSignUpForm(request.POST) # This form sets is_staff=True
             if signup_form.is_valid():
-                user = signup_form.save()
+                user = signup_form.save() # User will have is_staff=True
                 login(request, user)
-                messages.success(request, f"Account created for {user.username}! Please create your first tournament.")
-                return redirect('adminpanel:create_tournament')
+                messages.success(request, f"Account created for {user.username}! Welcome to the Admin Panel.")
+                return redirect('adminpanel:create_tournament') # Admins create their first tournament
             else:
                 messages.error(request, "Please correct the errors in the signup form.")
         
+        # Render the form again with errors if any
         return render(request, 'login_signup.html', {
             'login_form': login_form,
-            'signup_form': signup_form,
+            'signup_form': signup_form, # This is AdminSignUpForm
+            'is_admin_login_page': True # Flag for template to show Admin specific branding
         })
 
+    # For GET request or initial load
     return render(request, 'login_signup.html', {
         'login_form': login_form,
-        'signup_form': signup_form,
+        'signup_form': signup_form, # This is AdminSignUpForm
+        'is_admin_login_page': True # Flag for template to show Admin specific branding
     })
 
 @login_required
@@ -112,7 +136,6 @@ def manage_matches_view(request, tournament_id):
     tournament_teams_data = [{'id': team.id, 'name': team.name} for team in tournament_teams_queryset]
     tournament_teams_json = json.dumps(tournament_teams_data)
 
-    # NEW: Fetch existing matches for this tournament, structured for JS pre-population
     existing_matches_by_game_data = {}
     for game in tournament_games:
         matches = Match.objects.filter(tournament=tournament, game=game).order_by('match_number')
@@ -123,11 +146,10 @@ def manage_matches_view(request, tournament_id):
                     'match_number': match.match_number,
                     'team1Id': match.team1.id,
                     'team2Id': match.team2.id,
-                    # You can add other match fields here if needed for pre-population
                 })
             existing_matches_by_game_data[game.id] = {
-                'numMatches': matches.count(), # Number of matches for this game
-                'matches': matches_list # List of match details
+                'numMatches': matches.count(),
+                'matches': matches_list
             }
     existing_matches_by_game_json = json.dumps(existing_matches_by_game_data)
 
@@ -141,7 +163,6 @@ def manage_matches_view(request, tournament_id):
                     if num_matches < 0:
                         raise ValueError(f"Number of matches for {game.name} cannot be negative.")
 
-                    # Use filter().delete() for efficiency
                     Match.objects.filter(tournament=tournament, game=game).delete()
 
                     for i in range(1, num_matches + 1):
@@ -180,14 +201,14 @@ def manage_matches_view(request, tournament_id):
             'tournament': tournament,
             'tournament_games': tournament_games,
             'tournament_teams': tournament_teams_json,
-            'existing_matches_by_game': existing_matches_by_game_json, # Pass existing matches on error
+            'existing_matches_by_game': existing_matches_by_game_json,
         })
     
     return render(request, 'manage_matches.html', {
         'tournament': tournament,
         'tournament_games': tournament_games,
         'tournament_teams': tournament_teams_json,
-        'existing_matches_by_game': existing_matches_by_game_json, # Pass existing matches for GET request
+        'existing_matches_by_game': existing_matches_by_game_json,
     })
 
 @login_required
@@ -230,11 +251,111 @@ def tournament_details_view(request, tournament_id):
         'matches_by_game': matches_by_game_json,
     })
 
+@login_required
+def add_more_matches_view(request, tournament_id, game_id):
+    tournament = get_object_or_404(Tournament, id=tournament_id, created_by=request.user)
+    game = get_object_or_404(Game, id=game_id)
+    
+    tournament_teams_queryset = tournament.teams.all()
+    tournament_teams_json = json.dumps([{'id': team.id, 'name': team.name} for team in tournament_teams_queryset])
+
+    existing_matches = Match.objects.filter(tournament=tournament, game=game).order_by('match_number')
+    
+    initial_num_matches = existing_matches.count()
+    existing_match_data = []
+    for match in existing_matches:
+        existing_match_data.append({
+            'match_number': match.match_number,
+            'team1Id': match.team1.id,
+            'team2Id': match.team2.id,
+        })
+
+    if request.method == 'POST':
+        num_matches_key = f'num_matches_{game.id}'
+        num_matches = int(request.POST.get(num_matches_key, 0))
+        
+        new_match_data_list = []
+        for i in range(1, num_matches + 1):
+            team1_key = f'game_{game.id}_match_{i}_team1'
+            team2_key = f'game_{game.id}_match_{i}_team2'
+            
+            team1_id = request.POST.get(team1_key)
+            team2_id = request.POST.get(team2_key)
+
+            if not team1_id or not team2_id:
+                messages.error(request, f"Please select both teams for Match {i}.")
+                context = {
+                    'tournament': tournament,
+                    'game': game,
+                    'tournament_teams': tournament_teams_json,
+                    'initial_num_matches': num_matches,
+                    'existing_match_data': json.dumps([
+                        {'match_number': i, 'team1Id': team1_id, 'team2Id': team2_id} 
+                        for i in range(1, num_matches + 1)
+                    ]),
+                    'is_adding_new_matches': True,
+                }
+                return render(request, 'add_more_matches.html', context)
+            
+            new_match_data_list.append({
+                'match_number': i,
+                'team1_id': team1_id,
+                'team2_id': team2_id,
+            })
+        
+        try:
+            with transaction.atomic():
+                current_max_match_number = Match.objects.filter(tournament=tournament, game=game).count()
+                
+                for new_match_info in new_match_data_list:
+                    match_number_to_add = current_max_match_number + new_match_info['match_number']
+                    
+                    team1 = get_object_or_404(Team, id=new_match_info['team1_id'], tournament=tournament)
+                    team2 = get_object_or_404(Team, id=new_match_info['team2_id'], tournament=tournament)
+
+                    if team1 == team2:
+                        raise ValueError(f"Team 1 and Team 2 cannot be the same for Match {new_match_info['match_number']}.")
+
+                    Match.objects.create(
+                        tournament=tournament,
+                        game=game,
+                        match_number=match_number_to_add,
+                        team1=team1,
+                        team2=team2
+                    )
+            messages.success(request, f"{num_matches} additional matches configured for {game.name}!")
+            return redirect('adminpanel:tournament_details', tournament_id=tournament.id)
+        except ValueError as e:
+            messages.error(request, str(e))
+        except IntegrityError as e:
+            messages.error(request, "A database error occurred, possibly a duplicate match configuration. Please check your inputs.")
+        except Exception as e:
+            messages.error(request, f"An unexpected error occurred: {e}")
+        
+        context = {
+            'tournament': tournament,
+            'game': game,
+            'tournament_teams': tournament_teams_json,
+            'initial_num_matches': num_matches,
+            'existing_match_data': json.dumps(new_match_data_list),
+            'is_adding_new_matches': True,
+        }
+        return render(request, 'add_more_matches.html', context)
+    
+    context = {
+        'tournament': tournament,
+        'game': game,
+        'tournament_teams': tournament_teams_json,
+        'initial_num_matches': existing_matches.count() + 1 if existing_matches.exists() else 1, # Start with current count + 1 or 1
+        'existing_match_data': json.dumps(existing_match_data), # Existing matches for pre-population
+        'is_adding_new_matches': True,
+    }
+    return render(request, 'add_more_matches.html', context)
+
 
 @login_required
 def matches_configured_view(request):
     return render(request, 'matches_configured.html')
-
 
 def admin_logout_view(request):
     logout(request)

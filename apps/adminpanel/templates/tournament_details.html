@@ -91,33 +91,82 @@
             return;
         }
         
-        function renderMatchesForGame(gameName) {
-            gameMatchesDisplayContainer.innerHTML = '';
+        function renderMatchesForGame(gameName, gameId) { // Ensure gameId is passed here
+            gameMatchesDisplayContainer.innerHTML = ''; 
 
             const matches = matchesByGameData[gameName];
 
+            let matchesHtml = '';
             if (!matches || matches.length === 0) {
-                gameMatchesDisplayContainer.innerHTML = `<p class="no-data-message text-center">No matches configured for ${gameName} yet.</p>`;
-                return;
+                matchesHtml = `<p class="no-data-message text-center">No matches configured for ${gameName} yet.</p>`;
+            } else {
+                const matchesList = document.createElement('div');
+                matchesList.classList.add('matches-listing');
+
+                matches.forEach(match => {
+                    const matchItem = document.createElement('div');
+                    matchItem.classList.add('match-display-item');
+                    matchItem.innerHTML = `
+                        <h4>Match ${match.match_number}</h4>
+                        <p class="match-teams">
+                            ${match.team1__name || 'N/A'} <span class="vs-text">vs</span> ${match.team2__name || 'N/A'}
+                        </p>
+                        <p class="match-score">Score: ${match.score_team1} - ${match.score_team2}</p>
+                        {# Add a link/button to view/update this specific match #}
+                        <div class="match-actions">
+                            <a href="#" class="btn primary-btn small-btn view-match-link" 
+                               data-match-id="${match.id}" 
+                               data-game-name="${gameName}"
+                               data-team1-name="${match.team1__name}"
+                               data-team2-name="${match.team2__name}"
+                               >View/Update Match</a>
+                        </div>
+                    `;
+                    matchesList.appendChild(matchItem);
+                });
+                matchesHtml = matchesList.outerHTML; 
             }
+            
+            // Add "Create One More Match" button below the matches
+            // CORRECTED URL RESOLUTION FOR add_more_matches
+            const addMoreMatchesUrl = `{% url 'adminpanel:add_more_matches' tournament.id 0 %}`.replace('0', gameId); // Pass tournament.id and gameId to URL tag
+            
+            const createMatchButtonHtml = `
+                <div class="create-more-match-action" style="text-align: center; margin-top: 30px;">
+                    <a href="${addMoreMatchesUrl}" class="btn primary-btn">
+                        <i data-lucide="plus-circle"></i> Create One More Match
+                    </a>
+                </div>
+            `;
+            
+            gameMatchesDisplayContainer.innerHTML = matchesHtml + createMatchButtonHtml;
 
-            const matchesList = document.createElement('div');
-            matchesList.classList.add('matches-listing');
-
-            matches.forEach(match => {
-                const matchItem = document.createElement('div');
-                matchItem.classList.add('match-display-item');
-                matchItem.innerHTML = `
-                    <h4>Match ${match.match_number}</h4>
-                    <p class="match-teams">
-                        ${match.team1__name || 'N/A'} <span class="vs-text">vs</span> ${match.team2__name || 'N/A'}
-                    </p>
-                    <p class="match-score">Score: ${match.score_team1} - ${match.score_team2}</p>
-                    {# Add more details if available, e.g., status, date_time #}
-                `;
-                matchesList.appendChild(matchItem);
+            lucide.createIcons();
+            
+            // Add event listeners for the new "View/Update Match" links
+            const viewMatchLinks = gameMatchesDisplayContainer.querySelectorAll('.view-match-link');
+            viewMatchLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const matchId = this.dataset.matchId;
+                    const gameName = this.dataset.gameName;
+                    const team1Name = this.dataset.team1Name;
+                    const team2Name = this.dataset.team2Name;
+                    
+                    let redirectUrl = '';
+                    {% if user.is_authenticated and user.is_staff %}
+                        redirectUrl = `{% url 'scores:admin_match_detail' game_name='dummy' match_id=123 %} `.replace('dummy', gameName.toLowerCase()).replace('123', matchId);
+                    {% else %}
+                        redirectUrl = `{% url 'scores:viewer_match_detail' game_name='dummy' match_id=123 %} `.replace('dummy', gameName.toLowerCase()).replace('123', matchId);
+                    {% endif %}
+                    
+                    if (redirectUrl) {
+                        window.location.href = redirectUrl;
+                    } else {
+                        console.error("No redirect URL generated for match link.");
+                    }
+                });
             });
-            gameMatchesDisplayContainer.appendChild(matchesList);
         }
 
         gameTabButtons.forEach(button => {
@@ -125,7 +174,8 @@
                 gameTabButtons.forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
                 const gameName = this.dataset.gameName;
-                renderMatchesForGame(gameName);
+                const gameId = this.dataset.gameId; 
+                renderMatchesForGame(gameName, gameId); 
             });
         });
 

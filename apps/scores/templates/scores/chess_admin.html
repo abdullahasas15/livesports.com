@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ game.name }} Match {{ match.match_number }} - Admin - LiveSports.com{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}"> {# Reuse styling #}
+
+<section class="dashboard-section container">
+    <div class="dashboard-header">
+        <h2>Admin Panel: {{ game.name }} Match {{ match.match_number }}</h2>
+        <p>Update scores for {{ match.team1.name }} vs {{ match.team2.name }} in {{ tournament.name }}</p>
+    </div>
+
+    <div class="tournament-details-container" style="max-width: 600px;">
+        <h3>Current Score: {{ match.score_team1 }} - {{ match.score_team2 }}</h3>
+        <p>This is the admin page for updating {{ game.name }} scores.</p>
+        <p>Match ID: {{ match.id }}</p>
+        {# Score update form will go here later #}
+        
+        <a href="{% url 'adminpanel:tournament_details' tournament.id %}" class="btn secondary-btn small-btn" style="margin-top: 20px;">
+            Back to Tournament Details
+        </a>
+    </div>
+</section>
+{% endblock %}

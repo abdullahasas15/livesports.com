@@ -27,11 +27,12 @@
                 </div>
             {% endif %}
 
-            {# Render form fields using as_p, which now includes new fields #}
+            {# Render form fields using as_p #}
             {{ form.as_p }}
 
             <button type="submit" class="btn primary-btn">Sign Up</button>
-            <p class="form-footer">Already have an account? <a href="{% url 'adminpanel:login_signup' %}">Login here</a></p>
+            {# CORRECTED: "Login here" link points to the generic user_auth_view #}
+            <p class="form-footer">Already have an account? <a href="{% url 'viewer:login' %}">Login here</a></p>
         </form>
     </div>
 </section>

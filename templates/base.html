@@ -46,9 +46,10 @@
                         </a>
                         <div class="dropdown-content">
                             {# Always show these primary links #}
-                            <a href="{% url 'adminpanel:login_signup' %}" id="adminLoginLink">Admin Login</a>
+                            <a href="{% url 'adminpanel:user_auth' %}" id="adminLoginLink">Admin Login</a> {# CORRECTED URL HERE #}
                             <a href="#">Owner Panel</a> {# Placeholder #}
-                            <a href="{% url 'viewer:signup' %}" id="viewerSignupLink">Sign Up</a>
+                            <a href="{% url 'viewer:login' %}" id="viewerLoginLink">Viewer Login</a> 
+                            <a href="{% url 'viewer:signup' %}" id="viewerSignupLink">Sign Up</a> 
                             
                             {% if user.is_authenticated %}
                                 {# Show Log Out only if a user is logged in #}

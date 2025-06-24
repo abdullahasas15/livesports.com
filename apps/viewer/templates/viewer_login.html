@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Viewer Login - LiveSports.com{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}"> {# Reuse auth styling #}
+
+<section class="auth-section">
+    <div class="auth-container">
+        <div class="auth-header">
+            <h2>Welcome, Viewer!</h2>
+            <p>Please login to your account to explore tournaments.</p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form active-form" method="post">
+            {% csrf_token %}
+            <h3>Login to Your Account</h3>
+
+            {# Display non-field errors for login_form if any #}
+            {% if login_form.non_field_errors %}
+                <div class="form-error-messages">
+                    {% for error in login_form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="id_username">Username</label> {# Using generic id_username #}
+                <input type="text" 
+                       name="username" 
+                       id="id_username" 
+                       placeholder="Enter your username" 
+                       required 
+                       class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="id_password">Password</label> {# Using generic id_password #}
+                <input type="password" 
+                       name="password" 
+                       id="id_password" 
+                       placeholder="Enter your password" 
+                       required 
+                       class="form-control">
+            </div>
+            <button type="submit" class="btn primary-btn">Login</button>
+            <p class="form-footer">Forgot password? <a href="#">Reset here</a></p>
+            <p class="form-footer">Don't have an account? <a href="{% url 'viewer:signup' %}">Sign up here</a></p>
+        </form>
+    </div>
+</section>
+
+{# Django messages for user feedback #}
+<div class="django-messages-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}
