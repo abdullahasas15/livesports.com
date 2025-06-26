@@ -5,7 +5,7 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
-<link rel="stylesheet" href="{% static 'css/points_table_mobile.css' %}"> {# NEW: Link this for mobile table #}
+<link rel="stylesheet" href="{% static 'css/points_table_mobile.css' %}"> {# Link for mobile table #}
 
 <section class="dashboard-section container">
     <div class="dashboard-header">
@@ -91,8 +91,8 @@
             return;
         }
         
-        function renderMatchesForGame(gameName, gameId) { // Ensure gameId is passed here
-            gameMatchesDisplayContainer.innerHTML = ''; 
+        function renderMatchesForGame(gameName, gameId) { // Pass gameId to this function
+            gameMatchesDisplayContainer.innerHTML = ''; // Clear previous content
 
             const matches = matchesByGameData[gameName];
 
@@ -104,6 +104,30 @@
                 matchesList.classList.add('matches-listing');
 
                 matches.forEach(match => {
+                    let statusDisplay = '';
+                    let scoreDisplay = '';
+                    let scoreClass = 'match-score'; // Default class
+
+                    if (match.status === 'scheduled') {
+                        statusDisplay = '<span class="match-status scheduled-status">Yet to be started</span>';
+                        scoreDisplay = 'Score: -'; // No score yet
+                    } else if (match.status === 'live') {
+                        statusDisplay = '<span class="match-status live-status">Live</span>';
+                        scoreDisplay = `Score: ${match.score_team1} - ${match.score_team2}`;
+                        scoreClass = 'match-score live-score'; // Add class for live score styling
+                    } else if (match.status === 'completed') {
+                        if (match.winner__name) {
+                            statusDisplay = `<span class="match-status completed-status">${match.winner__name} has won!</span>`;
+                        } else {
+                            statusDisplay = '<span class="match-status completed-status">Completed</span>';
+                        }
+                        scoreDisplay = `Final Score: ${match.score_team1} - ${match.score_team2}`;
+                        scoreClass = 'match-score completed-score'; // Add class for completed score styling
+                    } else {
+                        statusDisplay = `<span class="match-status">${match.status}</span>`;
+                        scoreDisplay = `Score: ${match.score_team1} - ${match.score_team2}`; // Fallback if unknown status
+                    }
+
                     const matchItem = document.createElement('div');
                     matchItem.classList.add('match-display-item');
                     matchItem.innerHTML = `
@@ -111,33 +135,36 @@
                         <p class="match-teams">
                             ${match.team1__name || 'N/A'} <span class="vs-text">vs</span> ${match.team2__name || 'N/A'}
                         </p>
-                        <p class="match-score">Score: ${match.score_team1} - ${match.score_team2}</p>
-                        {# Add a link/button to view/update this specific match #}
+                        <p class="${scoreClass}">${scoreDisplay}</p> {# Display score/status #}
+                        <p class="match-status-info">${statusDisplay}</p> {# Display status #}
+                        
                         <div class="match-actions">
                             <a href="#" class="btn primary-btn small-btn view-match-link" 
                                data-match-id="${match.id}" 
                                data-game-name="${gameName}"
-                               data-team1-name="${match.team1__name}"
-                               data-team2-name="${match.team2__name}"
                                >View/Update Match</a>
                         </div>
                     `;
                     matchesList.appendChild(matchItem);
                 });
-                matchesHtml = matchesList.outerHTML; 
+                matchesHtml = matchesList.outerHTML; // Get outer HTML of the list container
             }
             
-            // Add "Create One More Match" button below the matches
-            // CORRECTED URL RESOLUTION FOR add_more_matches
-            const addMoreMatchesUrl = `{% url 'adminpanel:add_more_matches' tournament.id 0 %}`.replace('0', gameId); // Pass tournament.id and gameId to URL tag
-            
-            const createMatchButtonHtml = `
-                <div class="create-more-match-action" style="text-align: center; margin-top: 30px;">
-                    <a href="${addMoreMatchesUrl}" class="btn primary-btn">
-                        <i data-lucide="plus-circle"></i> Create One More Match
-                    </a>
-                </div>
-            `;
+            // Add "Create One More Match" button below the matches - ONLY IF USER IS STAFF
+            let createMatchButtonHtml = '';
+            {% if user.is_staff %} {# Conditionally render this button #}
+                // Build the URL using JavaScript, replacing a placeholder from Django's URL tag
+                const addMoreMatchesBaseUrl = "{% url 'adminpanel:add_more_matches' tournament.id 0 %}".replace('/0/', '/'); // Get base URL with tournament_id
+                const addMoreMatchesUrl = `${addMoreMatchesBaseUrl}${gameId}/`; // Append gameId with slash
+                
+                createMatchButtonHtml = `
+                    <div class="create-more-match-action" style="text-align: center; margin-top: 30px;">
+                        <a href="${addMoreMatchesUrl}" class="btn primary-btn">
+                            <i data-lucide="plus-circle"></i> Create One More Match
+                        </a>
+                    </div>
+                `;
+            {% endif %}
             
             gameMatchesDisplayContainer.innerHTML = matchesHtml + createMatchButtonHtml;
 
@@ -150,14 +177,12 @@
                     event.preventDefault();
                     const matchId = this.dataset.matchId;
                     const gameName = this.dataset.gameName;
-                    const team1Name = this.dataset.team1Name;
-                    const team2Name = this.dataset.team2Name;
                     
                     let redirectUrl = '';
                     {% if user.is_authenticated and user.is_staff %}
-                        redirectUrl = `{% url 'scores:admin_match_detail' game_name='dummy' match_id=123 %} `.replace('dummy', gameName.toLowerCase()).replace('123', matchId);
+                        redirectUrl = `{% url 'scores:admin_match_detail' game_name='DUMMY_GAME_NAME' match_id=0 %}`.replace('DUMMY_GAME_NAME', gameName.toLowerCase()).replace('0', matchId);
                     {% else %}
-                        redirectUrl = `{% url 'scores:viewer_match_detail' game_name='dummy' match_id=123 %} `.replace('dummy', gameName.toLowerCase()).replace('123', matchId);
+                        redirectUrl = `{% url 'scores:viewer_match_detail' game_name='DUMMY_GAME_NAME' match_id=0 %}`.replace('DUMMY_GAME_NAME', gameName.toLowerCase()).replace('0', matchId);
                     {% endif %}
                     
                     if (redirectUrl) {

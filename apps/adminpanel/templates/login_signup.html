@@ -19,7 +19,6 @@
                 <button id="signupTab">Sign Up</button>
             </div>
 
-            <!-- Login Form -->
             <form id="loginForm" class="auth-form active-form" method="post">
                 {% csrf_token %} {# Django's CSRF token for form security #}
                 <h3>Login to Your Account</h3>
@@ -36,39 +35,32 @@
                     </div>
                 {% endif %}
 
-                <div class="form-group">
-                    <label for="id_login_username">Username</label>
-                    <input type="text" 
-                           name="{{ login_form.username.name }}" 
-                           id="id_login_username" 
-                           placeholder="Enter your username" 
-                           required 
-                           class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="id_login_password">Password</label>
-                    <input type="password" 
-                           name="{{ login_form.password.name }}" 
-                           id="id_login_password" 
-                           placeholder="Enter your password" 
-                           required 
-                           class="form-control">
-                </div>
+                {# Render login form fields using as_p for simplicity and robustness #}
+                {{ login_form.as_p }}
+
                 <button type="submit" class="btn primary-btn" name="login_submit">Login</button>
                 <p class="form-footer">Forgot password? <a href="#">Reset here</a></p>
-                {# This link leads to Admin Signup on the same page, so no change needed here #}
+                <p class="form-footer">Don't have an account? <a href="#" onclick="document.getElementById('loginTab').click(); document.getElementById('signupTab').click(); return false;">Sign up here</a></p>
             </form>
 
-            <!-- Sign Up Form -->
             <form id="signupForm" class="auth-form" method="post" style="display: none;">
                 {% csrf_token %} {# Django's CSRF token for form security #}
                 <h3>Create a New Account</h3>
                 
-                {# This will render all fields (username, password, password2) with their labels and errors #}
-                {{ form.as_p }} {# Assuming 'form' is passed from view when signup_form is submitted #}
+                {# Display non-field errors if any #}
+                {% if signup_form.non_field_errors %}
+                    <div class="form-error-messages">
+                        {% for error in signup_form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {# THIS IS THE CRUCIAL LINE: Render signup form fields using as_p #}
+                {{ signup_form.as_p }}
 
                 <button type="submit" class="btn primary-btn" name="signup_submit">Sign Up</button>
-                <p class="form-footer">Already have an account? <a href="{% url 'adminpanel:user_auth' %}">Login here</a></p> {# Points to itself #}
+                <p class="form-footer">Already have an account? <a href="#" onclick="document.getElementById('signupTab').click(); document.getElementById('loginTab').click(); return false;">Login here</a></p>
             </form>
         </div>
     </div>
@@ -107,18 +99,20 @@
         loginTab.addEventListener('click', showLoginForm);
         signupTab.addEventListener('click', showSignupForm);
 
-        {% comment %}
         // Logic to show correct form after POST based on which form had errors
-        // This relies on 'login_form' and 'signup_form' being passed explicitly,
-        // which might not be consistent if only one 'form' is used.
-        // Reverting to simpler default showLoginForm() for initial load.
-        {% endcomment %}
-        {% if signup_form and signup_form.errors %}
+        {% if login_form and login_form.errors %}
+            showLoginForm();
+        {% elif signup_form and signup_form.errors %}
             showSignupForm();
-        {% elif login_form and login_form.errors %}
-            showLoginForm();
         {% else %}
-            showLoginForm();
+            // Determine which tab to show initially on GET request
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            if (tab === 'signup') {
+                showSignupForm();
+            } else {
+                showLoginForm();
+            }
         {% endif %}
     });
 </script>

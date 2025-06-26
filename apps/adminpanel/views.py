@@ -9,29 +9,20 @@ import json
 from .forms import AdminSignUpForm, AdminLoginForm, TournamentCreationForm
 from apps.tournaments.models import Tournament, Team, Game, Match
 
-# Renamed from admin_login_signup to user_auth_view for generic use
 def user_auth_view(request):
     """
-    Handles both user login and signup requests for both admins and viewers.
-    If a GET request, displays the forms.
-    If a POST request, processes either login or signup.
+    Handles both user login and signup requests for admins.
+    Superusers are redirected to the main Django admin login.
     """
     if request.user.is_authenticated:
-        # Redirect based on user type after login
         if request.user.is_staff:
             return redirect('adminpanel:dashboard')
         else:
-            return redirect('viewer:tournament_list') # Viewers go to tournament list after login
+            return redirect('viewer:tournament_list')
 
-    login_form = AdminLoginForm() # Reusing AdminLoginForm, as it's a standard AuthenticationForm
-    signup_form = AdminSignUpForm() # This is the form that sets is_staff=True
+    login_form = AdminLoginForm() 
+    signup_form = AdminSignUpForm() 
 
-    # We also need a generic signup form for viewers that does NOT set is_staff=True
-    # This implies we might need two signup forms in the context, or dynamically choose one.
-    # For now, if we get a signup_submit from this page, it will be an AdminSignUpForm.
-    # We will provide a separate viewer signup page and not use signup from here for viewers.
-
-    # If the request method is POST, process the submitted form
     if request.method == 'POST':
         if 'login_submit' in request.POST:
             login_form = AdminLoginForm(request, data=request.POST)
@@ -40,45 +31,56 @@ def user_auth_view(request):
                 password = login_form.cleaned_data.get('password')
                 user = authenticate(request, username=username, password=password)
                 if user is not None:
+                    if user.is_superuser:
+                        messages.error(request, "Superusers must log in via the main Django admin site.")
+                        return redirect('admin:index')
+                        
                     login(request, user)
                     messages.success(request, f"Welcome back, {username}!")
-                    # Redirect based on user type after login
+                    
                     if user.is_staff:
-                        return redirect('adminpanel:dashboard')
+                        if Tournament.objects.filter(created_by=user).exists():
+                            return redirect('adminpanel:dashboard')
+                        else:
+                            return redirect('adminpanel:create_tournament')
                     else:
-                        return redirect('viewer:tournament_list') # Viewers go to tournament list after login
+                        messages.warning(request, "You logged in, but you don't have admin privileges. Redirecting to viewer tournaments.")
+                        return redirect('viewer:tournament_list') 
                 else:
                     messages.error(request, "Invalid username or password.")
-            # If login_form is invalid, it falls through to the final render
         
-        # Note: Signups on THIS page are assumed to be Admin signups.
-        # Viewer signups happen on the dedicated viewer:signup page.
         elif 'signup_submit' in request.POST:
-            signup_form = AdminSignUpForm(request.POST) # This form sets is_staff=True
+            signup_form = AdminSignUpForm(request.POST)
             if signup_form.is_valid():
-                user = signup_form.save() # User will have is_staff=True
+                user = signup_form.save()
                 login(request, user)
-                messages.success(request, f"Account created for {user.username}! Welcome to the Admin Panel.")
-                return redirect('adminpanel:create_tournament') # Admins create their first tournament
+                messages.success(request, f"Admin account created for {user.username}! Welcome to the Admin Panel.")
+                return redirect('adminpanel:create_tournament')
             else:
                 messages.error(request, "Please correct the errors in the signup form.")
         
-        # Render the form again with errors if any
         return render(request, 'login_signup.html', {
             'login_form': login_form,
-            'signup_form': signup_form, # This is AdminSignUpForm
-            'is_admin_login_page': True # Flag for template to show Admin specific branding
+            'signup_form': signup_form,
+            'is_admin_login_page': True 
         })
 
-    # For GET request or initial load
     return render(request, 'login_signup.html', {
         'login_form': login_form,
-        'signup_form': signup_form, # This is AdminSignUpForm
-        'is_admin_login_page': True # Flag for template to show Admin specific branding
+        'signup_form': signup_form,
+        'is_admin_login_page': True 
     })
 
 @login_required
 def create_tournament_view(request):
+    if request.user.is_superuser:
+        messages.error(request, "Superusers cannot create tournaments via this interface. Please use the main Django Admin site for core data management if needed.")
+        return redirect('adminpanel:dashboard')
+        
+    if not request.user.is_staff:
+        messages.error(request, "You do not have permission to create tournaments.")
+        return redirect('home:home')
+
     if request.method == 'POST':
         form = TournamentCreationForm(request.POST)
         if form.is_valid():
@@ -105,12 +107,12 @@ def create_tournament_view(request):
                         Team.objects.create(tournament=tournament, name=name)
 
                 messages.success(request, f"Tournament '{tournament.name}' and {len(team_names)} teams created successfully! Now, configure matches for this tournament.")
-                return redirect('adminpanel:manage_matches', tournament_id=tournament.id)
+                return redirect('adminpanel:manage_matches', tournament_id=tournament.id) 
             except ValueError as e:
                 messages.error(request, str(e))
                 return render(request, 'create_tournament.html', {'form': form})
             except IntegrityError as e:
-                messages.error(request, "A database error occurred, possibly a duplicate team name or other unique constraint violation. Please check team names.")
+                messages.error(request, "A database error occurred, possibly a duplicate match configuration. Please check your inputs.")
                 return render(request, 'create_tournament.html', {'form': form})
             except Exception as e:
                 messages.error(request, f"An unexpected error occurred: {e}")
@@ -124,11 +126,19 @@ def create_tournament_view(request):
 
 @login_required
 def admin_dashboard_view(request):
+    if not request.user.is_staff:
+        messages.error(request, "You do not have permission to view the admin dashboard.")
+        return redirect('home:home')
+
     tournaments = Tournament.objects.filter(created_by=request.user).order_by('-start_date')
     return render(request, 'admin_dashboard.html', {'tournaments': tournaments})
 
 @login_required
 def manage_matches_view(request, tournament_id):
+    if not request.user.is_staff:
+        messages.error(request, "You do not have permission to manage matches.")
+        return redirect('home:home')
+
     tournament = get_object_or_404(Tournament, id=tournament_id, created_by=request.user)
     
     tournament_games = tournament.games.all()
@@ -216,8 +226,9 @@ def tournament_details_view(request, tournament_id):
     """
     Displays details of a specific tournament, including points table and matches per game.
     """
-    tournament = get_object_or_404(Tournament, id=tournament_id, created_by=request.user)
-    
+    # Removed created_by filter for view permission, will handle in template
+    tournament = get_object_or_404(Tournament, id=tournament_id) 
+
     teams_queryset = tournament.teams.all()
 
     points_table = []
@@ -237,8 +248,9 @@ def tournament_details_view(request, tournament_id):
 
     matches_by_game_data = {}
     for game in tournament_games:
+        # Fetch status and winner name
         matches_data = Match.objects.filter(tournament=tournament, game=game).order_by('match_number').values(
-            'id', 'match_number', 'score_team1', 'score_team2', 'team1__id', 'team1__name', 'team2__id', 'team2__name'
+            'id', 'match_number', 'score_team1', 'score_team2', 'status', 'winner__name', 'team1__id', 'team1__name', 'team2__id', 'team2__name'
         )
         matches_by_game_data[game.name] = list(matches_data)
 
@@ -253,6 +265,11 @@ def tournament_details_view(request, tournament_id):
 
 @login_required
 def add_more_matches_view(request, tournament_id, game_id):
+    # Ensure only staff can add matches
+    if not request.user.is_staff:
+        messages.error(request, "You do not have permission to add matches.")
+        return redirect('home:home') # Redirect if not staff
+
     tournament = get_object_or_404(Tournament, id=tournament_id, created_by=request.user)
     game = get_object_or_404(Game, id=game_id)
     
@@ -346,8 +363,8 @@ def add_more_matches_view(request, tournament_id, game_id):
         'tournament': tournament,
         'game': game,
         'tournament_teams': tournament_teams_json,
-        'initial_num_matches': existing_matches.count() + 1 if existing_matches.exists() else 1, # Start with current count + 1 or 1
-        'existing_match_data': json.dumps(existing_match_data), # Existing matches for pre-population
+        'initial_num_matches': existing_matches.count() + 1 if existing_matches.exists() else 1,
+        'existing_match_data': json.dumps(existing_match_data),
         'is_adding_new_matches': True,
     }
     return render(request, 'add_more_matches.html', context)
@@ -360,4 +377,4 @@ def matches_configured_view(request):
 def admin_logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out.")
-    return redirect('adminpanel:login_signup')
+    return redirect('home:home')

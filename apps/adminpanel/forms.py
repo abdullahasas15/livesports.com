@@ -1,47 +1,44 @@
 # livesports_project/apps/adminpanel/forms.py
 from django import forms
-from apps.tournaments.models import Tournament, Game # Ensure correct import path
+from apps.tournaments.models import Tournament, Game
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User # Import User model
+from django.contrib.auth.models import User
 
-# Custom UserCreationForm to set is_staff=True for new admins
 class AdminSignUpForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = UserCreationForm.Meta.fields # Inherit default fields (username, password, password2)
+        fields = UserCreationForm.Meta.fields
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.is_staff = True # Set is_staff to True
+        user.is_staff = True      # This makes them a staff member (can access admin site if allowed)
+        user.is_superuser = False # Explicitly set to False to differentiate from superuser
         if commit:
             user.save()
         return user
 
 class AdminLoginForm(AuthenticationForm):
-    # This form is for logging in existing users
     pass
 
 class TournamentCreationForm(forms.ModelForm):
-    # To display games as checkboxes
     games = forms.ModelMultipleChoiceField(
-        queryset=Game.objects.all().order_by('name'), # Fetch all games from DB
-        widget=forms.CheckboxSelectMultiple, # Render as checkboxes
+        queryset=Game.objects.all().order_by('name'),
+        widget=forms.CheckboxSelectMultiple,
         required=True,
         help_text="Select all games included in this tournament."
     )
 
-    # Add a field for the number of teams
     num_teams = forms.IntegerField(
         label='Number of Teams',
-        min_value=2, # Require at least 2 teams for a tournament
-        max_value=64, # Set a reasonable maximum
-        initial=4, # Default to 4 teams
+        min_value=2,
+        max_value=64,
+        initial=4,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 8'})
     )
 
     class Meta:
         model = Tournament
-        fields = ['name', 'start_date', 'games', 'num_teams'] # Add num_teams here
+        fields = ['name', 'start_date', 'games', 'num_teams']
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Summer Cricket Cup'}),
