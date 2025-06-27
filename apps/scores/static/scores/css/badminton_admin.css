@@ -1,0 +1,63 @@
+.admin-container {
+    padding: 20px;
+    color: #fff;
+    background: #1f2937;
+    border-radius: 10px;
+}
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+button {
+    padding: 10px 15px;
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button:hover {
+    background: #2563eb;
+}
+select {
+    padding: 5px;
+    border-radius: 5px;
+}
+.team-row {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.team-name {
+    font-size: 1.5rem;
+}
+.score {
+    font-size: 2rem;
+    color: #facc15;
+}
+.points-row {
+    display: flex;
+    justify-content: center;
+}
+.points-column {
+    display: flex;
+    flex-wrap: wrap;
+    width: 200px;
+    gap: 5px;
+    justify-content: center;
+}
+.point-box {
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+.point-box.green {
+    background: #16a34a;
+}
+.point-box.red {
+    background: #dc2626;
+}

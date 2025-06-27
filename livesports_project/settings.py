@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.owner',
     'apps.tournaments',
     'apps.scores',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -75,7 +76,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'livesports_project.wsgi.application'
 
+ASGI_APPLICATION = 'livesports_project.routing.application'
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 

@@ -1,0 +1,22 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'scores/css/badminton_live.css' %}">
+<div class="live-container">
+    <div class="team-row">
+        <span class="team-name">{{ match.team1.name }}</span>
+        <span class="score" id="score">{{ match.score_team1 }} - {{ match.score_team2 }}</span>
+        <span class="team-name">{{ match.team2.name }}</span>
+    </div>
+    <div class="points-row">
+        <div id="teamA-points" class="points-column"></div>
+        <div id="teamB-points" class="points-column"></div>
+    </div>
+    <div class="commentary-area" id="commentary"></div>
+</div>
+<script src="{% static 'scores/js/badminton_live.js' %}"></script>
+<script>
+    const matchId = "{{ match.id }}";
+    const totalPoints = {{ match.total_points }};
+    const initialScoreA = {{ match.score_team1 }};
+    const initialScoreB = {{ match.score_team2 }};
+    const wsUrl = `ws://${window.location.host}/ws/badminton/${matchId}/`;
+</script>

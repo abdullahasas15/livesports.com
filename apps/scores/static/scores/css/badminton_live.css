@@ -1,0 +1,52 @@
+.live-container {
+    text-align: center;
+    color: #fff;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    padding: 20px;
+    border-radius: 10px;
+}
+.team-row {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.team-name {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+.score {
+    font-size: 2.5rem;
+    color: #facc15;
+}
+.points-row {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+.points-column {
+    display: flex;
+    flex-wrap: wrap;
+    width: 200px;
+    gap: 5px;
+    justify-content: center;
+}
+.point-box {
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+.point-box.green {
+    background: #16a34a;
+}
+.point-box.red {
+    background: #dc2626;
+}
+.commentary-area {
+    background: #172554;
+    padding: 10px;
+    margin-top: 20px;
+    border-radius: 5px;
+}

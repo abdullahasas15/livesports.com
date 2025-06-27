@@ -1,0 +1,33 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'scores/css/badminton_admin.css' %}">
+<div class="admin-container">
+    <div class="controls">
+        <button id="incrementA">Team A +1</button>
+        <button id="incrementB">Team B +1</button>
+        <select id="commentary-select">
+            <option value="">Select Commentary</option>
+            <option value="Brilliant smash by Team A!">Brilliant smash by Team A!</option>
+            <option value="Great rally, Team B scores!">Great rally, Team B scores!</option>
+            <option value="Unforced error by Team A.">Unforced error by Team A.</option>
+            <option value="Team B dominates the net!">Team B dominates the net!</option>
+        </select>
+        <button id="post-commentary">Post</button>
+    </div>
+    <div class="team-row">
+        <span class="team-name">{{ match.team1.name }}</span>
+        <span class="score" id="score">{{ match.score_team1 }} - {{ match.score_team2 }}</span>
+        <span class="team-name">{{ match.team2.name }}</span>
+    </div>
+    <div class="points-row">
+        <div id="teamA-points" class="points-column"></div>
+        <div id="teamB-points" class="points-column"></div>
+    </div>
+</div>
+<script src="{% static 'scores/js/badminton_admin.js' %}"></script>
+<script>
+    const matchId = "{{ match.id }}";
+    const totalPoints = {{ match.total_points }};
+    let scoreA = {{ match.score_team1 }};
+    let scoreB = {{ match.score_team2 }};
+    const wsUrl = `ws://${window.location.host}/ws/badminton/${matchId}/`;
+</script>
