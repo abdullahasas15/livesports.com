@@ -163,6 +163,35 @@ body {
     background: linear-gradient(45deg, #0056b3, #004085);
 }
 
+.game-tab-btn {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: var(--light-text);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    margin: 0 5px 10px 0;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    box-shadow: 0 2px 8px var(--shadow-light);
+    outline: none;
+}
+
+.game-tab-btn.active,
+.game-tab-btn:focus {
+    background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+    color: #fff;
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 16px var(--shadow-medium);
+}
+
+.game-tab-btn:hover {
+    background: linear-gradient(45deg, #0056b3, #6f42c1);
+    color: #fff;
+    transform: translateY(-1px) scale(1.02);
+}
+
 /* Points Table */
 .points-table {
     width: 100%;
