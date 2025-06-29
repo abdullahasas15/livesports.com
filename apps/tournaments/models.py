@@ -52,14 +52,17 @@ class Match(models.Model):
     
     score_team1 = models.IntegerField(default=0)
     score_team2 = models.IntegerField(default=0)
+    total_points = models.IntegerField(default=21)  # <--- Ensure this is here
     
     match_number = models.IntegerField(default=1) 
     
-    # NEW FIELDS: Status and Winner
+    # NEW FIELDS: Status and Winner (already in your file)
     status = models.CharField(max_length=20, choices=MATCH_STATUS_CHOICES, default=STATUS_SCHEDULED)
     winner = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='matches_won')
     
-    # Optional: date_time and venue could be added here for detailed scheduling
+    # ADD THIS CRUCIAL FIELD for points history:
+    points_history_json = models.TextField(blank=True, null=True, default='[]')
+    # This field will store the JSON string representation of the points history array.
 
     class Meta:
         ordering = ['game__name', 'match_number']
@@ -84,5 +87,7 @@ class UserProfile(models.Model):
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
+    # This ensures a UserProfile is created or retrieved for existing users without one
+    # and handles saving it.
     UserProfile.objects.get_or_create(user=instance)
     instance.userprofile.save()

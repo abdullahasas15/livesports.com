@@ -1,0 +1,91 @@
+/* livesports_project/static/css/points_table_mobile.css */
+
+/* Important: This CSS file is intended to be loaded *after* admin_panel.css
+   and specifically for tournament_details.html to override mobile table styles. */
+
+@media (max-width: 768px) {
+    .points-table {
+        /* Revert overall table display for the new approach */
+        display: block; /* Make table a block element on mobile */
+        overflow-x: hidden; /* Prevent horizontal scrolling */
+        white-space: normal; /* Allow text to wrap */
+        border-spacing: 0; /* Remove cell spacing */
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 95%; /* Constrain width */
+        box-shadow: none; /* Remove table shadow (rows will have shadows) */
+        border-radius: 0; /* Remove table border radius */
+        background: none; /* Remove table background */
+        font-size: 0.9rem; /* Diminish overall table font size */
+    }
+
+    /* Hide the original table header on mobile */
+    .points-table thead {
+        display: none;
+    }
+
+    /* Make tbody a flex container for stacking individual row-cards */
+    .points-table tbody {
+        display: flex;
+        flex-direction: column; /* Stack rows vertically */
+        gap: 15px; /* Space between each team's card */
+        width: 100%;
+    }
+
+    /* Style for each table row as a "team card" */
+    .points-table tbody tr {
+        margin-bottom: 0; /* Remove default row margin */
+        border: 1px solid var(--border-color); /* Add a border to each card */
+        display: grid; /* Use CSS Grid for internal layout of data points */
+        grid-template-columns: repeat(2, 1fr); /* Two columns for key-value pairs */
+        gap: 8px 15px; /* Vertical and horizontal gap within the card */
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08); /* Shadow for each card */
+        background-color: var(--background-light); /* Consistent background */
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .points-table tbody tr:nth-child(even) {
+        background-color: var(--background-light); /* No zebra background for cards */
+    }
+    .points-table tbody tr:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    /* Styling for the first cell (Team Name) */
+    .points-table tbody td:first-child {
+        grid-column: 1 / -1; /* Span across both columns of the grid */
+        font-weight: 700;
+        font-size: 1.2rem; /* Larger font for team name */
+        color: var(--primary-color); /* Special color for team name */
+        margin-bottom: 10px; /* Space below team name */
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        text-align: center; /* Center team name */
+        background-color: #f0f8ff; /* Light blue background for team name block */
+        border-radius: 5px;
+        padding: 8px 10px; /* Padding for the team name block */
+        display: block; /* Ensure it's a block for centering */
+    }
+
+    /* Styling for subsequent data cells (Points, Played, Wins, etc.) */
+    .points-table tbody td:not(:first-child) {
+        font-size: 0.95rem; /* Diminished size for values */
+        color: var(--dark-text); /* Diminished color */
+        padding: 5px 0; /* Vertical padding */
+        display: flex; /* Flexbox for label and value */
+        justify-content: space-between; /* Space out label and value */
+        align-items: center; /* Vertically center */
+        border: none; /* Remove individual cell borders */
+    }
+    .points-table tbody td:before {
+        content: attr(data-label);
+        font-weight: 600; /* Slightly less bold than value for distinction */
+        color: var(--secondary-color); /* Labels in secondary color */
+        text-transform: uppercase;
+        font-size: 0.75rem; /* Diminished label size */
+        white-space: nowrap; /* Prevent label wrapping */
+        flex-shrink: 0; /* Prevent label from shrinking */
+        margin-right: 10px; /* Space between label and value */
+    }
+}

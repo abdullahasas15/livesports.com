@@ -1,33 +1,46 @@
+{% extends 'base.html' %}
 {% load static %}
+{% block content %}
 <link rel="stylesheet" href="{% static 'scores/css/badminton_admin.css' %}">
 <div class="admin-container">
-    <div class="controls">
-        <button id="incrementA">Team A +1</button>
-        <button id="incrementB">Team B +1</button>
-        <select id="commentary-select">
-            <option value="">Select Commentary</option>
-            <option value="Brilliant smash by Team A!">Brilliant smash by Team A!</option>
-            <option value="Great rally, Team B scores!">Great rally, Team B scores!</option>
-            <option value="Unforced error by Team A.">Unforced error by Team A.</option>
-            <option value="Team B dominates the net!">Team B dominates the net!</option>
-        </select>
-        <button id="post-commentary">Post</button>
+    <div id="setup-section">
+        <label for="total-points-input"><strong>How many points is this match played to?</strong></label>
+        <input type="number" id="total-points-input" min="1" max="99" value="{{ match.total_points|default:'' }}" style="margin: 0 10px; width: 60px;">
+        <button id="start-match-btn">Start Match</button>
     </div>
-    <div class="team-row">
-        <span class="team-name">{{ match.team1.name }}</span>
-        <span class="score" id="score">{{ match.score_team1 }} - {{ match.score_team2 }}</span>
-        <span class="team-name">{{ match.team2.name }}</span>
-    </div>
-    <div class="points-row">
-        <div id="teamA-points" class="points-column"></div>
-        <div id="teamB-points" class="points-column"></div>
+    <div id="scoring-section" style="display: none;">
+        <div class="controls">
+            <button id="incrementA">Team A +1</button>
+            <button id="incrementB">Team B +1</button>
+            <select id="commentary-select">
+                <option value="">Select Commentary</option>
+                <option value="Brilliant smash by Team A!">Brilliant smash by Team A!</option>
+                <option value="Great rally, Team B scores!">Great rally, Team B scores!</option>
+                <option value="Unforced error by Team A.">Unforced error by Team A.</option>
+                <option value="Team B dominates the net!">Team B dominates the net!</option>
+            </select>
+            <button id="post-commentary">Post</button>
+        </div>
+        <div class="team-row">
+            <span class="team-name">{{ match.team1.name }}</span>
+            <span class="score" id="score">{{ match.score_team1 }} - {{ match.score_team2 }}</span>
+            <span class="team-name">{{ match.team2.name }}</span>
+        </div>
+        <div class="points-row">
+            <div id="teamA-points" class="points-column"></div>
+            <div id="teamB-points" class="points-column"></div>
+        </div>
+        <div id="commentary-log" style="margin-top:20px; color:#fff;"></div>
     </div>
 </div>
-<script src="{% static 'scores/js/badminton_admin.js' %}"></script>
 <script>
     const matchId = "{{ match.id }}";
-    const totalPoints = {{ match.total_points }};
-    let scoreA = {{ match.score_team1 }};
-    let scoreB = {{ match.score_team2 }};
-    const wsUrl = `ws://${window.location.host}/ws/badminton/${matchId}/`;
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const wsUrl = `${wsScheme}://${window.location.host}/ws/badminton/${matchId}/`;
+    // Pass team names to JavaScript for dynamic commentary on client side if needed
+    const team1Name = "{{ match.team1.name }}";
+    const team2Name = "{{ match.team2.name }}";
+    // `scoreA`, `scoreB`, `totalPoints` from template will be read by `DOMContentLoaded` in JS.
 </script>
+<script src="{% static 'scores/js/badminton_admin.js' %}"></script>
+{% endblock %}
