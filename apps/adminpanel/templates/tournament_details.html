@@ -75,6 +75,7 @@
     </div>
 </section>
 
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
     lucide.createIcons();
 
@@ -84,14 +85,14 @@
         
         let matchesByGameData = {};
         try {
-            matchesByGameData = JSON.parse('{{ matches_by_game|safe|escapejs }}');
+            matchesByGameData = JSON.parse('{{ matches_by_game|default:"{}"|safe|escapejs }}');
         } catch (e) {
             console.error("Error parsing matches by game JSON:", e);
             gameMatchesDisplayContainer.innerHTML = '<p class="field-error-messages text-center">Error loading match data. Please ensure matches are configured correctly.</p>';
             return;
         }
         
-        function renderMatchesForGame(gameName, gameId) { // Pass gameId to this function
+        function renderMatchesForGame(gameName, gameId) {
             gameMatchesDisplayContainer.innerHTML = ''; // Clear previous content
 
             const matches = matchesByGameData[gameName];
@@ -107,6 +108,14 @@
                     let statusDisplay = '';
                     let scoreDisplay = '';
                     let scoreClass = 'match-score'; // Default class
+                    let playersDisplay = '';
+
+                    if (gameName === 'Badminton') {
+                        const player1Name = match.player1 || 'N/A'; // Now directly from CharField
+                        const player2Name = match.player2 || 'N/A'; // Now directly from CharField
+                        playersDisplay = `<p class="match-players">(${player1Name} vs ${player2Name})</p>`;
+                    }
+
 
                     if (match.status === 'scheduled') {
                         statusDisplay = '<span class="match-status scheduled-status">Yet to be started</span>';
@@ -135,9 +144,11 @@
                         <p class="match-teams">
                             ${match.team1__name || 'N/A'} <span class="vs-text">vs</span> ${match.team2__name || 'N/A'}
                         </p>
+                        ${playersDisplay} {# Display players conditionally #}
                         <p class="${scoreClass}">${scoreDisplay}</p> {# Display score/status #}
                         <p class="match-status-info">${statusDisplay}</p> {# Display status #}
-                        
+                        <p class="match-points-info">Points to play: ${match.total_points || 'N/A'}</p> {# Display total_points #}
+
                         <div class="match-actions">
                             <a href="#" class="btn primary-btn small-btn view-match-link" 
                                data-match-id="${match.id}" 
@@ -150,12 +161,10 @@
                 matchesHtml = matchesList.outerHTML; // Get outer HTML of the list container
             }
             
-            // Add "Create One More Match" button below the matches - ONLY IF USER IS STAFF
             let createMatchButtonHtml = '';
-            {% if user.is_staff %} {# Conditionally render this button #}
-                // Build the URL using JavaScript, replacing a placeholder from Django's URL tag
-                const addMoreMatchesBaseUrl = "{% url 'adminpanel:add_more_matches' tournament.id 0 %}".replace('/0/', '/'); // Get base URL with tournament_id
-                const addMoreMatchesUrl = `${addMoreMatchesBaseUrl}${gameId}/`; // Append gameId with slash
+            {% if user.is_staff %}
+                const addMoreMatchesBaseUrl = "{% url 'adminpanel:add_more_matches' tournament.id 0 %}".replace('/0/', '/');
+                const addMoreMatchesUrl = `${addMoreMatchesBaseUrl}${gameId}/`;
                 
                 createMatchButtonHtml = `
                     <div class="create-more-match-action" style="text-align: center; margin-top: 30px;">
@@ -170,7 +179,6 @@
 
             lucide.createIcons();
             
-            // Add event listeners for the new "View/Update Match" links
             const viewMatchLinks = gameMatchesDisplayContainer.querySelectorAll('.view-match-link');
             viewMatchLinks.forEach(link => {
                 link.addEventListener('click', function(event) {
@@ -198,12 +206,13 @@
             button.addEventListener('click', function() {
                 gameTabButtons.forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
+                const gameId = this.dataset.gameId;
                 const gameName = this.dataset.gameName;
-                const gameId = this.dataset.gameId; 
-                renderMatchesForGame(gameName, gameId); 
+                renderMatchesForGame(gameId, gameName);
             });
         });
 
+        // Auto-select the first game tab on load if available
         if (gameTabButtons.length > 0) {
             gameTabButtons[0].click();
         } else {

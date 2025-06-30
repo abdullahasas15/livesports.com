@@ -47,6 +47,7 @@
     </form>
 </section>
 
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
     lucide.createIcons();
 
@@ -54,19 +55,31 @@
         const numMatchesInput = document.getElementById('num_matches_{{ game.id }}');
         const matchesListContainer = document.getElementById('game_{{ game.id }}_matches_container');
         
+        const gameName = "{{ game.name }}"; // Get game name for conditional rendering
+
         let tournamentTeams = [];
         try {
-            tournamentTeams = JSON.parse('{{ tournament_teams|safe|escapejs }}');
+            tournamentTeams = JSON.parse('{{ tournament_teams|default:"[]"|safe|escapejs }}');
         } catch (e) {
             console.error("Error parsing tournament teams JSON:", e);
             matchesListContainer.innerHTML = '<p class="field-error-messages text-center">Error loading team data. Please ensure teams are configured for this tournament.</p>';
             return;
         }
 
+        // tournamentPlayersByTeam is no longer needed
+        // let tournamentPlayersByTeam = {}; 
+        // try {
+        //     tournamentPlayersByTeam = JSON.parse('{{ tournament_players_by_team|default:"{}"|safe|escapejs }}');
+        //     console.log("Loaded Tournament Players by Team:", tournamentPlayersByTeam);
+        // } catch (e) {
+        //     console.error("Error parsing tournament players JSON:", e);
+        // }
+
+
         // Pre-load existing (potentially submitted but errored) match data if passed from view
         let existingMatchData = [];
         try {
-            const existingMatchDataJson = '{{ existing_match_data|safe|escapejs }}';
+            const existingMatchDataJson = '{{ existing_match_data|default:"[]"|safe|escapejs }}';
             if (existingMatchDataJson && existingMatchDataJson.trim() !== '' && existingMatchDataJson.trim() !== '""') {
                 existingMatchData = JSON.parse(existingMatchDataJson);
             }
@@ -79,7 +92,7 @@
             select.name = name;
             select.id = id;
             select.required = true;
-            select.classList.add('form-control');
+            select.classList.add('form-control', 'team-select');
 
             let defaultOption = document.createElement('option');
             defaultOption.value = '';
@@ -101,12 +114,16 @@
             return select;
         }
 
+        // createPlayerSelect is no longer needed
+        // function createPlayerSelect(name, id, teamId, selectedPlayerId = '') { ... }
+
+
         function generateMatchFields() {
             matchesListContainer.innerHTML = '';
             const numMatches = parseInt(numMatchesInput.value);
 
             const minMatches = 1; 
-            const maxMatches = 20; // Max new matches to add at once
+            const maxMatches = 20;
 
             if (isNaN(numMatches) || numMatches < minMatches || numMatches > maxMatches) {
                 matchesListContainer.innerHTML = `<p class="field-error-messages">Please enter a number between ${minMatches} and ${maxMatches} for new matches.</p>`;
@@ -121,33 +138,78 @@
             for (let i = 1; i <= numMatches; i++) {
                 const matchGroup = document.createElement('div');
                 matchGroup.classList.add('match-item');
+                
+                let totalPointsHtml = '';
+                let playerInputsHtml = ''; // Changed from playerSelectsHtml
+
+                // Conditionally add total_points and player inputs only for Badminton
+                if (gameName === 'Badminton') {
+                    const savedMatch = (existingMatchData && existingMatchData.length >= i) ? existingMatchData[i - 1] : null;
+                    const savedTotalPoints = savedMatch && savedMatch.totalPoints ? savedMatch.totalPoints : '21';
+                    const savedPlayer1Name = savedMatch && savedMatch.player1Name ? savedMatch.player1Name : '';
+                    const savedPlayer2Name = savedMatch && savedMatch.player2Name ? savedMatch.player2Name : '';
+
+                    totalPointsHtml = `
+                        <div class="form-group total-points-group">
+                            <label for="game_{{ game.id }}_match_${i}_total_points">Points to play:</label>
+                            <input type="number" 
+                                   id="game_${game.id}_match_${i}_total_points" 
+                                   name="game_${game.id}_match_${i}_total_points" 
+                                   min="1" max="99" value="${savedTotalPoints}" 
+                                   class="form-control" required>
+                        </div>
+                    `;
+                    playerInputsHtml = `
+                        <div class="player-input-group">
+                            <label for="game_{{ game.id }}_match_${i}_player1_name">Player 1 Name (Team 1):</label>
+                            <input type="text"
+                                   id="game_${game.id}_match_${i}_player1_name"
+                                   name="game_${game.id}_match_${i}_player1_name"
+                                   value="${savedPlayer1Name}"
+                                   class="form-control" required>
+                        </div>
+                        <div class="player-input-group">
+                            <label for="game_${game.id}_match_${i}_player2_name">Player 2 Name (Team 2):</label>
+                            <input type="text"
+                                   id="game_${game.id}_match_${i}_player2_name"
+                                   name="game_${game.id}_match_${i}_player2_name"
+                                   value="${savedPlayer2Name}"
+                                   class="form-control" required>
+                        </div>
+                    `;
+                }
+
                 matchGroup.innerHTML = `
                     <h4>New Match ${i}</h4>
                     <div class="team-select-group">
                         <label for="game_{{ game.id }}_match_${i}_team1">Team 1:</label>
                         <div id="select_container_team1_game_{{ game.id }}_match_${i}"></div>
                     </div>
+                    ${playerInputsHtml ? `<div class="player-section">${playerInputsHtml}</div>` : ''}
                     <span class="vs-text">vs</span>
                     <div class="team-select-group">
                         <label for="game_{{ game.id }}_match_${i}_team2">Team 2:</label>
                         <div id="select_container_team2_game_{{ game.id }}_match_${i}"></div>
                     </div>
+                    ${totalPointsHtml}
                 `;
                 matchesListContainer.appendChild(matchGroup);
 
                 const team1Container = document.getElementById(`select_container_team1_game_{{ game.id }}_match_${i}`);
                 const team2Container = document.getElementById(`select_container_team2_game_{{ game.id }}_match_${i}`);
-
-                // Pre-populate if data exists from a failed submission
+                
                 const savedMatch = (existingMatchData && existingMatchData.length >= i) ? existingMatchData[i - 1] : null;
                 const team1_selected = savedMatch ? savedMatch.team1Id : '';
                 const team2_selected = savedMatch ? savedMatch.team2Id : '';
 
+                const team1Select = createTeamSelect(`game_{{ game.id }}_match_${i}_team1`, `game_{{ game.id }}_match_${i}_team1`, team1_selected);
+                const team2Select = createTeamSelect(`game_{{ game.id }}_match_${i}_team2`, `game_{{ game.id }}_match_${i}_team2`, team2_selected);
+                
                 if (team1Container) {
-                    team1Container.appendChild(createTeamSelect(`game_{{ game.id }}_match_${i}_team1`, `game_{{ game.id }}_match_${i}_team1`, team1_selected));
+                    team1Container.appendChild(team1Select);
                 }
                 if (team2Container) {
-                    team2Container.appendChild(createTeamSelect(`game_{{ game.id }}_match_${i}_team2`, `game_{{ game.id }}_match_${i}_team2`, team2_selected));
+                    team2Container.appendChild(team2Select);
                 }
             }
         }
