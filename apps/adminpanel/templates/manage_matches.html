@@ -71,16 +71,6 @@
             gameMatchConfigContainer.innerHTML = '<p class="field-error-messages text-center">Error loading team data. Please ensure teams are configured for this tournament.</p>';
         }
 
-        // tournamentPlayersByTeam is no longer needed as players are typed, not selected
-        // let tournamentPlayersByTeam = {}; 
-        // try {
-        //     tournamentPlayersByTeam = JSON.parse('{{ tournament_players_by_team|default:"{}"|safe|escapejs }}');
-        //     console.log("Loaded Tournament Players by Team:", tournamentPlayersByTeam);
-        // } catch (e) {
-        //     console.error("Error parsing tournament players JSON:", e);
-        // }
-
-
         let configuredGameMatches = {}; 
         try {
             const existingMatchesJson = '{{ existing_matches_by_game|default:"{}"|safe|escapejs }}';
@@ -120,10 +110,6 @@
             return select;
         }
 
-        // createPlayerSelect is no longer needed as players are typed, not selected
-        // function createPlayerSelect(name, id, teamId, selectedPlayerId = '') { ... }
-
-
         // Function to read and save current game's config before switching
         function saveCurrentGameConfig(currentGameIdToSave) {
             const numMatchesInput = document.getElementById(`num_matches_${currentGameIdToSave}`);
@@ -140,8 +126,10 @@
                     const team1Select = document.getElementById(`game_${currentGameIdToSave}_match_${i}_team1`);
                     const team2Select = document.getElementById(`game_${currentGameIdToSave}_match_${i}_team2`);
                     const totalPointsInput = document.getElementById(`game_${currentGameIdToSave}_match_${i}_total_points`);
-                    const player1NameInput = document.getElementById(`game_${currentGameIdToSave}_match_${i}_player1_name`); // Get player name input
-                    const player2NameInput = document.getElementById(`game_${currentGameIdToSave}_match_${i}_player2_name`); // Get player name input
+                    const player1Team1NameInput = document.getElementById(`game_${currentGameIdToSave}_match_${i}_player1_team1_name`);
+                    const player2Team1NameInput = document.getElementById(`game_${currentGameIdToSave}_match_${i}_player2_team1_name`);
+                    const player1Team2NameInput = document.getElementById(`game_${currentGameIdToSave}_match_${i}_player1_team2_name`);
+                    const player2Team2NameInput = document.getElementById(`game_${currentGameIdToSave}_match_${i}_player2_team2_name`);
                     
                     let matchData = {
                         team1Id: team1Select ? team1Select.value : '',
@@ -149,14 +137,20 @@
                     };
 
                     // Conditionally save totalPoints and player names
-                    if (totalPointsInput) { // Check if input exists (Badminton)
+                    if (totalPointsInput) {
                         matchData.totalPoints = totalPointsInput.value;
                     }
-                    if (player1NameInput) { // Check if input exists (Badminton)
-                        matchData.player1Name = player1NameInput.value;
+                    if (player1Team1NameInput) {
+                        matchData.player1Team1Name = player1Team1NameInput.value;
                     }
-                    if (player2NameInput) { // Check if input exists (Badminton)
-                        matchData.player2Name = player2NameInput.value;
+                    if (player2Team1NameInput) {
+                        matchData.player2Team1Name = player2Team1NameInput.value;
+                    }
+                    if (player1Team2NameInput) {
+                        matchData.player1Team2Name = player1Team2NameInput.value;
+                    }
+                    if (player2Team2NameInput) {
+                        matchData.player2Team2Name = player2Team2NameInput.value;
                     }
                     matchesData.push(matchData);
                 }
@@ -221,14 +215,17 @@
                     matchGroup.classList.add('match-item');
                     
                     let totalPointsHtml = '';
-                    let playerInputsHtml = ''; // Changed from playerSelectsHtml
+                    let playerInputsHtml = '';
 
                     // Conditionally add total_points and player inputs only for Badminton
                     if (gameName === 'Badminton') {
                         const savedMatch = (currentConfig.matches && currentConfig.matches.length >= i) ? currentConfig.matches[i - 1] : null;
                         const savedTotalPoints = savedMatch && savedMatch.totalPoints ? savedMatch.totalPoints : '21';
-                        const savedPlayer1Name = savedMatch && savedMatch.player1Name ? savedMatch.player1Name : ''; // Get saved name
-                        const savedPlayer2Name = savedMatch && savedMatch.player2Name ? savedMatch.player2Name : ''; // Get saved name
+                        const savedPlayer1Team1Name = savedMatch && savedMatch.player1Team1Name ? savedMatch.player1Team1Name : '';
+                        const savedPlayer2Team1Name = savedMatch && savedMatch.player2Team1Name ? savedMatch.player2Team1Name : '';
+                        const savedPlayer1Team2Name = savedMatch && savedMatch.player1Team2Name ? savedMatch.player1Team2Name : '';
+                        const savedPlayer2Team2Name = savedMatch && savedMatch.player2Team2Name ? savedMatch.player2Team2Name : '';
+
 
                         totalPointsHtml = `
                             <div class="form-group total-points-group">
@@ -241,21 +238,41 @@
                             </div>
                         `;
                         playerInputsHtml = `
-                            <div class="player-input-group"> {# Changed from player-select-group #}
-                                <label for="game_${gameId}_match_${i}_player1_name">Player 1 Name (Team 1):</label>
-                                <input type="text"
-                                       id="game_${gameId}_match_${i}_player1_name"
-                                       name="game_${gameId}_match_${i}_player1_name"
-                                       value="${savedPlayer1Name}"
-                                       class="form-control" required>
+                            <div class="player-input-section">
+                                <div class="player-input-group">
+                                    <label for="game_${gameId}_match_${i}_player1_team1_name">Player 1 (Team 1):</label>
+                                    <input type="text"
+                                           id="game_${gameId}_match_${i}_player1_team1_name"
+                                           name="game_${gameId}_match_${i}_player1_team1_name"
+                                           value="${savedPlayer1Team1Name}"
+                                           class="form-control">
+                                </div>
+                                <div class="player-input-group">
+                                    <label for="game_${gameId}_match_${i}_player2_team1_name">Player 2 (Team 1):</label>
+                                    <input type="text"
+                                           id="game_${gameId}_match_${i}_player2_team1_name"
+                                           name="game_${gameId}_match_${i}_player2_team1_name"
+                                           value="${savedPlayer2Team1Name}"
+                                           class="form-control">
+                                </div>
                             </div>
-                            <div class="player-input-group"> {# Changed from player-select-group #}
-                                <label for="game_${gameId}_match_${i}_player2_name">Player 2 Name (Team 2):</label>
-                                <input type="text"
-                                       id="game_${gameId}_match_${i}_player2_name"
-                                       name="game_${gameId}_match_${i}_player2_name"
-                                       value="${savedPlayer2Name}"
-                                       class="form-control" required>
+                            <div class="player-input-section">
+                                <div class="player-input-group">
+                                    <label for="game_${gameId}_match_${i}_player1_team2_name">Player 1 (Team 2):</label>
+                                    <input type="text"
+                                           id="game_${gameId}_match_${i}_player1_team2_name"
+                                           name="game_${gameId}_match_${i}_player1_team2_name"
+                                           value="${savedPlayer1Team2Name}"
+                                           class="form-control">
+                                </div>
+                                <div class="player-input-group">
+                                    <label for="game_${gameId}_match_${i}_player2_team2_name">Player 2 (Team 2):</label>
+                                    <input type="text"
+                                           id="game_${gameId}_match_${i}_player2_team2_name"
+                                           name="game_${gameId}_match_${i}_player2_team2_name"
+                                           value="${savedPlayer2Team2Name}"
+                                           class="form-control">
+                                </div>
                             </div>
                         `;
                     }
@@ -266,7 +283,7 @@
                             <label for="game_${gameId}_match_${i}_team1">Team 1:</label>
                             <div id="select_container_team1_${gameId}_${i}"></div>
                         </div>
-                        ${playerInputsHtml ? `<div class="player-section">${playerInputsHtml}</div>` : ''} {# Inject player name inputs #}
+                        ${playerInputsHtml ? `<div class="players-container">${playerInputsHtml}</div>` : ''} {# Wrap players #}
                         <span class="vs-text">vs</span>
                         <div class="team-select-group">
                             <label for="game_${gameId}_match_${i}_team2">Team 2:</label>
@@ -292,8 +309,6 @@
                     if (team2Container) {
                         team2Container.appendChild(team2Select);
                     }
-
-                    // No player dropdown update logic needed anymore
                 }
             };
 
@@ -317,10 +332,10 @@
 
         // Auto-select the first game tab on load if available
         if (gameTabButtons.length > 0) {
-            gameTabButtons[0].click(); // Simulate a click on the first tab
+            gameTabButtons[0].click();
         } else {
             gameMatchConfigContainer.innerHTML = '<p class="no-data-message text-center">No games selected for this tournament to display matches.</p>';
         }
     });
 </script>
-{% endblock %}
+{% endblock content %}

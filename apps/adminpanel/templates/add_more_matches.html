@@ -13,7 +13,6 @@
         <p class="tournament-info">Tournament: {{ tournament.name }} | Game: {{ game.name }}</p>
     </div>
 
-    {# Django Messages for user feedback #}
     <div class="django-messages-container">
         {% for message in messages %}
         <div class="alert alert-{{ message.tags }}">
@@ -22,17 +21,17 @@
         {% endfor %}
     </div>
 
-    <form method="post" class="manage-matches-form"> {# Reuse styling #}
+    <form method="post" class="manage-matches-form">
         {% csrf_token %}
 
-        <div class="game-match-config-container"> {# Reuse styling #}
+        <div class="game-match-config-container">
             <h3>Number of New Matches for {{ game.name }}:</h3>
             <div class="form-group">
                 <label for="num_matches_{{ game.id }}">How many more matches?</label>
-                <input type="number" 
-                       id="num_matches_{{ game.id }}" 
-                       name="num_matches_{{ game.id }}" 
-                       min="1" max="20" value="{{ initial_num_matches }}" 
+                <input type="number"
+                       id="num_matches_{{ game.id }}"
+                       name="num_matches_{{ game.id }}"
+                       min="1" max="20" value="{{ initial_num_matches }}"
                        class="form-control" required>
             </div>
             <div id="game_{{ game.id }}_matches_container" class="matches-list-container">
@@ -54,8 +53,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const numMatchesInput = document.getElementById('num_matches_{{ game.id }}');
         const matchesListContainer = document.getElementById('game_{{ game.id }}_matches_container');
-        
-        const gameName = "{{ game.name }}"; // Get game name for conditional rendering
+        const gameName = "{{ game.name }}";
 
         let tournamentTeams = [];
         try {
@@ -66,17 +64,6 @@
             return;
         }
 
-        // tournamentPlayersByTeam is no longer needed
-        // let tournamentPlayersByTeam = {}; 
-        // try {
-        //     tournamentPlayersByTeam = JSON.parse('{{ tournament_players_by_team|default:"{}"|safe|escapejs }}');
-        //     console.log("Loaded Tournament Players by Team:", tournamentPlayersByTeam);
-        // } catch (e) {
-        //     console.error("Error parsing tournament players JSON:", e);
-        // }
-
-
-        // Pre-load existing (potentially submitted but errored) match data if passed from view
         let existingMatchData = [];
         try {
             const existingMatchDataJson = '{{ existing_match_data|default:"[]"|safe|escapejs }}';
@@ -86,7 +73,7 @@
         } catch (e) {
             console.error("Error parsing existing match data JSON:", e);
         }
-        
+
         function createTeamSelect(name, id, selectedTeamId = '') {
             const select = document.createElement('select');
             select.name = name;
@@ -97,7 +84,7 @@
             let defaultOption = document.createElement('option');
             defaultOption.value = '';
             defaultOption.textContent = 'Select Team';
-            defaultOption.selected = true; 
+            defaultOption.selected = true;
             defaultOption.disabled = true;
             select.appendChild(defaultOption);
 
@@ -114,20 +101,16 @@
             return select;
         }
 
-        // createPlayerSelect is no longer needed
-        // function createPlayerSelect(name, id, teamId, selectedPlayerId = '') { ... }
-
-
         function generateMatchFields() {
             matchesListContainer.innerHTML = '';
             const numMatches = parseInt(numMatchesInput.value);
 
-            const minMatches = 1; 
+            const minMatches = 1;
             const maxMatches = 20;
 
             if (isNaN(numMatches) || numMatches < minMatches || numMatches > maxMatches) {
                 matchesListContainer.innerHTML = `<p class="field-error-messages">Please enter a number between ${minMatches} and ${maxMatches} for new matches.</p>`;
-                return; 
+                return;
             }
 
             if (tournamentTeams.length < 2) {
@@ -138,43 +121,64 @@
             for (let i = 1; i <= numMatches; i++) {
                 const matchGroup = document.createElement('div');
                 matchGroup.classList.add('match-item');
-                
-                let totalPointsHtml = '';
-                let playerInputsHtml = ''; // Changed from playerSelectsHtml
 
-                // Conditionally add total_points and player inputs only for Badminton
+                let totalPointsHtml = '';
+                let playerInputsHtml = '';
+
                 if (gameName === 'Badminton') {
                     const savedMatch = (existingMatchData && existingMatchData.length >= i) ? existingMatchData[i - 1] : null;
                     const savedTotalPoints = savedMatch && savedMatch.totalPoints ? savedMatch.totalPoints : '21';
-                    const savedPlayer1Name = savedMatch && savedMatch.player1Name ? savedMatch.player1Name : '';
-                    const savedPlayer2Name = savedMatch && savedMatch.player2Name ? savedMatch.player2Name : '';
+                    const savedPlayer1Team1Name = savedMatch && savedMatch.player1Team1Name ? savedMatch.player1Team1Name : '';
+                    const savedPlayer2Team1Name = savedMatch && savedMatch.player2Team1Name ? savedMatch.player2Team1Name : '';
+                    const savedPlayer1Team2Name = savedMatch && savedMatch.player1Team2Name ? savedMatch.player1Team2Name : '';
+                    const savedPlayer2Team2Name = savedMatch && savedMatch.player2Team2Name ? savedMatch.player2Team2Name : '';
 
                     totalPointsHtml = `
                         <div class="form-group total-points-group">
                             <label for="game_{{ game.id }}_match_${i}_total_points">Points to play:</label>
-                            <input type="number" 
-                                   id="game_${game.id}_match_${i}_total_points" 
-                                   name="game_${game.id}_match_${i}_total_points" 
-                                   min="1" max="99" value="${savedTotalPoints}" 
+                            <input type="number"
+                                   id="game_{{ game.id }}_match_${i}_total_points"
+                                   name="game_{{ game.id }}_match_${i}_total_points"
+                                   min="1" max="99" value="${savedTotalPoints}"
                                    class="form-control" required>
                         </div>
                     `;
                     playerInputsHtml = `
-                        <div class="player-input-group">
-                            <label for="game_{{ game.id }}_match_${i}_player1_name">Player 1 Name (Team 1):</label>
-                            <input type="text"
-                                   id="game_${game.id}_match_${i}_player1_name"
-                                   name="game_${game.id}_match_${i}_player1_name"
-                                   value="${savedPlayer1Name}"
-                                   class="form-control" required>
+                        <div class="player-input-section">
+                            <div class="player-input-group">
+                                <label for="game_{{ game.id }}_match_${i}_player1_team1_name">Player 1 (Team 1):</label>
+                                <input type="text"
+                                       id="game_{{ game.id }}_match_${i}_player1_team1_name"
+                                       name="game_{{ game.id }}_match_${i}_player1_team1_name"
+                                       value="${savedPlayer1Team1Name}"
+                                       class="form-control">
+                            </div>
+                            <div class="player-input-group">
+                                <label for="game_{{ game.id }}_match_${i}_player2_team1_name">Player 2 (Team 1):</label>
+                                <input type="text"
+                                       id="game_{{ game.id }}_match_${i}_player2_team1_name"
+                                       name="game_{{ game.id }}_match_${i}_player2_team1_name"
+                                       value="${savedPlayer2Team1Name}"
+                                       class="form-control">
+                            </div>
                         </div>
-                        <div class="player-input-group">
-                            <label for="game_${game.id}_match_${i}_player2_name">Player 2 Name (Team 2):</label>
-                            <input type="text"
-                                   id="game_${game.id}_match_${i}_player2_name"
-                                   name="game_${game.id}_match_${i}_player2_name"
-                                   value="${savedPlayer2Name}"
-                                   class="form-control" required>
+                        <div class="player-input-section">
+                            <div class="player-input-group">
+                                <label for="game_{{ game.id }}_match_${i}_player1_team2_name">Player 1 (Team 2):</label>
+                                <input type="text"
+                                       id="game_{{ game.id }}_match_${i}_player1_team2_name"
+                                       name="game_{{ game.id }}_match_${i}_player1_team2_name"
+                                       value="${savedPlayer1Team2Name}"
+                                       class="form-control">
+                            </div>
+                            <div class="player-input-group">
+                                <label for="game_{{ game.id }}_match_${i}_player2_team2_name">Player 2 (Team 2):</label>
+                                <input type="text"
+                                       id="game_{{ game.id }}_match_${i}_player2_team2_name"
+                                       name="game_{{ game.id }}_match_${i}_player2_team2_name"
+                                       value="${savedPlayer2Team2Name}"
+                                       class="form-control">
+                            </div>
                         </div>
                     `;
                 }
@@ -185,7 +189,7 @@
                         <label for="game_{{ game.id }}_match_${i}_team1">Team 1:</label>
                         <div id="select_container_team1_game_{{ game.id }}_match_${i}"></div>
                     </div>
-                    ${playerInputsHtml ? `<div class="player-section">${playerInputsHtml}</div>` : ''}
+                    ${playerInputsHtml ? `<div class="players-container">${playerInputsHtml}</div>` : ''}
                     <span class="vs-text">vs</span>
                     <div class="team-select-group">
                         <label for="game_{{ game.id }}_match_${i}_team2">Team 2:</label>
@@ -197,14 +201,14 @@
 
                 const team1Container = document.getElementById(`select_container_team1_game_{{ game.id }}_match_${i}`);
                 const team2Container = document.getElementById(`select_container_team2_game_{{ game.id }}_match_${i}`);
-                
+
                 const savedMatch = (existingMatchData && existingMatchData.length >= i) ? existingMatchData[i - 1] : null;
                 const team1_selected = savedMatch ? savedMatch.team1Id : '';
                 const team2_selected = savedMatch ? savedMatch.team2Id : '';
 
                 const team1Select = createTeamSelect(`game_{{ game.id }}_match_${i}_team1`, `game_{{ game.id }}_match_${i}_team1`, team1_selected);
                 const team2Select = createTeamSelect(`game_{{ game.id }}_match_${i}_team2`, `game_{{ game.id }}_match_${i}_team2`, team2_selected);
-                
+
                 if (team1Container) {
                     team1Container.appendChild(team1Select);
                 }
@@ -220,4 +224,4 @@
         }
     });
 </script>
-{% endblock %}
+{% endblock content %}

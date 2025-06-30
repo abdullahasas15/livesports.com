@@ -39,7 +39,7 @@ class Team(models.Model):
     def __str__(self):
         return f"{self.name} ({self.tournament.name})"
 
-# REMOVED: Player Model
+# REMOVED: Player Model (as names are typed directly now)
 
 # ------------------ Match Model ------------------
 class Match(models.Model):
@@ -67,9 +67,13 @@ class Match(models.Model):
     match_number = models.IntegerField(default=1)
     total_points = models.IntegerField(default=21)  # For games like Badminton
 
-    # CHANGED: player1 and player2 are now CharFields
-    player1 = models.CharField(max_length=100, blank=True, verbose_name='Player 1 Name (Team 1)')
-    player2 = models.CharField(max_length=100, blank=True, verbose_name='Player 2 Name (Team 2)')
+    # NEW FIELDS: Player names for Team 1 (optional)
+    player1_team1 = models.CharField(max_length=100, blank=True, verbose_name='Player 1 (Team 1)')
+    player2_team1 = models.CharField(max_length=100, blank=True, verbose_name='Player 2 (Team 1)')
+
+    # NEW FIELDS: Player names for Team 2 (optional)
+    player1_team2 = models.CharField(max_length=100, blank=True, verbose_name='Player 1 (Team 2)')
+    player2_team2 = models.CharField(max_length=100, blank=True, verbose_name='Player 2 (Team 2)')
 
     status = models.CharField(max_length=20, choices=MATCH_STATUS_CHOICES, default=STATUS_SCHEDULED)
     winner = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='matches_won')
@@ -79,7 +83,19 @@ class Match(models.Model):
         unique_together = ('tournament', 'game', 'match_number')
 
     def __str__(self):
-        return f"{self.tournament.name} - {self.game.name} Match {self.match_number}: {self.team1.name} vs {self.team2.name}"
+        # Display players if available
+        players_team1 = []
+        if self.player1_team1: players_team1.append(self.player1_team1)
+        if self.player2_team1: players_team1.append(self.player2_team1)
+        
+        players_team2 = []
+        if self.player1_team2: players_team2.append(self.player1_team2)
+        if self.player2_team2: players_team2.append(self.player2_team2)
+
+        team1_str = f"{self.team1.name} ({', '.join(players_team1)})" if players_team1 else self.team1.name
+        team2_str = f"{self.team2.name} ({', '.join(players_team2)})" if players_team2 else self.team2.name
+
+        return f"{self.tournament.name} - {self.game.name} Match {self.match_number}: {team1_str} vs {team2_str}"
 
 # ------------------ UserProfile Model ------------------
 class UserProfile(models.Model):

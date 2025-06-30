@@ -5,7 +5,7 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
-<link rel="stylesheet" href="{% static 'css/points_table_mobile.css' %}"> {# Link for mobile table #}
+<link rel="stylesheet" href="{% static 'css/points_table_mobile.css' %}">
 
 <section class="dashboard-section container">
     <div class="dashboard-header">
@@ -14,7 +14,6 @@
         <p class="tournament-info">Starts: {{ tournament.start_date|date:"F d, Y" }}</p>
     </div>
 
-    {# Django Messages for user feedback #}
     <div class="django-messages-container">
         {% for message in messages %}
         <div class="alert alert-{{ message.tags }}">
@@ -79,6 +78,9 @@
 <script>
     lucide.createIcons();
 
+    // Pass tournamentId from Django to JS
+    const tournamentId = {{ tournament.id }};
+
     document.addEventListener('DOMContentLoaded', function() {
         const gameTabButtons = document.querySelectorAll('.game-tab-btn');
         const gameMatchesDisplayContainer = document.getElementById('game_matches_display_container');
@@ -95,6 +97,7 @@
         function renderMatchesForGame(gameName, gameId) {
             gameMatchesDisplayContainer.innerHTML = ''; // Clear previous content
 
+            // Access matches using gameName as key
             const matches = matchesByGameData[gameName];
 
             let matchesHtml = '';
@@ -107,23 +110,33 @@
                 matches.forEach(match => {
                     let statusDisplay = '';
                     let scoreDisplay = '';
-                    let scoreClass = 'match-score'; // Default class
+                    let scoreClass = 'match-score';
                     let playersDisplay = '';
 
                     if (gameName === 'Badminton') {
-                        const player1Name = match.player1 || 'N/A'; // Now directly from CharField
-                        const player2Name = match.player2 || 'N/A'; // Now directly from CharField
-                        playersDisplay = `<p class="match-players">(${player1Name} vs ${player2Name})</p>`;
-                    }
+                        const playersTeam1 = [];
+                        if (match.player1_team1) playersTeam1.push(match.player1_team1);
+                        if (match.player2_team1) playersTeam1.push(match.player2_team1);
 
+                        const playersTeam2 = [];
+                        if (match.player1_team2) playersTeam2.push(match.player1_team2);
+                        if (match.player2_team2) playersTeam2.push(match.player2_team2);
+
+                        const team1PlayersStr = playersTeam1.length > 0 ? `(${playersTeam1.join(', ')})` : '';
+                        const team2PlayersStr = playersTeam2.length > 0 ? `(${playersTeam2.join(', ')})` : '';
+
+                        if (playersTeam1.length > 0 || playersTeam2.length > 0) {
+                            playersDisplay = `<p class="match-players">${team1PlayersStr} vs ${team2PlayersStr}</p>`;
+                        }
+                    }
 
                     if (match.status === 'scheduled') {
                         statusDisplay = '<span class="match-status scheduled-status">Yet to be started</span>';
-                        scoreDisplay = 'Score: -'; // No score yet
+                        scoreDisplay = 'Score: -';
                     } else if (match.status === 'live') {
                         statusDisplay = '<span class="match-status live-status">Live</span>';
                         scoreDisplay = `Score: ${match.score_team1} - ${match.score_team2}`;
-                        scoreClass = 'match-score live-score'; // Add class for live score styling
+                        scoreClass = 'match-score live-score';
                     } else if (match.status === 'completed') {
                         if (match.winner__name) {
                             statusDisplay = `<span class="match-status completed-status">${match.winner__name} has won!</span>`;
@@ -131,10 +144,10 @@
                             statusDisplay = '<span class="match-status completed-status">Completed</span>';
                         }
                         scoreDisplay = `Final Score: ${match.score_team1} - ${match.score_team2}`;
-                        scoreClass = 'match-score completed-score'; // Add class for completed score styling
+                        scoreClass = 'match-score completed-score';
                     } else {
                         statusDisplay = `<span class="match-status">${match.status}</span>`;
-                        scoreDisplay = `Score: ${match.score_team1} - ${match.score_team2}`; // Fallback if unknown status
+                        scoreDisplay = `Score: ${match.score_team1} - ${match.score_team2}`;
                     }
 
                     const matchItem = document.createElement('div');
@@ -144,11 +157,10 @@
                         <p class="match-teams">
                             ${match.team1__name || 'N/A'} <span class="vs-text">vs</span> ${match.team2__name || 'N/A'}
                         </p>
-                        ${playersDisplay} {# Display players conditionally #}
-                        <p class="${scoreClass}">${scoreDisplay}</p> {# Display score/status #}
-                        <p class="match-status-info">${statusDisplay}</p> {# Display status #}
-                        <p class="match-points-info">Points to play: ${match.total_points || 'N/A'}</p> {# Display total_points #}
-
+                        ${playersDisplay}
+                        <p class="${scoreClass}">${scoreDisplay}</p>
+                        <p class="match-status-info">${statusDisplay}</p>
+                        <p class="match-points-info">Points to play: ${match.total_points || 'N/A'}</p>
                         <div class="match-actions">
                             <a href="#" class="btn primary-btn small-btn view-match-link" 
                                data-match-id="${match.id}" 
@@ -158,14 +170,13 @@
                     `;
                     matchesList.appendChild(matchItem);
                 });
-                matchesHtml = matchesList.outerHTML; // Get outer HTML of the list container
+                matchesHtml = matchesList.outerHTML;
             }
             
             let createMatchButtonHtml = '';
             {% if user.is_staff %}
-                const addMoreMatchesBaseUrl = "{% url 'adminpanel:add_more_matches' tournament.id 0 %}".replace('/0/', '/');
-                const addMoreMatchesUrl = `${addMoreMatchesBaseUrl}${gameId}/`;
-                
+                // Build the add more matches URL in JS using tournamentId and gameId
+                const addMoreMatchesUrl = `/adminpanel/add-matches/${tournamentId}/${gameId}/`;
                 createMatchButtonHtml = `
                     <div class="create-more-match-action" style="text-align: center; margin-top: 30px;">
                         <a href="${addMoreMatchesUrl}" class="btn primary-btn">
@@ -179,6 +190,7 @@
 
             lucide.createIcons();
             
+            // Re-attach event listeners for dynamically added elements
             const viewMatchLinks = gameMatchesDisplayContainer.querySelectorAll('.view-match-link');
             viewMatchLinks.forEach(link => {
                 link.addEventListener('click', function(event) {
@@ -208,7 +220,7 @@
                 this.classList.add('active');
                 const gameId = this.dataset.gameId;
                 const gameName = this.dataset.gameName;
-                renderMatchesForGame(gameId, gameName);
+                renderMatchesForGame(gameName, gameId);
             });
         });
 
@@ -220,4 +232,4 @@
         }
     });
 </script>
-{% endblock %}
+{% endblock content %}
