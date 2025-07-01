@@ -1,0 +1,96 @@
+/* livesports_project/static/css/viewer_app.css */
+
+.search-bar-container input[type="text"] {
+    padding: 12px 18px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    flex: 1;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-bar-container input[type="text"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+}
+
+.search-bar-container button {
+    padding: 12px 24px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.search-bar-container button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.tournament-search-form {
+    display: flex;
+    width: 100%;
+    max-width: 650px; /* Max width for inner form elements */
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-input {
+    flex-grow: 1; 
+    min-width: 250px; /* Ensure it stays readable */
+    padding: 14px 20px; /* More padding */
+    border: 1px solid var(--border-color);
+    border-radius: 8px; /* More rounded */
+    font-size: 1.05rem; /* Slightly larger text */
+    color: var(--dark-text);
+    box-sizing: border-box;
+    transition: all 0.3s ease; /* Smooth transitions */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.08); /* Subtle inner shadow */
+}
+
+.search-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 5px rgba(0, 123, 255, 0.35), inset 0 1px 3px rgba(0,0,0,0.12); /* More prominent glow on focus */
+    outline: none;
+    background-color: #ffffff; /* Ensure white background on focus */
+}
+
+.search-btn, .clear-search-btn {
+    padding: 14px 28px; /* Consistent padding with input */
+    font-size: 1.05rem; /* Consistent font size */
+    white-space: nowrap; 
+    min-width: 130px; /* Slightly larger minimum width for buttons */
+    border-radius: 8px; /* Consistent rounded corners */
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1); /* Standard button shadow */
+    transition: all 0.3s ease;
+}
+
+/* Inherit primary-btn and secondary-btn styles from admin_panel.css */
+/* No specific changes here, they will use the new gradients and hover effects defined there */
+
+
+/* Responsive adjustments for viewer_app.css */
+@media (max-width: 768px) {
+    .search-bar-container {
+        padding: 20px;
+        margin: 20px auto;
+        flex-direction: column; 
+    }
+
+    .tournament-search-form {
+        flex-direction: column; 
+        width: 100%;
+    }
+
+    .search-input, .search-btn, .clear-search-btn {
+        width: 100%; 
+        max-width: none; /* Allow to take full width on small screens */
+        margin-bottom: 10px; 
+    }
+}

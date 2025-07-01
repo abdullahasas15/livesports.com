@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.owner',
     'apps.tournaments',
     'apps.scores',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -74,6 +75,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'livesports_project.wsgi.application'
+ASGI_APPLICATION = 'livesports_project.asgi.application'
 
 
 # Database
@@ -138,6 +140,14 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # <-- Add this line
+
 # For media files (if you upload images later)
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}

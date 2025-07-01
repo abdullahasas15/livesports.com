@@ -78,6 +78,8 @@ class Match(models.Model):
     status = models.CharField(max_length=20, choices=MATCH_STATUS_CHOICES, default=STATUS_SCHEDULED)
     winner = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='matches_won')
 
+    points_history_json = models.TextField(blank=True, default='[]')  # <-- ADD THIS LINE
+
     class Meta:
         ordering = ['game__name', 'match_number']
         unique_together = ('tournament', 'game', 'match_number')

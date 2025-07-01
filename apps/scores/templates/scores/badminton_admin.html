@@ -1,0 +1,69 @@
+<!-- filepath: /Users/mohammadabdullah/Documents/GitHub/livesports.com/apps/scores/templates/scores/badminton_admin.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'scores/css/badminton_admin.css' %}">
+<div class="admin-container" id="admin-container">
+    <div id="scoring-section">
+        <div class="controls">
+            <!-- FIXED BUTTON IDS -->
+            <button id="teamA-plus">Team A +1</button>
+            <button id="teamB-plus">Team B +1</button>
+            <button id="win-teamA" class="win-button">Win Team A</button>
+            <button id="win-teamB" class="win-button">Win Team B</button>
+            <select id="commentary-select">
+                <option value="">Select Commentary</option>
+                <option value="Brilliant smash by Team A!">Brilliant smash by Team A!</option>
+                <option value="Great rally, Team B scores!">Great rally, Team B scores!</option>
+                <option value="Unforced error by Team A.">Unforced error by Team A.</option>
+                <option value="Team B dominates the net!">Team B dominates the net!</option>
+            </select>
+            <button id="post-commentary">Post</button>
+        </div>
+        <div class="score-display-area">
+            <div class="team-row">
+                <div class="team-info">
+                    <span class="team-name">{{ match.team1.name }}</span>
+                    <p class="player-names">
+                        {% if match.player1_team1 %}{{ match.player1_team1 }}{% endif %}
+                        {% if match.player2_team1 %}{% if match.player1_team1 %}, {% endif %}{{ match.player2_team1 }}{% endif %}
+                    </p>
+                </div>
+                <span class="score" id="score">{{ match.score_team1 }} - {{ match.score_team2 }}</span>
+                <div class="team-info">
+                    <span class="team-name">{{ match.team2.name }}</span>
+                    <p class="player-names">
+                        {% if match.player1_team2 %}{{ match.player1_team2 }}{% endif %}
+                        {% if match.player2_team2 %}{% if match.player1_team2 %}, {% endif %}{{ match.player2_team2 }}{% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="points-row">
+                <div id="teamA-points" class="points-column"></div>
+                <div id="teamB-points" class="points-column"></div>
+            </div>
+            <div>
+                Points to play: <span id="total-points">{{ match.total_points }}</span>
+            </div>
+        </div>
+        <div id="commentary-log"></div>
+    </div>
+    <div id="match-end-message" style="display:none;"></div>
+</div>
+<script>
+    const matchId = "{{ match.id }}";
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const wsUrl = `${wsScheme}://${window.location.host}/ws/badminton/${matchId}/`;
+    const team1Name = "{{ match.team1.name|escapejs }}";
+    const team2Name = "{{ match.team2.name|escapejs }}";
+    const player1Team1Name = "{{ match.player1_team1|escapejs }}";
+    const player2Team1Name = "{{ match.player2_team1|escapejs }}";
+    const player1Team2Name = "{{ match.player1_team2|escapejs }}";
+    const player2Team2Name = "{{ match.player2_team2|escapejs }}";
+    let scoreA = {{ match.score_team1|default:0 }};
+    let scoreB = {{ match.score_team2|default:0 }};
+    let totalPoints = {{ match.total_points|default:21 }};
+    let matchStatusFromTemplate = "{{ match.status|default:'scheduled'|escapejs }}";
+</script>
+<script src="{% static 'scores/js/badminton_admin.js' %}"></script>
+{% endblock %}

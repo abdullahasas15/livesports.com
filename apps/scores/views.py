@@ -17,11 +17,9 @@ def admin_match_detail_view(request, game_name, match_id):
     game = get_object_or_404(Game, name__iexact=game_name) # Case-insensitive game name lookup
     match = get_object_or_404(Match, id=match_id, game=game) # Ensure match belongs to this game
 
-    # Here you would add logic for score updates (POST request)
     # For now, just render the template
-    
     return render(request, f'scores/{game_name.lower()}_admin.html', {
-        'match': match,
+        'match': match, # Pass the full match object
         'game': game,
         'tournament': match.tournament, # Pass tournament context
     })
@@ -33,11 +31,10 @@ def viewer_live_match_view(request, game_name, match_id):
     game = get_object_or_404(Game, name__iexact=game_name)
     match = get_object_or_404(Match, id=match_id, game=game)
 
-    # Here you would integrate WebSocket logic for live updates
     # For now, just render the template
-    
     return render(request, f'scores/{game_name.lower()}_live.html', {
-        'match': match,
+        'match': match, # Pass the full match object
         'game': game,
         'tournament': match.tournament, # Pass tournament context
     })
+
