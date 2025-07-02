@@ -29,21 +29,41 @@ def viewer_tournament_list_view(request):
 
 def viewer_tournament_details_view(request, tournament_id):
     tournament = get_object_or_404(Tournament, id=tournament_id)
-    
     teams_queryset = tournament.teams.all()
 
     points_table = []
     for team in teams_queryset:
+        matches_as_team1 = tournament.matches.filter(team1=team, status='completed')
+        matches_as_team2 = tournament.matches.filter(team2=team, status='completed')
+        total_points = sum(m.points_team1 for m in matches_as_team1) + sum(m.points_team2 for m in matches_as_team2)
+        matches_played = matches_as_team1.count() + matches_as_team2.count()
+        wins = 0
+        losses = 0
+        draws = 0
+        for m in matches_as_team1:
+            if m.points_team1 > m.points_team2:
+                wins += 1
+            elif m.points_team1 < m.points_team2:
+                losses += 1
+            else:
+                draws += 1
+        for m in matches_as_team2:
+            if m.points_team2 > m.points_team1:
+                wins += 1
+            elif m.points_team2 < m.points_team1:
+                losses += 1
+            else:
+                draws += 1
         points_table.append({
             'team_id': team.id,
             'team_name': team.name,
-            'points': 0,
-            'matches_played': 0,
-            'wins': 0,
-            'losses': 0,
-            'draws': 0,
+            'points': total_points,
+            'matches_played': matches_played,
+            'wins': wins,
+            'losses': losses,
+            'draws': draws,
         })
-    points_table.sort(key=lambda x: x['team_name']) 
+    points_table.sort(key=lambda x: (-x['points'], -x['wins'], x['team_name']))
 
     tournament_games = tournament.games.all()
 

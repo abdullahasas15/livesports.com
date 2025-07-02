@@ -75,6 +75,9 @@ class Match(models.Model):
     player1_team2 = models.CharField(max_length=100, blank=True, verbose_name='Player 1 (Team 2)')
     player2_team2 = models.CharField(max_length=100, blank=True, verbose_name='Player 2 (Team 2)')
 
+    points_team1 = models.IntegerField(default=0, verbose_name='Points for Team 1')
+    points_team2 = models.IntegerField(default=0, verbose_name='Points for Team 2')
+
     status = models.CharField(max_length=20, choices=MATCH_STATUS_CHOICES, default=STATUS_SCHEDULED)
     winner = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='matches_won')
 
