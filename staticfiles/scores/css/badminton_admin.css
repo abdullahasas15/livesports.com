@@ -1,3 +1,44 @@
+/* ---- Immersive Badminton Background ---- */
+body, html {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.badminton-bg {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 0;
+    background: url('/static/images/badminton_bg_desktop.jpg') center center/cover no-repeat;
+    filter: brightness(0.45) blur(2px) grayscale(0.1);
+    transition: background-image 0.3s;
+}
+
+@media (max-width: 768px) {
+    .badminton-bg {
+        background-image: url('/static/images/badminton_bg_mobile.jpg');
+        filter: brightness(0.38) blur(1.5px) grayscale(0.08);
+    }
+}
+
+/* Overlay for extra dimming and color tint */
+.badminton-bg::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(120deg, rgba(30,41,59,0.7) 0%, rgba(30,41,59,0.5) 100%);
+    pointer-events: none;
+}
+
+/* Make sure main container is above background */
+.admin-container, .viewer-container {
+    position: relative;
+    z-index: 2;
+    background: rgba(34, 34, 44, 0.92); /* Slightly more transparent for depth */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.45);
+    /* rest of your existing styles... */
+}
+
 /* General container and typography */
 .admin-container {
     max-width: 650px;
