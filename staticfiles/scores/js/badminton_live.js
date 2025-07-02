@@ -6,7 +6,13 @@ function renderBoxes(history, total) {
     const teamB = document.getElementById('teamB-points');
     teamA.innerHTML = teamB.innerHTML = '';
 
-    for (let i = 0; i < total; i++) {
+    // Calculate number of boxes: double the total points, plus 5 for each overflow
+    let numBoxes = total * 2;
+    if (history.length > numBoxes) {
+        numBoxes = Math.ceil((history.length - numBoxes) / 5) * 5 + numBoxes;
+    }
+
+    for (let i = 0; i < numBoxes; i++) {
         const boxA = document.createElement('span');
         const boxB = document.createElement('span');
         boxA.className = boxB.className = 'point-box';

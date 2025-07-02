@@ -8,7 +8,13 @@ function renderBoxes(history, total) {
     const teamB = document.getElementById('teamB-points');
     teamA.innerHTML = teamB.innerHTML = '';
 
-    for (let i = 0; i < total; i++) {
+    // Always double the total points, and add 5 if filled, repeat as needed
+    let numBoxes = total * 2;
+    if (history.length > numBoxes) {
+        numBoxes = Math.ceil((history.length - numBoxes) / 5) * 5 + numBoxes;
+    }
+
+    for (let i = 0; i < numBoxes; i++) {
         const boxA = document.createElement('span');
         const boxB = document.createElement('span');
         boxA.className = boxB.className = 'point-box';
@@ -135,4 +141,17 @@ window.addEventListener('DOMContentLoaded', () => {
         const commentary = document.getElementById('commentary-select').value;
         if (commentary) sendUpdate({ commentary });
     };
+
+    // Ensure commentary dropdown is visible and populated
+    const commentarySelect = document.getElementById('commentary-select');
+    if (commentarySelect) {
+        commentarySelect.style.display = '';
+        commentarySelect.innerHTML = `
+            <option value="">Select Commentary</option>
+            <option value="Brilliant smash by ${team1Name}!">Brilliant smash by ${team1Name}!</option>
+            <option value="Great rally, ${team2Name} scores!">Great rally, ${team2Name} scores!</option>
+            <option value="Unforced error by ${team1Name}.">Unforced error by ${team1Name}.</option>
+            <option value="${team2Name} dominates the net!">${team2Name} dominates the net!</option>
+        `;
+    }
 });

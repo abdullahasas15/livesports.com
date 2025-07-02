@@ -8,7 +8,13 @@ function renderBoxes(history, total) {
     const teamB = document.getElementById('teamB-points');
     teamA.innerHTML = teamB.innerHTML = '';
 
-    for (let i = 0; i < total; i++) {
+    // Always double the total points, and add 5 if filled, repeat as needed
+    let numBoxes = total * 2;
+    if (history.length > numBoxes) {
+        numBoxes = Math.ceil((history.length - numBoxes) / 5) * 5 + numBoxes;
+    }
+
+    for (let i = 0; i < numBoxes; i++) {
         const boxA = document.createElement('span');
         const boxB = document.createElement('span');
         boxA.className = boxB.className = 'point-box';
@@ -57,17 +63,6 @@ function sendUpdate(extra = {}) {
     }));
 }
 
-function checkDeuceAndUpdate() {
-    // If both teams reach totalPoints - 1, increase totalPoints by 1 (deuce)
-    if (!isMatchEnded && scoreA === totalPoints - 1 && scoreB === totalPoints - 1) {
-        totalPoints += 1;
-        updateUI();
-        sendUpdate({ commentary: `Deuce! Match extended to ${totalPoints} points.` });
-        return true;
-    }
-    return false;
-}
-
 function checkAutoWin() {
     if (!isMatchEnded) {
         if (scoreA === totalPoints) {
@@ -114,10 +109,8 @@ window.addEventListener('DOMContentLoaded', () => {
         if (isMatchEnded) return;
         scoreA++;
         pointsHistory.push("A");
-        if (!checkDeuceAndUpdate()) {
-            if (!checkAutoWin()) {
-                sendUpdate({ commentary: `${team1Name} scored a point!` });
-            }
+        if (!checkAutoWin()) {
+            sendUpdate({ commentary: `${team1Name} scored a point!` });
         }
     };
 
@@ -125,10 +118,8 @@ window.addEventListener('DOMContentLoaded', () => {
         if (isMatchEnded) return;
         scoreB++;
         pointsHistory.push("B");
-        if (!checkDeuceAndUpdate()) {
-            if (!checkAutoWin()) {
-                sendUpdate({ commentary: `${team2Name} scored a point!` });
-            }
+        if (!checkAutoWin()) {
+            sendUpdate({ commentary: `${team2Name} scored a point!` });
         }
     };
 
@@ -150,4 +141,17 @@ window.addEventListener('DOMContentLoaded', () => {
         const commentary = document.getElementById('commentary-select').value;
         if (commentary) sendUpdate({ commentary });
     };
+
+    // Ensure commentary dropdown is visible and populated
+    const commentarySelect = document.getElementById('commentary-select');
+    if (commentarySelect) {
+        commentarySelect.style.display = '';
+        commentarySelect.innerHTML = `
+            <option value="">Select Commentary</option>
+            <option value="Brilliant smash by ${team1Name}!">Brilliant smash by ${team1Name}!</option>
+            <option value="Great rally, ${team2Name} scores!">Great rally, ${team2Name} scores!</option>
+            <option value="Unforced error by ${team1Name}.">Unforced error by ${team1Name}.</option>
+            <option value="${team2Name} dominates the net!">${team2Name} dominates the net!</option>
+        `;
+    }
 });
