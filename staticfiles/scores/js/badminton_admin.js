@@ -28,6 +28,11 @@ function updateUI() {
     document.getElementById('score').textContent = `${scoreA} - ${scoreB}`;
     document.getElementById('total-points').textContent = totalPoints;
     renderBoxes(pointsHistory, totalPoints);
+    // Show winner if match ended
+    if (isMatchEnded) {
+        const winner = scoreA === totalPoints ? team1Name : scoreB === totalPoints ? team2Name : null;
+        showEndMessage(winner);
+    }
 }
 
 function showEndMessage(winner) {
@@ -52,6 +57,34 @@ function sendUpdate(extra = {}) {
     }));
 }
 
+function checkDeuceAndUpdate() {
+    // If both teams reach totalPoints - 1, increase totalPoints by 1 (deuce)
+    if (!isMatchEnded && scoreA === totalPoints - 1 && scoreB === totalPoints - 1) {
+        totalPoints += 1;
+        updateUI();
+        sendUpdate({ commentary: `Deuce! Match extended to ${totalPoints} points.` });
+        return true;
+    }
+    return false;
+}
+
+function checkAutoWin() {
+    if (!isMatchEnded) {
+        if (scoreA === totalPoints) {
+            isMatchEnded = true;
+            sendUpdate({ winner: "A", commentary: `Game over! ${team1Name} wins with a score of ${scoreA} - ${scoreB}!` });
+            showEndMessage(team1Name);
+            return true;
+        } else if (scoreB === totalPoints) {
+            isMatchEnded = true;
+            sendUpdate({ winner: "B", commentary: `Game over! ${team2Name} wins with a score of ${scoreA} - ${scoreB}!` });
+            showEndMessage(team2Name);
+            return true;
+        }
+    }
+    return false;
+}
+
 function connectWS() {
     ws = new WebSocket(wsUrl);
 
@@ -62,10 +95,9 @@ function connectWS() {
         if (typeof data.scoreB === "number") scoreB = data.scoreB;
         if (typeof data.totalPoints === "number") totalPoints = data.totalPoints;
         if (Array.isArray(data.pointsHistory)) pointsHistory = data.pointsHistory;
+        isMatchEnded = !!data.matchEnded;
         updateUI();
-
-        if (data.matchEnded && !isMatchEnded) {
-            isMatchEnded = true;
+        if (isMatchEnded) {
             const winner = data.winner === "A" ? team1Name : data.winner === "B" ? team2Name : null;
             showEndMessage(winner);
         }
@@ -82,26 +114,36 @@ window.addEventListener('DOMContentLoaded', () => {
         if (isMatchEnded) return;
         scoreA++;
         pointsHistory.push("A");
-        sendUpdate({ commentary: `${team1Name} scored a point!` });
+        if (!checkDeuceAndUpdate()) {
+            if (!checkAutoWin()) {
+                sendUpdate({ commentary: `${team1Name} scored a point!` });
+            }
+        }
     };
 
     document.getElementById('teamB-plus').onclick = () => {
         if (isMatchEnded) return;
         scoreB++;
         pointsHistory.push("B");
-        sendUpdate({ commentary: `${team2Name} scored a point!` });
+        if (!checkDeuceAndUpdate()) {
+            if (!checkAutoWin()) {
+                sendUpdate({ commentary: `${team2Name} scored a point!` });
+            }
+        }
     };
 
     document.getElementById('win-teamA').onclick = () => {
         if (isMatchEnded) return;
         isMatchEnded = true;
         sendUpdate({ winner: "A", commentary: `Game over! ${team1Name} wins with a score of ${scoreA} - ${scoreB}!` });
+        showEndMessage(team1Name);
     };
 
     document.getElementById('win-teamB').onclick = () => {
         if (isMatchEnded) return;
         isMatchEnded = true;
         sendUpdate({ winner: "B", commentary: `Game over! ${team2Name} wins with a score of ${scoreA} - ${scoreB}!` });
+        showEndMessage(team2Name);
     };
 
     document.getElementById('post-commentary').onclick = () => {

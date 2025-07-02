@@ -76,7 +76,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'livesports_project.wsgi.application'
 ASGI_APPLICATION = 'livesports_project.asgi.application'
-
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -145,9 +149,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # <-- Add this line
 # For media files (if you upload images later)
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}

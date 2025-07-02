@@ -31,13 +31,17 @@ function updateUI(data) {
         document.getElementById('commentary').textContent = data.commentary;
     }
 
-    if (data.matchEnded && !matchEnded) {
+    if (data.matchEnded) {
         matchEnded = true;
         const winnerName = data.winner === "A" ? data.team1_name : data.winner === "B" ? data.team2_name : "No specific team";
         document.getElementById('live-container').style.opacity = 0.5;
         const msg = `Match Over! ${winnerName} Wins! Final Score: ${data.scoreA} - ${data.scoreB}`;
         document.getElementById('match-end-message').innerHTML = msg;
         document.getElementById('match-end-message').style.display = '';
+    } else {
+        matchEnded = false;
+        document.getElementById('live-container').style.opacity = 1;
+        document.getElementById('match-end-message').style.display = 'none';
     }
 }
 

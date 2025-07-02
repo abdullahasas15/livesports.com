@@ -3,8 +3,6 @@ import json
 from apps.tournaments.models import Match
 from asgiref.sync import sync_to_async
 
-match_states = {}
-
 class BadmintonConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.match_id = self.scope['url_route']['kwargs']['match_id']
@@ -13,9 +11,41 @@ class BadmintonConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
 
+        # Always load the latest state from the DB
+        current_state = await self.get_match_state_from_db()
+        await self.send(text_data=json.dumps(current_state))
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        # Always load the latest state from the DB
+        state = await self.get_match_state_from_db()
+
+        # Update state with incoming data
+        state.update({
+            k: v for k, v in data.items()
+            if k in state and v is not None
+        })
+
+        await self.save_match_state_to_db(state)
+
+        # Reload state from DB to ensure consistency
+        updated_state = await self.get_match_state_from_db()
+        await self.channel_layer.group_send(
+            self.group_name,
+            {'type': 'score_update', **updated_state, 'commentary': data.get('commentary', '')}
+        )
+
+    async def score_update(self, event):
+        await self.send(text_data=json.dumps(event))
+
+    @sync_to_async
+    def get_match_state_from_db(self):
         try:
-            match = await sync_to_async(Match.objects.get)(id=self.match_id)
-            current_state = {
+            match = Match.objects.get(id=self.match_id)
+            return {
                 "scoreA": match.score_team1,
                 "scoreB": match.score_team2,
                 "totalPoints": match.total_points,
@@ -32,38 +62,13 @@ class BadmintonConsumer(AsyncWebsocketConsumer):
                 "status": match.status,
             }
         except Match.DoesNotExist:
-            current_state = {
+            return {
                 "scoreA": 0, "scoreB": 0, "totalPoints": 21, "matchStarted": False,
                 "pointsHistory": [], "team1_name": "Team A", "team2_name": "Team B",
                 "player1_team1_name": "", "player2_team1_name": "",
                 "player1_team2_name": "", "player2_team2_name": "",
                 "matchEnded": False, "winner": None, "status": Match.STATUS_SCHEDULED
             }
-
-        match_states[self.match_id] = current_state
-        await self.send(text_data=json.dumps(current_state))
-
-    async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.group_name, self.channel_name)
-
-    async def receive(self, text_data):
-        data = json.loads(text_data)
-        state = match_states.get(self.match_id, {})
-
-        state.update({
-            k: v for k, v in data.items()
-            if k in state and v is not None
-        })
-
-        await self.save_match_state_to_db(state)
-
-        await self.channel_layer.group_send(
-            self.group_name,
-            {'type': 'score_update', **state, 'commentary': data.get('commentary', '')}
-        )
-
-    async def score_update(self, event):
-        await self.send(text_data=json.dumps(event))
 
     @sync_to_async
     def save_match_state_to_db(self, state):
