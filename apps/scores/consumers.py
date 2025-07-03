@@ -60,6 +60,8 @@ class BadmintonConsumer(AsyncWebsocketConsumer):
                 "matchEnded": match.status == Match.STATUS_COMPLETED,
                 "winner": "A" if match.winner == match.team1 else ("B" if match.winner == match.team2 else None),
                 "status": match.status,
+                "points_team1": match.points_team1,
+                "points_team2": match.points_team2,
             }
         except Match.DoesNotExist:
             return {
@@ -67,7 +69,8 @@ class BadmintonConsumer(AsyncWebsocketConsumer):
                 "pointsHistory": [], "team1_name": "Team A", "team2_name": "Team B",
                 "player1_team1_name": "", "player2_team1_name": "",
                 "player1_team2_name": "", "player2_team2_name": "",
-                "matchEnded": False, "winner": None, "status": Match.STATUS_SCHEDULED
+                "matchEnded": False, "winner": None, "status": Match.STATUS_SCHEDULED,
+                "points_team1": 0, "points_team2": 0,
             }
 
     @sync_to_async
@@ -90,6 +93,12 @@ class BadmintonConsumer(AsyncWebsocketConsumer):
                 match.winner = match.team2
             else:
                 match.winner = None
+
+            # Save points if provided
+            if 'points_team1' in state and state['points_team1'] is not None:
+                match.points_team1 = state['points_team1']
+            if 'points_team2' in state and state['points_team2'] is not None:
+                match.points_team2 = state['points_team2']
 
             match.save()
         except Exception as e:

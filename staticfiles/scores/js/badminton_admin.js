@@ -48,32 +48,50 @@ function showEndMessage(winner) {
     msgDiv.style.display = '';
 }
 
-function sendUpdate(extra = {}) {
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    ws.send(JSON.stringify({
-        scoreA,
-        scoreB,
-        totalPoints,
-        pointsHistory,
-        matchStarted: true,
-        matchEnded: isMatchEnded,
-        winner: extra.winner || null,
-        commentary: extra.commentary || "",
-        status: isMatchEnded ? 'completed' : 'live'
-    }));
+function showPointsModal(winner) {
+    const modal = document.getElementById('points-modal');
+    const team1Span = document.getElementById('modal-team1-name');
+    const team2Span = document.getElementById('modal-team2-name');
+    const pointsTeam1Input = document.getElementById('points-team1');
+    const pointsTeam2Input = document.getElementById('points-team2');
+    team1Span.textContent = team1Name;
+    team2Span.textContent = team2Name;
+    // Default: winner gets 2, loser gets 0
+    if (winner === 'A') {
+        pointsTeam1Input.value = 2;
+        pointsTeam2Input.value = 0;
+    } else if (winner === 'B') {
+        pointsTeam1Input.value = 0;
+        pointsTeam2Input.value = 2;
+    } else {
+        pointsTeam1Input.value = 0;
+        pointsTeam2Input.value = 0;
+    }
+    modal.style.display = 'flex';
+    // Focus first input
+    setTimeout(() => pointsTeam1Input.focus(), 100);
+
+    // Handler for Done button
+    document.getElementById('points-modal-done').onclick = function() {
+        modal.style.display = 'none';
+        const pts1 = parseInt(pointsTeam1Input.value) || 0;
+        const pts2 = parseInt(pointsTeam2Input.value) || 0;
+        // Send points to backend (via WebSocket extra fields)
+        sendUpdate({ points_team1: pts1, points_team2: pts2, winner });
+        // Optionally, update UI or reload
+        showEndMessage(winner === 'A' ? team1Name : winner === 'B' ? team2Name : null);
+    };
 }
 
 function checkAutoWin() {
     if (!isMatchEnded) {
         if (scoreA === totalPoints) {
             isMatchEnded = true;
-            sendUpdate({ winner: "A", commentary: `Game over! ${team1Name} wins with a score of ${scoreA} - ${scoreB}!` });
-            showEndMessage(team1Name);
+            showPointsModal('A');
             return true;
         } else if (scoreB === totalPoints) {
             isMatchEnded = true;
-            sendUpdate({ winner: "B", commentary: `Game over! ${team2Name} wins with a score of ${scoreA} - ${scoreB}!` });
-            showEndMessage(team2Name);
+            showPointsModal('B');
             return true;
         }
     }
@@ -126,15 +144,13 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('win-teamA').onclick = () => {
         if (isMatchEnded) return;
         isMatchEnded = true;
-        sendUpdate({ winner: "A", commentary: `Game over! ${team1Name} wins with a score of ${scoreA} - ${scoreB}!` });
-        showEndMessage(team1Name);
+        showPointsModal('A');
     };
 
     document.getElementById('win-teamB').onclick = () => {
         if (isMatchEnded) return;
         isMatchEnded = true;
-        sendUpdate({ winner: "B", commentary: `Game over! ${team2Name} wins with a score of ${scoreA} - ${scoreB}!` });
-        showEndMessage(team2Name);
+        showPointsModal('B');
     };
 
     document.getElementById('post-commentary').onclick = () => {
@@ -155,3 +171,20 @@ window.addEventListener('DOMContentLoaded', () => {
         `;
     }
 });
+
+function sendUpdate(extra = {}) {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    ws.send(JSON.stringify({
+        scoreA,
+        scoreB,
+        totalPoints,
+        pointsHistory,
+        matchStarted: true,
+        matchEnded: isMatchEnded,
+        winner: extra.winner || null,
+        commentary: extra.commentary || "",
+        status: isMatchEnded ? 'completed' : 'live',
+        points_team1: extra.points_team1,
+        points_team2: extra.points_team2
+    }));
+}

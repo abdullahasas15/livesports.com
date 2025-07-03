@@ -2,6 +2,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
+<div class="badminton-bg"></div>
 <link rel="stylesheet" href="{% static 'scores/css/badminton_admin.css' %}">
 <div class="admin-container" id="admin-container">
     <div id="scoring-section">
@@ -45,6 +46,20 @@
         <div id="commentary-log"></div>
     </div>
     <div id="match-end-message" style="display:none;"></div>
+</div>
+<div id="points-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:12px; max-width:350px; width:90%; margin:auto; padding:32px 24px; box-shadow:0 8px 32px rgba(0,0,0,0.18); text-align:center;">
+    <h3 style="margin-bottom:18px; font-size:1.3rem; color:#2563eb;">Enter Points for Teams</h3>
+    <div style="margin-bottom:14px;">
+      <label for="points-team1" style="font-weight:600; color:#222;">Points for <span id="modal-team1-name"></span>:</label>
+      <input type="number" id="points-team1" min="0" value="2" style="width:80px; margin-left:10px; padding:6px 8px; border-radius:6px; border:1px solid #ccc;">
+    </div>
+    <div style="margin-bottom:22px;">
+      <label for="points-team2" style="font-weight:600; color:#222;">Points for <span id="modal-team2-name"></span>:</label>
+      <input type="number" id="points-team2" min="0" value="0" style="width:80px; margin-left:10px; padding:6px 8px; border-radius:6px; border:1px solid #ccc;">
+    </div>
+    <button id="points-modal-done" style="background:#2563eb; color:#fff; font-weight:700; border:none; border-radius:8px; padding:10px 28px; font-size:1.1rem; cursor:pointer;">Done</button>
+  </div>
 </div>
 <script>
     const matchId = "{{ match.id }}";
