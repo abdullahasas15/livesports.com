@@ -157,12 +157,12 @@ def manage_matches_view(request, tournament_id):
                     'team1Id': match.team1.id,
                     'team2Id': match.team2.id,
                 }
-                if game_obj.name == 'Badminton': # Only include these fields for Badminton
+                if game_obj.name == 'Badminton':
                     match_data['totalPoints'] = match.total_points
-                    match_data['player1Team1Name'] = match.player1_team1 # New field
-                    match_data['player2Team1Name'] = match.player2_team1 # New field
-                    match_data['player1Team2Name'] = match.player1_team2 # New field
-                    match_data['player2Team2Name'] = match.player2_team2 # New field
+                    match_data['player1Team1Name'] = match.player1_team1
+                    match_data['player2Team1Name'] = match.player2_team1
+                    match_data['player1Team2Name'] = match.player1_team2
+                    match_data['player2Team2Name'] = match.player2_team2
                 matches_list.append(match_data)
             existing_matches_by_game_data[game_obj.id] = {
                 'numMatches': matches.count(),
@@ -180,8 +180,11 @@ def manage_matches_view(request, tournament_id):
                     if num_matches < 0:
                         raise ValueError(f"Number of matches for {game_obj.name} cannot be negative.")
 
-                    # Delete existing matches for this game before re-creating them
-                    Match.objects.filter(tournament=tournament, game=game_obj).delete()
+                    # Only add new matches, do not delete existing ones
+                    existing_match_numbers = set(
+                        Match.objects.filter(tournament=tournament, game=game_obj).values_list('match_number', flat=True)
+                    )
+                    next_match_number = max(existing_match_numbers) + 1 if existing_match_numbers else 1
 
                     for i in range(1, num_matches + 1):
                         team1_key = f'game_{game_obj.id}_match_{i}_team1'
@@ -196,7 +199,7 @@ def manage_matches_view(request, tournament_id):
                         player1_team2_name = '' 
                         player2_team2_name = '' 
                         
-                        if game_obj.name == 'Badminton': # Only process these fields for Badminton
+                        if game_obj.name == 'Badminton':
                             total_points_key = f'game_{game_obj.id}_match_{i}_total_points'
                             player1_team1_name_key = f'game_{game_obj.id}_match_{i}_player1_team1_name'
                             player2_team1_name_key = f'game_{game_obj.id}_match_{i}_player2_team1_name'
@@ -209,18 +212,15 @@ def manage_matches_view(request, tournament_id):
                             player1_team2_name = request.POST.get(player1_team2_name_key, '').strip()
                             player2_team2_name = request.POST.get(player2_team2_name_key, '').strip()
 
-                            # Validation for Badminton specific fields
                             if not total_points_val or not total_points_val.isdigit() or not (1 <= int(total_points_val) <= 99):
                                 raise ValueError(f"Please enter a valid number of points (1-99) for Match {i} of {game_obj.name}.")
                             total_points_val = int(total_points_val)
 
-                            # At least one player name must be provided for each team
                             if not player1_team1_name and not player2_team1_name:
                                 raise ValueError(f"Please enter at least one player name for Team 1 in Match {i} of {game_obj.name}.")
                             if not player1_team2_name and not player2_team2_name:
                                 raise ValueError(f"Please enter at least one player name for Team 2 in Match {i} of {game_obj.name}.")
 
-                            # If two players are provided for a team, their names must be different
                             if player1_team1_name and player2_team1_name and player1_team1_name == player2_team1_name:
                                 raise ValueError(f"Player 1 and Player 2 names for Team 1 cannot be the same in Match {i} of {game_obj.name}.")
                             if player1_team2_name and player2_team2_name and player1_team2_name == player2_team2_name:
@@ -238,10 +238,11 @@ def manage_matches_view(request, tournament_id):
                         match_kwargs = {
                             'tournament': tournament,
                             'game': game_obj,
-                            'match_number': i,
+                            'match_number': next_match_number,
                             'team1': team1,
                             'team2': team2,
                         }
+                        next_match_number += 1
                         if total_points_val is not None:
                             match_kwargs['total_points'] = total_points_val
                         if player1_team1_name:
@@ -347,7 +348,7 @@ def tournament_details_view(request, tournament_id):
         matches_data = Match.objects.filter(tournament=tournament, game=game).order_by('match_number').values(
             'id', 'match_number', 'score_team1', 'score_team2', 'total_points',
             'status', 'winner__name', 'team1__id', 'team1__name', 'team2__id', 'team2__name',
-            'player1_team1', 'player2_team1', 'player1_team2', 'player2_team2' # Include all four player names
+            'player1_team1', 'player2_team1', 'player1_team2', 'player2_team2'
         )
         matches_by_game_data[game.name] = list(matches_data)
 
@@ -365,7 +366,7 @@ def add_more_matches_view(request, tournament_id, game_id):
     # Ensure only staff can add matches
     if not request.user.is_staff:
         messages.error(request, "You do not have permission to add matches.")
-        return redirect('home:home') # Redirect if not staff
+        return redirect('home:home')
 
     tournament = get_object_or_404(Tournament, id=tournament_id, created_by=request.user)
     game = get_object_or_404(Game, id=game_id)
@@ -374,8 +375,6 @@ def add_more_matches_view(request, tournament_id, game_id):
     tournament_teams_json = json.dumps([{'id': team.id, 'name': team.name} for team in tournament_teams_queryset])
 
     existing_matches = Match.objects.filter(tournament=tournament, game=game).order_by('match_number')
-    
-    initial_num_matches = existing_matches.count()
     existing_match_data = []
     for match in existing_matches:
         match_data = {
@@ -383,14 +382,13 @@ def add_more_matches_view(request, tournament_id, game_id):
             'team1Id': match.team1.id,
             'team2Id': match.team2.id,
         }
-        if game.name == 'Badminton': # Only include these fields for Badminton
+        if game.name == 'Badminton':
             match_data['totalPoints'] = match.total_points
             match_data['player1Team1Name'] = match.player1_team1
             match_data['player2Team1Name'] = match.player2_team1
             match_data['player1Team2Name'] = match.player1_team2
             match_data['player2Team2Name'] = match.player2_team2
         existing_match_data.append(match_data)
-
 
     if request.method == 'POST':
         num_matches_key = f'num_matches_{game.id}'
@@ -410,7 +408,7 @@ def add_more_matches_view(request, tournament_id, game_id):
             player1_team2_name = '' 
             player2_team2_name = '' 
             
-            if game.name == 'Badminton': # Only process these fields for Badminton
+            if game.name == 'Badminton':
                 total_points_key = f'game_{game.id}_match_{i}_total_points'
                 player1_team1_name_key = f'game_{game.id}_match_{i}_player1_team1_name'
                 player2_team1_name_key = f'game_{game.id}_match_{i}_player2_team1_name'
@@ -423,10 +421,9 @@ def add_more_matches_view(request, tournament_id, game_id):
                 player1_team2_name = request.POST.get(player1_team2_name_key, '').strip()
                 player2_team2_name = request.POST.get(player2_team2_name_key, '').strip()
 
-                # Validation for Badminton specific fields
                 if not total_points_val or not total_points_val.isdigit() or not (1 <= int(total_points_val) <= 99):
                     messages.error(request, f"Please enter a valid number of points (1-99) for Match {i} of {game.name}.")
-                    context = { # Re-render with error
+                    context = {
                         'tournament': tournament, 'game': game, 'tournament_teams': tournament_teams_json,
                         'initial_num_matches': num_matches, 'existing_match_data': json.dumps([
                             {'match_number': i, 'team1Id': team1_id, 'team2Id': team2_id, 'totalPoints': total_points_val, 
@@ -438,10 +435,9 @@ def add_more_matches_view(request, tournament_id, game_id):
                     return render(request, 'add_more_matches.html', context)
                 total_points_val = int(total_points_val)
 
-                # At least one player name must be provided for each team
                 if not player1_team1_name and not player2_team1_name:
                     messages.error(request, f"Please enter at least one player name for Team 1 in Match {i} of {game.name}.")
-                    context = { # Re-render with error
+                    context = {
                         'tournament': tournament, 'game': game, 'tournament_teams': tournament_teams_json,
                         'initial_num_matches': num_matches, 'existing_match_data': json.dumps([
                             {'match_number': i, 'team1Id': team1_id, 'team2Id': team2_id, 'totalPoints': total_points_val, 
@@ -453,7 +449,7 @@ def add_more_matches_view(request, tournament_id, game_id):
                     return render(request, 'add_more_matches.html', context)
                 if not player1_team2_name and not player2_team2_name:
                     messages.error(request, f"Please enter at least one player name for Team 2 in Match {i} of {game.name}.")
-                    context = { # Re-render with error
+                    context = {
                         'tournament': tournament, 'game': game, 'tournament_teams': tournament_teams_json,
                         'initial_num_matches': num_matches, 'existing_match_data': json.dumps([
                             {'match_number': i, 'team1Id': team1_id, 'team2Id': team2_id, 'totalPoints': total_points_val, 
@@ -464,7 +460,6 @@ def add_more_matches_view(request, tournament_id, game_id):
                     }
                     return render(request, 'add_more_matches.html', context)
 
-                # If two players are provided for a team, their names must be different
                 if player1_team1_name and player2_team1_name and player1_team1_name == player2_team1_name:
                     raise ValueError(f"Player 1 and Player 2 names for Team 1 cannot be the same in Match {i} of {game.name}.")
                 if player1_team2_name and player2_team2_name and player1_team2_name == player2_team2_name:
@@ -488,33 +483,35 @@ def add_more_matches_view(request, tournament_id, game_id):
                 return render(request, 'add_more_matches.html', context)
             
             new_match_data_list.append({
-                'match_number': i,
                 'team1_id': team1_id,
                 'team2_id': team2_id,
-                'total_points': total_points_val, # Can be None for non-badminton
-                'player1_team1_name': player1_team1_name, # Can be empty for non-badminton
-                'player2_team1_name': player2_team1_name, # Can be empty for non-badminton
-                'player1_team2_name': player1_team2_name, # Can be empty for non-badminton
-                'player2_team2_name': player2_team2_name, # Can be empty for non-badminton
+                'total_points': total_points_val,
+                'player1_team1_name': player1_team1_name,
+                'player2_team1_name': player2_team1_name,
+                'player1_team2_name': player1_team2_name,
+                'player2_team2_name': player2_team2_name,
             })
         
         try:
             with transaction.atomic():
-                current_max_match_number = Match.objects.filter(tournament=tournament, game=game).count()
-                
+                # Find the current max match_number for this game
+                existing_match_numbers = set(
+                    Match.objects.filter(tournament=tournament, game=game).values_list('match_number', flat=True)
+                )
+                next_match_number = max(existing_match_numbers) + 1 if existing_match_numbers else 1
+
                 for new_match_info in new_match_data_list:
-                    match_number_to_add = current_max_match_number + new_match_info['match_number']
-                    
                     team1 = get_object_or_404(Team, id=new_match_info['team1_id'], tournament=tournament)
                     team2 = get_object_or_404(Team, id=new_match_info['team2_id'], tournament=tournament)
 
                     if team1 == team2:
-                        raise ValueError(f"Team 1 and Team 2 cannot be the same for Match {new_match_info['match_number']}.")
+                        raise ValueError(f"Team 1 and Team 2 cannot be the same for this match.")
 
-                    match_kwargs = { # Prepare kwargs for Match.objects.create
-                        'tournament': tournament, 'game': game, 'match_number': match_number_to_add,
+                    match_kwargs = {
+                        'tournament': tournament, 'game': game, 'match_number': next_match_number,
                         'team1': team1, 'team2': team2
                     }
+                    next_match_number += 1
                     if new_match_info['total_points'] is not None:
                         match_kwargs['total_points'] = new_match_info['total_points']
                     if new_match_info['player1_team1_name']:
@@ -555,7 +552,6 @@ def add_more_matches_view(request, tournament_id, game_id):
     }
     return render(request, 'add_more_matches.html', context)
 
-
 @login_required
 def matches_configured_view(request):
     return render(request, 'matches_configured.html')
@@ -563,5 +559,4 @@ def matches_configured_view(request):
 def admin_logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out.")
-    return redirect('home:home')
-
+    return

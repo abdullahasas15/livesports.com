@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import Game, Tournament
+from .models import Tournament, Game, Team, Match
 
-    # Register your models here.
-admin.site.register(Game)
 admin.site.register(Tournament)
-    
+admin.site.register(Game)
+admin.site.register(Team)
+admin.site.register(Match)
