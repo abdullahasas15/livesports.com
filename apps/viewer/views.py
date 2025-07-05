@@ -72,7 +72,7 @@ def viewer_tournament_details_view(request, tournament_id):
         matches_data = Match.objects.filter(tournament=tournament, game=game).order_by('match_number').values(
             'id', 'match_number', 'score_team1', 'score_team2', 'total_points',
             'status', 'winner__name', 'team1__id', 'team1__name', 'team2__id', 'team2__name',
-            'player1_team1', 'player2_team1', 'player1_team2', 'player2_team2'
+            'player1_team1', 'player2_team1', 'player1_team2', 'player2_team2','description'
         )
         matches_by_game_data[game.name] = list(matches_data)
 

@@ -78,14 +78,31 @@ class Match(models.Model):
     points_team1 = models.IntegerField(default=0, verbose_name='Points for Team 1')
     points_team2 = models.IntegerField(default=0, verbose_name='Points for Team 2')
 
+    # Volleyball player names for Team 1 (optional)
+    volleyball_player1_team1 = models.CharField(max_length=100, blank=True, verbose_name='Volleyball Player 1 (Team 1)')
+    volleyball_player2_team1 = models.CharField(max_length=100, blank=True, verbose_name='Volleyball Player 2 (Team 1)')
+    volleyball_player3_team1 = models.CharField(max_length=100, blank=True, verbose_name='Volleyball Player 3 (Team 1)')
+    volleyball_player4_team1 = models.CharField(max_length=100, blank=True, verbose_name='Volleyball Player 4 (Team 1)')
+    volleyball_player5_team1 = models.CharField(max_length=100, blank=True, verbose_name='Volleyball Player 5 (Team 1)')
+    volleyball_player6_team1 = models.CharField(max_length=100, blank=True, verbose_name='Volleyball Player 6 (Team 1)')
+    # Volleyball player names for Team 2 (optional)
+    volleyball_player1_team2 = models.CharField(max_length=100, blank=True, verbose_name='Volleyball Player 1 (Team 2)')
+    volleyball_player2_team2 = models.CharField(max_length=100, blank=True, verbose_name='Volleyball Player 2 (Team 2)')
+    volleyball_player3_team2 = models.CharField(max_length=100, blank=True, verbose_name='Volleyball Player 3 (Team 2)')
+    volleyball_player4_team2 = models.CharField(max_length=100, blank=True, verbose_name='Volleyball Player 4 (Team 2)')
+    volleyball_player5_team2 = models.CharField(max_length=100, blank=True, verbose_name='Volleyball Player 5 (Team 2)')
+    volleyball_player6_team2 = models.CharField(max_length=100, blank=True, verbose_name='Volleyball Player 6 (Team 2)')
+
     status = models.CharField(max_length=20, choices=MATCH_STATUS_CHOICES, default=STATUS_SCHEDULED)
     winner = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='matches_won')
 
-    points_history_json = models.TextField(blank=True, default='[]')  # <-- ADD THIS LINE
+    points_history_json = models.TextField(blank=True, default='[]')
+
+    description = models.CharField(max_length=255, blank=True, default='No description', verbose_name='Description')
 
     class Meta:
         ordering = ['game__name', 'match_number']
-        unique_together = ('tournament', 'game', 'match_number')
+        unique_together = ('tournament', 'game', 'match_number')  # Enforce unique match_number per tournament+game for data integrity
 
     def __str__(self):
         # Display players if available

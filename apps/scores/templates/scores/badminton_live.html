@@ -33,8 +33,9 @@
         </div>
     </div>
     <div id="commentary"></div>
+    <div id="match-end-message" style="display:none;"></div>
 </div>
-<div id="match-end-message" style="display:none;"></div>
+
 <!-- ADD THIS HIDDEN INPUT FOR JS -->
 <input type="hidden" id="ws-url" value="{% if request.is_secure %}wss{% else %}ws{% endif %}://{{ request.get_host }}/ws/badminton/{{ match.id }}/">
 <script>

@@ -124,9 +124,12 @@
 
                 let totalPointsHtml = '';
                 let playerInputsHtml = '';
+                let descriptionHtml = '';
+                let savedMatch = null;
+                let savedDescription = '';
 
-                if (gameName === 'Badminton') {
-                    const savedMatch = (existingMatchData && existingMatchData.length >= i) ? existingMatchData[i - 1] : null;
+                if (gameName === 'Badminton' || gameName === 'Volleyball') {
+                    savedMatch = (existingMatchData && existingMatchData.length >= i) ? existingMatchData[i - 1] : null;
                     const savedTotalPoints = savedMatch && savedMatch.totalPoints ? savedMatch.totalPoints : '21';
                     const savedPlayer1Team1Name = savedMatch && savedMatch.player1Team1Name ? savedMatch.player1Team1Name : '';
                     const savedPlayer2Team1Name = savedMatch && savedMatch.player2Team1Name ? savedMatch.player2Team1Name : '';
@@ -181,47 +184,71 @@
                             </div>
                         </div>
                     `;
+                    savedDescription = savedMatch && savedMatch.description ? savedMatch.description : '';
                 }
+
+                if (gameName === 'Volleyball') {
+                    const savedMatch = (existingMatchData && existingMatchData.length >= i) ? existingMatchData[i - 1] : null;
+                    let volleyballPlayersTeam1 = '';
+                    let volleyballPlayersTeam2 = '';
+                    for (let p = 1; p <= 6; p++) {
+                        const val1 = savedMatch && savedMatch[`volleyballPlayer${p}Team1`] ? savedMatch[`volleyballPlayer${p}Team1`] : '';
+                        const val2 = savedMatch && savedMatch[`volleyballPlayer${p}Team2`] ? savedMatch[`volleyballPlayer${p}Team2`] : '';
+                        volleyballPlayersTeam1 += `<div class='player-input-group'><label>Player ${p} (Team 1):</label><input type='text' name='game_{{ game.id }}_match_${i}_volleyball_player${p}_team1' id='game_{{ game.id }}_match_${i}_volleyball_player${p}_team1' class='form-control' value='${val1}' placeholder='Optional'></div>`;
+                        volleyballPlayersTeam2 += `<div class='player-input-group'><label>Player ${p} (Team 2):</label><input type='text' name='game_{{ game.id }}_match_${i}_volleyball_player${p}_team2' id='game_{{ game.id }}_match_${i}_volleyball_player${p}_team2' class='form-control' value='${val2}' placeholder='Optional'></div>`;
+                    }
+                    playerInputsHtml = `<div class='players-container'><div>${volleyballPlayersTeam1}</div><div>${volleyballPlayersTeam2}</div></div>`;
+                }
+
+                descriptionHtml = `
+                    <div class="form-group">
+                        <label for="game_{{ game.id }}_match_${i}_description">Description:</label>
+                        <textarea id="game_{{ game.id }}_match_${i}_description" name="game_{{ game.id }}_match_${i}_description" class="form-control" rows="2" placeholder="e.g. Boys match, Girls match, Friendly, etc.">${savedDescription}</textarea>
+                    </div>
+                `
+
+                // Create team selection dropdowns for each match
+                const team1Select = createTeamSelect(
+                    `game_{{ game.id }}_match_${i}_team1`,
+                    `game_{{ game.id }}_match_${i}_team1`,
+                    savedMatch ? savedMatch.team1Id : ''
+                );
+                const team2Select = createTeamSelect(
+                    `game_{{ game.id }}_match_${i}_team2`,
+                    `game_{{ game.id }}_match_${i}_team2`,
+                    savedMatch ? savedMatch.team2Id : ''
+                );
+
+                // Add a label for each select
+                const team1Label = document.createElement('label');
+                team1Label.htmlFor = team1Select.id;
+                team1Label.textContent = 'Team 1:';
+                const team2Label = document.createElement('label');
+                team2Label.htmlFor = team2Select.id;
+                team2Label.textContent = 'Team 2:';
+
+                // Append to the match group
+                matchGroup.appendChild(team1Label);
+                matchGroup.appendChild(team1Select);
+                matchGroup.appendChild(team2Label);
+                matchGroup.appendChild(team2Select);
 
                 matchGroup.innerHTML = `
-                    <h4>New Match ${i}</h4>
-                    <div class="team-select-group">
-                        <label for="game_{{ game.id }}_match_${i}_team1">Team 1:</label>
-                        <div id="select_container_team1_game_{{ game.id }}_match_${i}"></div>
+                    <div class="match-item">
+                        ${totalPointsHtml}
+                        ${playerInputsHtml}
+                        ${descriptionHtml}
                     </div>
-                    ${playerInputsHtml ? `<div class="players-container">${playerInputsHtml}</div>` : ''}
-                    <span class="vs-text">vs</span>
-                    <div class="team-select-group">
-                        <label for="game_{{ game.id }}_match_${i}_team2">Team 2:</label>
-                        <div id="select_container_team2_game_{{ game.id }}_match_${i}"></div>
-                    </div>
-                    ${totalPointsHtml}
                 `;
                 matchesListContainer.appendChild(matchGroup);
-
-                const team1Container = document.getElementById(`select_container_team1_game_{{ game.id }}_match_${i}`);
-                const team2Container = document.getElementById(`select_container_team2_game_{{ game.id }}_match_${i}`);
-
-                const savedMatch = (existingMatchData && existingMatchData.length >= i) ? existingMatchData[i - 1] : null;
-                const team1_selected = savedMatch ? savedMatch.team1Id : '';
-                const team2_selected = savedMatch ? savedMatch.team2Id : '';
-
-                const team1Select = createTeamSelect(`game_{{ game.id }}_match_${i}_team1`, `game_{{ game.id }}_match_${i}_team1`, team1_selected);
-                const team2Select = createTeamSelect(`game_{{ game.id }}_match_${i}_team2`, `game_{{ game.id }}_match_${i}_team2`, team2_selected);
-
-                if (team1Container) {
-                    team1Container.appendChild(team1Select);
-                }
-                if (team2Container) {
-                    team2Container.appendChild(team2Select);
-                }
             }
-        }
+        }   
 
-        if (numMatchesInput) {
-            numMatchesInput.addEventListener('input', generateMatchFields);
-            generateMatchFields(); // Initial generation on load
-        }
+        // Call on page load
+        generateMatchFields();
+
+        // Call whenever the number input changes
+        numMatchesInput.addEventListener('input', generateMatchFields);
     });
 </script>
-{% endblock content %}
+{% endblock %}

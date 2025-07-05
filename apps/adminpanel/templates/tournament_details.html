@@ -164,6 +164,7 @@
                         <p class="${scoreClass}">${scoreDisplay}</p>
                         <p class="match-status-info">${statusDisplay}</p>
                         <p class="match-points-info">Points to play: ${match.total_points || 'N/A'}</p>
+                        ${match.description ? `<p class="match-description" style="color:#7c3aed;font-weight:500;margin-top:4px;">${match.description}</p>` : ''}
                         <div class="match-actions">
                             <a href="#" class="btn primary-btn small-btn view-match-link" 
                                data-match-id="${match.id}" 
