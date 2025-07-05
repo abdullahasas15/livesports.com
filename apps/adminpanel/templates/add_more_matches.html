@@ -205,7 +205,7 @@
                         <label for="game_{{ game.id }}_match_${i}_description">Description:</label>
                         <textarea id="game_{{ game.id }}_match_${i}_description" name="game_{{ game.id }}_match_${i}_description" class="form-control" rows="2" placeholder="e.g. Boys match, Girls match, Friendly, etc.">${savedDescription}</textarea>
                     </div>
-                `
+                `;
 
                 // Create team selection dropdowns for each match
                 const team1Select = createTeamSelect(
@@ -227,19 +227,21 @@
                 team2Label.htmlFor = team2Select.id;
                 team2Label.textContent = 'Team 2:';
 
-                // Append to the match group
+                // Append team selects and labels to matchGroup
                 matchGroup.appendChild(team1Label);
                 matchGroup.appendChild(team1Select);
                 matchGroup.appendChild(team2Label);
                 matchGroup.appendChild(team2Select);
 
-                matchGroup.innerHTML = `
-                    <div class="match-item">
-                        ${totalPointsHtml}
-                        ${playerInputsHtml}
-                        ${descriptionHtml}
-                    </div>
+                // Create a wrapper for the rest of the fields
+                const restFieldsWrapper = document.createElement('div');
+                restFieldsWrapper.innerHTML = `
+                    ${totalPointsHtml}
+                    ${playerInputsHtml}
+                    ${descriptionHtml}
                 `;
+                matchGroup.appendChild(restFieldsWrapper);
+
                 matchesListContainer.appendChild(matchGroup);
             }
         }   
