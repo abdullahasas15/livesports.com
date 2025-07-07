@@ -1,3 +1,5 @@
+// In scores/static/scores/js/badminton_admin.js
+
 let pointsHistory = [];
 let isMatchEnded = false;
 
@@ -87,8 +89,9 @@ function checkAutoWin() {
     if (!isMatchEnded) {
         if (scoreA === totalPoints - 1 && scoreB === totalPoints - 1) {
             totalPoints += 2;
-            sendUpdate({ totalPoints }); // Notify backend and other clients
-            updateUI();
+            // The problematic line that caused a difference in behavior compared to volleyball:
+            // REMOVED: sendUpdate({ totalPoints }); // This was sending the totalPoints update to the backend prematurely.
+            updateUI(); // This updates the local UI.
             return false;
         }
         if (scoreA === totalPoints) {
