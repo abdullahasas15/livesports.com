@@ -8,7 +8,6 @@ function renderBoxes(history, total) {
     const teamB = document.getElementById('teamB-points');
     teamA.innerHTML = teamB.innerHTML = '';
 
-    // Always double the total points, and add 5 if filled, repeat as needed
     let numBoxes = total * 2;
     if (history.length > numBoxes) {
         numBoxes = Math.ceil((history.length - numBoxes) / 5) * 5 + numBoxes;
@@ -34,7 +33,6 @@ function updateUI() {
     document.getElementById('score').textContent = `${scoreA} - ${scoreB}`;
     document.getElementById('total-points').textContent = totalPoints;
     renderBoxes(pointsHistory, totalPoints);
-    // Show winner if match ended
     if (isMatchEnded) {
         const winner = scoreA === totalPoints ? team1Name : scoreB === totalPoints ? team2Name : null;
         showEndMessage(winner);
@@ -56,7 +54,6 @@ function showPointsModal(winner) {
     const pointsTeam2Input = document.getElementById('points-team2');
     team1Span.textContent = team1Name;
     team2Span.textContent = team2Name;
-    // Default: winner gets 2, loser gets 0
     if (winner === 'A') {
         pointsTeam1Input.value = 2;
         pointsTeam2Input.value = 0;
@@ -68,17 +65,13 @@ function showPointsModal(winner) {
         pointsTeam2Input.value = 0;
     }
     modal.style.display = 'flex';
-    // Focus first input
     setTimeout(() => pointsTeam1Input.focus(), 100);
 
-    // Handler for Done button
     document.getElementById('points-modal-done').onclick = function() {
         modal.style.display = 'none';
         const pts1 = parseInt(pointsTeam1Input.value) || 0;
         const pts2 = parseInt(pointsTeam2Input.value) || 0;
-        // Send points to backend (via WebSocket extra fields)
         sendUpdate({ points_team1: pts1, points_team2: pts2, winner });
-        // Optionally, update UI or reload
         showEndMessage(winner === 'A' ? team1Name : winner === 'B' ? team2Name : null);
     };
 }
@@ -87,7 +80,6 @@ function checkAutoWin() {
     if (!isMatchEnded) {
         if (scoreA === totalPoints - 1 && scoreB === totalPoints - 1) {
             totalPoints += 2;
-            sendUpdate({ totalPoints }); // Notify backend and other clients
             updateUI();
             return false;
         }
@@ -107,7 +99,7 @@ function checkAutoWin() {
 function connectWS() {
     ws = new WebSocket(wsUrl);
 
-    ws.onopen = () => console.log("Admin WebSocket connected.");
+    ws.onopen = () => console.log("Volleyball Admin WebSocket connected.");
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (typeof data.scoreA === "number") scoreA = data.scoreA;
@@ -164,14 +156,13 @@ window.addEventListener('DOMContentLoaded', () => {
         if (commentary) sendUpdate({ commentary });
     };
 
-    // Ensure commentary dropdown is visible and populated
     const commentarySelect = document.getElementById('commentary-select');
     if (commentarySelect) {
         commentarySelect.style.display = '';
         commentarySelect.innerHTML = `
             <option value="">Select Commentary</option>
-            <option value="Brilliant smash by ${team1Name}!">Brilliant smash by ${team1Name}!</option>
-            <option value="Great rally, ${team2Name} scores!">Great rally, ${team2Name} scores!</option>
+            <option value="Powerful spike by ${team1Name}!">Powerful spike by ${team1Name}!</option>
+            <option value="Great block, ${team2Name} scores!">Great block, ${team2Name} scores!</option>
             <option value="Unforced error by ${team1Name}.">Unforced error by ${team1Name}.</option>
             <option value="${team2Name} dominates the net!">${team2Name} dominates the net!</option>
         `;
@@ -193,4 +184,4 @@ function sendUpdate(extra = {}) {
         points_team1: extra.points_team1,
         points_team2: extra.points_team2
     }));
-}
+} 

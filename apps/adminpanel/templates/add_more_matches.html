@@ -147,7 +147,7 @@
 
                 // Points field (for games that use it)
                 let totalPointsHtml = '';
-                if (['badminton', 'table tennis', 'throw ball'].includes(gameName)) {
+                if (['badminton', 'table tennis', 'throw ball', 'volleyball'].includes(gameName)) {
                     const savedTotalPoints = savedMatch && savedMatch.totalPoints ? savedMatch.totalPoints : '21';
                     totalPointsHtml = `
                         <div class="form-group total-points-group">

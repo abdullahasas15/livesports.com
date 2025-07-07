@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="badminton-bg"></div>
+<link rel="stylesheet" href="{% static 'scores/css/volleyball_live.css' %}">
+<div class="viewer-container" id="live-container">
+    <h2>Volleyball Live Score</h2>
+    <div class="score-display-area">
+        <div class="team-row">
+            <div class="team-info">
+                <span class="team-name">{{ match.team1.name }}</span>
+                <p class="player-names">
+                    {% if match.volleyball_player1_team1 %}{{ match.volleyball_player1_team1 }}<br>{% endif %}
+                    {% if match.volleyball_player2_team1 %}{{ match.volleyball_player2_team1 }}<br>{% endif %}
+                    {% if match.volleyball_player3_team1 %}{{ match.volleyball_player3_team1 }}<br>{% endif %}
+                    {% if match.volleyball_player4_team1 %}{{ match.volleyball_player4_team1 }}<br>{% endif %}
+                    {% if match.volleyball_player5_team1 %}{{ match.volleyball_player5_team1 }}<br>{% endif %}
+                    {% if match.volleyball_player6_team1 %}{{ match.volleyball_player6_team1 }}<br>{% endif %}
+                </p>
+            </div>
+            <span class="score" id="score">{{ match.score_team1 }} - {{ match.score_team2 }}</span>
+            <div class="team-info">
+                <span class="team-name">{{ match.team2.name }}</span>
+                <p class="player-names">
+                    {% if match.volleyball_player1_team2 %}{{ match.volleyball_player1_team2 }}<br>{% endif %}
+                    {% if match.volleyball_player2_team2 %}{{ match.volleyball_player2_team2 }}<br>{% endif %}
+                    {% if match.volleyball_player3_team2 %}{{ match.volleyball_player3_team2 }}<br>{% endif %}
+                    {% if match.volleyball_player4_team2 %}{{ match.volleyball_player4_team2 }}<br>{% endif %}
+                    {% if match.volleyball_player5_team2 %}{{ match.volleyball_player5_team2 }}<br>{% endif %}
+                    {% if match.volleyball_player6_team2 %}{{ match.volleyball_player6_team2 }}<br>{% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="points-row">
+            <div id="teamA-points" class="points-column"></div>
+            <div id="teamB-points" class="points-column"></div>
+        </div>
+        <div class="points-to-play">
+            Points to play: <span id="total-points">{{ match.total_points }}</span>
+        </div>
+    </div>
+    <div id="commentary"></div>
+    <div id="match-end-message" style="display:none;"></div>
+</div>
+<input type="hidden" id="ws-url" value="{% if request.is_secure %}wss{% else %}ws{% endif %}://{{ request.get_host }}/ws/volleyball/{{ match.id }}/">
+<script>
+    const matchId = "{{ match.id }}";
+    const team1Name = "{{ match.team1.name|escapejs }}";
+    const team2Name = "{{ match.team2.name|escapejs }}";
+    let scoreA = {{ match.score_team1|default:0 }};
+    let scoreB = {{ match.score_team2|default:0 }};
+    let totalPoints = {{ match.total_points|default:25 }};
+</script>
+<script src="{% static 'scores/js/volleyball_live.js' %}"></script>
+{% endblock %}

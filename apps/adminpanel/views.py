@@ -221,7 +221,7 @@ def manage_matches_view(request, tournament_id):
 
                         # Handle extra fields for Badminton, Volleyball, Throwball, etc.
                         if game_obj.name == 'Badminton' or game_obj.name == 'Table Tennis':
-                            match_kwargs['total_points'] = request.POST.get(f'game_{game_obj.id}_match_{i}_total_points', 21)
+                            match_kwargs['total_points'] = request.POST.get(f'game_{game_obj.id}_match_{i}_total_points')
                             match_kwargs['player1_team1'] = request.POST.get(f'game_{game_obj.id}_match_{i}_player1_team1_name', '').strip()
                             match_kwargs['player2_team1'] = request.POST.get(f'game_{game_obj.id}_match_{i}_player2_team1_name', '').strip()
                             match_kwargs['player1_team2'] = request.POST.get(f'game_{game_obj.id}_match_{i}_player1_team2_name', '').strip()
@@ -234,7 +234,7 @@ def manage_matches_view(request, tournament_id):
                             for p in range(1, 10):
                                 match_kwargs[f'throwball_player{p}_team1'] = request.POST.get(f'game_{game_obj.id}_match_{i}_throwball_player{p}_team1', '').strip()
                                 match_kwargs[f'throwball_player{p}_team2'] = request.POST.get(f'game_{game_obj.id}_match_{i}_throwball_player{p}_team2', '').strip()
-                            match_kwargs['total_points'] = request.POST.get(f'game_{game_obj.id}_match_{i}_total_points', 21)
+                            match_kwargs['total_points'] = request.POST.get(f'game_{game_obj.id}_match_{i}_total_points')
                         # Add description if present
                         match_kwargs['description'] = request.POST.get(f'game_{game_obj.id}_match_{i}_description', '').strip()
 
@@ -415,64 +415,44 @@ def add_more_matches_view(request, tournament_id, game_id):
             team1_id = request.POST.get(team1_key)
             team2_id = request.POST.get(team2_key)
             
-            total_points_val = None 
-            player1_team1_name = '' 
-            player2_team1_name = '' 
-            player1_team2_name = '' 
-            player2_team2_name = '' 
-            
+            total_points_key = f'game_{game.id}_match_{i}_total_points'
+            total_points_val = request.POST.get(total_points_key)
+            if not total_points_val or not total_points_val.isdigit() or not (1 <= int(total_points_val) <= 99):
+                messages.error(request, f"Please enter a valid number of points (1-99) for Match {i} of {game.name}.")
+                context = {
+                    'tournament': tournament, 'game': game, 'tournament_teams': tournament_teams_json,
+                    'initial_num_matches': num_matches, 'existing_match_data': json.dumps(new_match_data_list), 'is_adding_new_matches': True,
+                }
+                return render(request, 'add_more_matches.html', context)
+            total_points_val = int(total_points_val)
+
+            player1_team1_name = ''
+            player2_team1_name = ''
+            player1_team2_name = ''
+            player2_team2_name = ''
             if game.name == 'Badminton' or game.name == 'Table Tennis':
-                total_points_key = f'game_{game.id}_match_{i}_total_points'
                 player1_team1_name_key = f'game_{game.id}_match_{i}_player1_team1_name'
                 player2_team1_name_key = f'game_{game.id}_match_{i}_player2_team1_name'
                 player1_team2_name_key = f'game_{game.id}_match_{i}_player1_team2_name'
                 player2_team2_name_key = f'game_{game.id}_match_{i}_player2_team2_name'
-
-                total_points_val = request.POST.get(total_points_key)
                 player1_team1_name = request.POST.get(player1_team1_name_key, '').strip()
                 player2_team1_name = request.POST.get(player2_team1_name_key, '').strip()
                 player1_team2_name = request.POST.get(player1_team2_name_key, '').strip()
                 player2_team2_name = request.POST.get(player2_team2_name_key, '').strip()
-
-                if not total_points_val or not total_points_val.isdigit() or not (1 <= int(total_points_val) <= 99):
-                    messages.error(request, f"Please enter a valid number of points (1-99) for Match {i} of {game.name}.")
-                    context = {
-                        'tournament': tournament, 'game': game, 'tournament_teams': tournament_teams_json,
-                        'initial_num_matches': num_matches, 'existing_match_data': json.dumps([
-                            {'match_number': i, 'team1Id': team1_id, 'team2Id': team2_id, 'totalPoints': total_points_val, 
-                             'player1Team1Name': player1_team1_name, 'player2Team1Name': player2_team1_name,
-                             'player1Team2Name': player1_team2_name, 'player2Team2Name': player2_team2_name}
-                            for i in range(1, num_matches + 1)
-                        ]), 'is_adding_new_matches': True,
-                    }
-                    return render(request, 'add_more_matches.html', context)
-                total_points_val = int(total_points_val)
-
                 if not player1_team1_name and not player2_team1_name:
                     messages.error(request, f"Please enter at least one player name for Team 1 in Match {i} of {game.name}.")
                     context = {
                         'tournament': tournament, 'game': game, 'tournament_teams': tournament_teams_json,
-                        'initial_num_matches': num_matches, 'existing_match_data': json.dumps([
-                            {'match_number': i, 'team1Id': team1_id, 'team2Id': team2_id, 'totalPoints': total_points_val, 
-                             'player1Team1Name': player1_team1_name, 'player2Team1Name': player2_team1_name,
-                             'player1Team2Name': player1_team2_name, 'player2Team2Name': player2_team2_name}
-                            for i in range(1, num_matches + 1)
-                        ]), 'is_adding_new_matches': True,
+                        'initial_num_matches': num_matches, 'existing_match_data': json.dumps(new_match_data_list), 'is_adding_new_matches': True,
                     }
                     return render(request, 'add_more_matches.html', context)
                 if not player1_team2_name and not player2_team2_name:
                     messages.error(request, f"Please enter at least one player name for Team 2 in Match {i} of {game.name}.")
                     context = {
                         'tournament': tournament, 'game': game, 'tournament_teams': tournament_teams_json,
-                        'initial_num_matches': num_matches, 'existing_match_data': json.dumps([
-                            {'match_number': i, 'team1Id': team1_id, 'team2Id': team2_id, 'totalPoints': total_points_val, 
-                             'player1Team1Name': player1_team1_name, 'player2Team1Name': player2_team1_name,
-                             'player1Team2Name': player1_team2_name, 'player2Team2Name': player2_team2_name}
-                            for i in range(1, num_matches + 1)
-                        ]), 'is_adding_new_matches': True,
+                        'initial_num_matches': num_matches, 'existing_match_data': json.dumps(new_match_data_list), 'is_adding_new_matches': True,
                     }
                     return render(request, 'add_more_matches.html', context)
-
                 if player1_team1_name and player2_team1_name and player1_team1_name == player2_team1_name:
                     raise ValueError(f"Player 1 and Player 2 names for Team 1 cannot be the same in Match {i} of {game.name}.")
                 if player1_team2_name and player2_team2_name and player1_team2_name == player2_team2_name:
@@ -485,12 +465,7 @@ def add_more_matches_view(request, tournament_id, game_id):
                     'game': game,
                     'tournament_teams': tournament_teams_json,
                     'initial_num_matches': num_matches,
-                    'existing_match_data': json.dumps([
-                        {'match_number': i, 'team1Id': team1_id, 'team2Id': team2_id, 'totalPoints': total_points_val, 
-                         'player1Team1Name': player1_team1_name, 'player2Team1Name': player2_team1_name,
-                         'player1Team2Name': player1_team2_name, 'player2Team2Name': player2_team2_name} 
-                        for i in range(1, num_matches + 1)
-                    ]),
+                    'existing_match_data': json.dumps(new_match_data_list),
                     'is_adding_new_matches': True,
                 }
                 return render(request, 'add_more_matches.html', context)
@@ -623,7 +598,9 @@ def add_more_matches_view(request, tournament_id, game_id):
 def matches_configured_view(request):
     return render(request, 'matches_configured.html')
 
+from django.shortcuts import redirect
+
 def admin_logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out.")
-    return
+    return redirect('home:home')  # or use your login page or any other page
