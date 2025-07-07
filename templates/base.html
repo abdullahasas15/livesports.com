@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons CDN (essential for icons) -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    {% block styles %}{% endblock %}
 </head>
 <body>
     <header class="navbar">
@@ -75,5 +76,6 @@
     </footer>
 
     <script src="{% static 'js/script.js' %}"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

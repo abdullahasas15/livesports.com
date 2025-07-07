@@ -175,6 +175,8 @@
             let currentConfig = configuredGameMatches[gameId] || { numMatches: 1, matches: [] };
             let initialNumMatches = currentConfig.numMatches;
 
+            console.log('gameName:', gameName);
+
             gameMatchConfigContainer.innerHTML = `
                 <h3>${gameName} Matches</h3>
                 <div class="form-group">
@@ -218,7 +220,7 @@
                     let playerInputsHtml = '';
                     let descriptionHtml = '';
 
-                    if (gameName === 'Badminton' || gameName === 'Volleyball') {
+                    if (gameName === 'Badminton' || gameName === 'Table Tennis' || gameName === 'Volleyball') {
                         const savedMatch = (currentConfig.matches && currentConfig.matches.length >= i) ? currentConfig.matches[i - 1] : null;
                         const savedTotalPoints = savedMatch && savedMatch.totalPoints ? savedMatch.totalPoints : '21';
                         totalPointsHtml = `
@@ -234,7 +236,7 @@
                     }
 
                     // Conditionally add total_points and player inputs only for Badminton
-                    if (gameName === 'Badminton') {
+                    if (gameName === 'Badminton' || gameName === 'Table Tennis') {
                         const savedMatch = (currentConfig.matches && currentConfig.matches.length >= i) ? currentConfig.matches[i - 1] : null;
                         const savedPlayer1Team1Name = savedMatch && savedMatch.player1Team1Name ? savedMatch.player1Team1Name : '';
                         const savedPlayer2Team1Name = savedMatch && savedMatch.player2Team1Name ? savedMatch.player2Team1Name : '';
@@ -282,7 +284,7 @@
                     }
 
                     // Conditionally add volleyball player inputs for Volleyball
-                    if (gameName === 'Volleyball') {
+                    if (gameName.trim().toLowerCase() === 'volleyball') {
                         const savedMatch = (currentConfig.matches && currentConfig.matches.length >= i) ? currentConfig.matches[i - 1] : null;
                         let volleyballPlayersTeam1 = '';
                         let volleyballPlayersTeam2 = '';
@@ -295,6 +297,31 @@
                         playerInputsHtml = `<div class='players-container'><div>${volleyballPlayersTeam1}</div><div>${volleyballPlayersTeam2}</div></div>`;
                     }
 
+                    // Conditionally add throwball player inputs for Throw Ball
+                    if (gameName.trim().toLowerCase() === 'throw ball') {
+                        const savedMatch = (currentConfig.matches && currentConfig.matches.length >= i) ? currentConfig.matches[i - 1] : null;
+                        let throwballPlayersTeam1 = '';
+                        let throwballPlayersTeam2 = '';
+                        for (let p = 1; p <= 9; p++) {
+                            const val1 = savedMatch && savedMatch[`throwballPlayer${p}Team1`] ? savedMatch[`throwballPlayer${p}Team1`] : '';
+                            const val2 = savedMatch && savedMatch[`throwballPlayer${p}Team2`] ? savedMatch[`throwballPlayer${p}Team2`] : '';
+                            throwballPlayersTeam1 += `<div class='player-input-group'><label>Player ${p} (Team 1):</label><input type='text' name='game_${gameId}_match_${i}_throwball_player${p}_team1' id='game_${gameId}_match_${i}_throwball_player${p}_team1' class='form-control' value='${val1}' placeholder='Optional'></div>`;
+                            throwballPlayersTeam2 += `<div class='player-input-group'><label>Player ${p} (Team 2):</label><input type='text' name='game_${gameId}_match_${i}_throwball_player${p}_team2' id='game_${gameId}_match_${i}_throwball_player${p}_team2' class='form-control' value='${val2}' placeholder='Optional'></div>`;
+                        }
+                        playerInputsHtml = `<div class='players-container'><div>${throwballPlayersTeam1}</div><div>${throwballPlayersTeam2}</div></div>`;
+                        const savedTotalPoints = savedMatch && savedMatch.totalPoints ? savedMatch.totalPoints : '21';
+                        totalPointsHtml = `
+                            <div class="form-group total-points-group">
+                                <label for="game_${gameId}_match_${i}_total_points">Points to play:</label>
+                                <input type="number"
+                                       id="game_${gameId}_match_${i}_total_points"
+                                       name="game_${gameId}_match_${i}_total_points"
+                                       min="1" max="99" value="${savedTotalPoints}"
+                                       class="form-control" required>
+                            </div>
+                        `;
+                    }
+
                     const savedMatch = (currentConfig.matches && currentConfig.matches.length >= i) ? currentConfig.matches[i - 1] : null;
                     const savedDescription = savedMatch && savedMatch.description ? savedMatch.description : '';
                     descriptionHtml = `
@@ -304,65 +331,77 @@
                         </div>
                     `;
 
-                    matchGroup.innerHTML = `
-                        <h4>Match ${i}</h4>
-                        <div class="team-select-group">
-                            <label for="game_${gameId}_match_${i}_team1">Team 1:</label>
-                            <div id="select_container_team1_${gameId}_${i}"></div>
-                        </div>
-                        ${playerInputsHtml ? `<div class="players-container">${playerInputsHtml}</div>` : ''} {# Wrap players #}
-                        <span class="vs-text">vs</span>
-                        <div class="team-select-group">
-                            <label for="game_${gameId}_match_${i}_team2">Team 2:</label>
-                            <div id="select_container_team2_${gameId}_${i}"></div>
-                        </div>
-                        ${totalPointsHtml}
-                        ${descriptionHtml}
-                    `;
+                    if (gameName.trim().toLowerCase() === 'volleyball' || gameName.trim().toLowerCase() === 'throw ball') {
+                        matchGroup.innerHTML = `
+                            <h4>Match ${i}</h4>
+                            <div class="team-select-group">
+                                <label for="game_${gameId}_match_${i}_team1">Team 1:</label>
+                                <div id="select_container_team1_${gameId}_${i}"></div>
+                            </div>
+                            <button type='button' class='toggle-players-btn' data-match='${i}'>Show Players ▼</button>
+                            <div class='players-container' id='players_fields_${i}' style='display:none;'>${playerInputsHtml}</div>
+                            <span class="vs-text">vs</span>
+                            <div class="team-select-group">
+                                <label for="game_${gameId}_match_${i}_team2">Team 2:</label>
+                                <div id="select_container_team2_${gameId}_${i}"></div>
+                            </div>
+                            ${totalPointsHtml}
+                            ${descriptionHtml}
+                        `;
+                        setTimeout(() => {
+                            const btn = matchGroup.querySelector('.toggle-players-btn');
+                            const fields = matchGroup.querySelector(`#players_fields_${i}`);
+                            if (btn && fields) {
+                                btn.addEventListener('click', function() {
+                                    if (fields.style.display === 'none') {
+                                        fields.style.display = 'block';
+                                        btn.textContent = 'Hide Players';
+                                    } else {
+                                        fields.style.display = 'none';
+                                        btn.textContent = 'Show Players ▼';
+                                    }
+                                });
+                            }
+                        }, 0);
+                    } else if (gameName === 'Badminton' || gameName === 'Table Tennis') {
+                        matchGroup.innerHTML = `
+                            <h4>Match ${i}</h4>
+                            <div class="team-select-group">
+                                <label for="game_${gameId}_match_${i}_team1">Team 1:</label>
+                                <div id="select_container_team1_${gameId}_${i}"></div>
+                            </div>
+                            <span class="vs-text">vs</span>
+                            <div class="team-select-group">
+                                <label for="game_${gameId}_match_${i}_team2">Team 2:</label>
+                                <div id="select_container_team2_${gameId}_${i}"></div>
+                            </div>
+                            ${totalPointsHtml}
+                            ${playerInputsHtml}
+                            ${descriptionHtml}
+                        `;
+                    }
                     matchesListContainer.appendChild(matchGroup);
 
                     const team1Container = document.getElementById(`select_container_team1_${gameId}_${i}`);
                     const team2Container = document.getElementById(`select_container_team2_${gameId}_${i}`);
-                    
-                    const team1_selected = savedMatch ? savedMatch.team1Id : '';
-                    const team2_selected = savedMatch ? savedMatch.team2Id : '';
-
-                    const team1Select = createTeamSelect(`game_${gameId}_match_${i}_team1`, `game_${gameId}_match_${i}_team1`, team1_selected);
-                    const team2Select = createTeamSelect(`game_${gameId}_match_${i}_team2`, `game_${gameId}_match_${i}_team2`, team2_selected);
-                    
-                    if (team1Container) {
-                        team1Container.appendChild(team1Select);
-                    }
-                    if (team2Container) {
-                        team2Container.appendChild(team2Select);
-                    }
+                    const team1Select = createTeamSelect(`game_${gameId}_match_${i}_team1`, `game_${gameId}_match_${i}_team1`, savedMatch ? savedMatch.team1Id : '');
+                    const team2Select = createTeamSelect(`game_${gameId}_match_${i}_team2`, `game_${gameId}_match_${i}_team2`, savedMatch ? savedMatch.team2Id : '');
+                    team1Container.appendChild(team1Select);
+                    team2Container.appendChild(team2Select);
                 }
             };
 
-            if (numMatchesInput) {
-                numMatchesInput.addEventListener('input', doGenerateMatchFields);
-                doGenerateMatchFields(); // Initial generation for this game
-            } else {
-                console.error("numMatchesInput not found for game config. Dynamic match fields will not be generated.");
-            }
+            numMatchesInput.addEventListener('input', doGenerateMatchFields);
+            doGenerateMatchFields();
         }
 
         gameTabButtons.forEach(button => {
             button.addEventListener('click', function() {
-                gameTabButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                const gameId = this.dataset.gameId;
-                const gameName = this.dataset.gameName;
+                const gameId = this.getAttribute('data-game-id');
+                const gameName = this.getAttribute('data-game-name');
                 renderGameConfig(gameId, gameName);
             });
         });
-
-        // Auto-select the first game tab on load if available
-        if (gameTabButtons.length > 0) {
-            gameTabButtons[0].click();
-        } else {
-            gameMatchConfigContainer.innerHTML = '<p class="no-data-message text-center">No games selected for this tournament to display matches.</p>';
-        }
     });
 </script>
-{% endblock content %}
+{% endblock %}
