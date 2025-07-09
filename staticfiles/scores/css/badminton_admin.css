@@ -43,10 +43,10 @@ body, html {
 .admin-container {
     max-width: 650px;
     margin: 40px auto;
-    background: #2a2a3a; /* Darker background for depth */
+    background: rgba(42,42,58,0.35); /* Semi-transparent glassy */
     padding: 35px 30px;
     border-radius: 18px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12); /* Softer shadow */
     color: #e0e0e0;
     font-family: 'Inter', sans-serif; /* Modern font */
     text-align: center;
@@ -68,6 +68,8 @@ h2 {
     gap: 15px;
     justify-content: center;
     margin-bottom: 30px;
+    background: rgba(0,0,0,0.10); /* Subtle transparency */
+    border-radius: 10px;
 }
 
 /* Buttons and Selects */
@@ -78,20 +80,22 @@ button, select, input[type="number"] {
     font-size: 1.05rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.10);
     font-weight: 600;
+    background: rgba(58,58,74,0.18); /* More transparent */
+    color: #fff;
 }
 
 button {
-    background: linear-gradient(145deg, #3b82f6, #2563eb); /* Gradient blue */
+    background: rgba(59,130,246,0.18); /* Transparent blue */
     color: #ffffff;
-    border: 1px solid #2563eb;
+    border: 1.5px solid rgba(59,130,246,0.25);
 }
 
 button:hover {
-    background: linear-gradient(145deg, #2563eb, #3b82f6);
+    background: rgba(37,99,235,0.28);
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.18);
 }
 
 button:disabled {
@@ -103,23 +107,23 @@ button:disabled {
 }
 
 .win-button {
-    background: linear-gradient(145deg, #ef4444, #dc2626); /* Red gradient for win */
-    border: 1px solid #dc2626;
+    background: rgba(239,68,68,0.18); /* Transparent red */
+    border: 1.5px solid rgba(239,68,68,0.25);
 }
 
 .win-button:hover {
-    background: linear-gradient(145deg, #dc2626, #ef4444);
+    background: rgba(220,38,38,0.28);
 }
 
 select {
-    background: #3a3a4a; /* Darker background for selects */
+    background: rgba(58,58,74,0.18);
     color: #e0e0e0;
     border: 1px solid #555;
     padding: 9px 15px;
 }
 
 input[type="number"] {
-    background: #3a3a4a;
+    background: rgba(58,58,74,0.18);
     color: #e0e0e0;
     border: 1px solid #555;
     width: 80px; /* Adjust width for number input */
@@ -128,11 +132,11 @@ input[type="number"] {
 
 /* Team and Score Display */
 .score-display-area {
-    background: #3a3a4a;
+    background: rgba(58,58,74,0.18);
     border-radius: 12px;
     padding: 25px 20px;
     margin-bottom: 25px;
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .team-row {
@@ -176,6 +180,8 @@ input[type="number"] {
     justify-content: space-around;
     gap: 20px;
     margin-top: 20px;
+    background: rgba(0,0,0,0.05); /* Add slight transparency to row */
+    border-radius: 10px;
 }
 
 .points-column {
@@ -186,7 +192,7 @@ input[type="number"] {
     gap: 6px;
     justify-content: center;
     padding: 10px;
-    background: rgba(0,0,0,0.1);
+    background: rgba(0,0,0,0.18); /* More transparent */
     border-radius: 8px;
     border: 1px solid #444;
     min-width: 120px;
@@ -199,20 +205,20 @@ input[type="number"] {
     height: 22px;
     border-radius: 6px;
     border: 1.5px solid #3b82f6;
-    background: #e0e7ef;
+    background: rgba(224,231,239,0.55); /* Lighter and more transparent */
     margin: 2px;
     box-shadow: 0 1px 4px rgba(59,130,246,0.08);
     transition: background 0.2s, border 0.2s, transform 0.15s;
 }
 
 .point-box.green {
-    background: #22c55e;
+    background: rgba(34,197,94,0.55); /* Transparent green */
     border-color: #16a34a;
     box-shadow: 0 2px 8px rgba(34,197,94,0.15);
 }
 
 .point-box.red {
-    background: #ef4444;
+    background: rgba(239,68,68,0.55); /* Transparent red */
     border-color: #dc2626;
     box-shadow: 0 2px 8px rgba(239,68,68,0.15);
 }
@@ -336,17 +342,26 @@ input[type="number"] {
     .points-row {
         flex-direction: row;
         gap: 8px;
+        background: rgba(0,0,0,0.04); /* Even lighter for mobile */
     }
 
     .points-column {
         min-width: 80px;
         max-width: 120px;
         padding: 4px;
+        background: rgba(0,0,0,0.13); /* More transparent for mobile */
     }
 
     .point-box {
         width: 14px;
         height: 14px;
         margin: 1px;
+        background: rgba(224,231,239,0.45);
+    }
+    .point-box.green {
+        background: rgba(34,197,94,0.45);
+    }
+    .point-box.red {
+        background: rgba(239,68,68,0.45);
     }
 }

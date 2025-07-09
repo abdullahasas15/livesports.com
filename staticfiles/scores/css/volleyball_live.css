@@ -32,10 +32,10 @@ body, html {
 .viewer-container {
     max-width: 650px;
     margin: 40px auto;
-    background: #2a2a3a;
+    background: rgba(42,42,58,0.35); /* Semi-transparent glassy */
     padding: 35px 30px;
     border-radius: 18px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12); /* Softer shadow */
     color: #e0e0e0;
     font-family: 'Inter', sans-serif;
     text-align: center;
@@ -53,11 +53,11 @@ h2 {
 }
 
 .score-display-area {
-    background: #3a3a4a;
+    background: rgba(58,58,74,0.18);
     border-radius: 12px;
     padding: 25px 20px;
     margin-bottom: 25px;
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .team-row {
@@ -100,6 +100,8 @@ h2 {
     justify-content: space-around;
     gap: 20px;
     margin-top: 20px;
+    background: rgba(0,0,0,0.05); /* Add slight transparency to row */
+    border-radius: 10px;
 }
 
 .points-column {
@@ -110,7 +112,7 @@ h2 {
     gap: 6px;
     justify-content: center;
     padding: 10px;
-    background: rgba(0,0,0,0.1);
+    background: rgba(0,0,0,0.18); /* More transparent */
     border-radius: 8px;
     border: 1px solid #444;
     min-width: 120px;
@@ -123,20 +125,20 @@ h2 {
     height: 22px;
     border-radius: 6px;
     border: 1.5px solid #3b82f6;
-    background: #e0e7ef;
+    background: rgba(224,231,239,0.55); /* Lighter and more transparent */
     margin: 2px;
     box-shadow: 0 1px 4px rgba(59,130,246,0.08);
     transition: background 0.2s, border 0.2s, transform 0.15s;
 }
 
 .point-box.green {
-    background: #22c55e;
+    background: rgba(34,197,94,0.55); /* Transparent green */
     border-color: #16a34a;
     box-shadow: 0 2px 8px rgba(34,197,94,0.15);
 }
 
 .point-box.red {
-    background: #ef4444;
+    background: rgba(239,68,68,0.55); /* Transparent red */
     border-color: #dc2626;
     box-shadow: 0 2px 8px rgba(239,68,68,0.15);
 }
@@ -202,11 +204,13 @@ h2 {
     .points-row {
         flex-direction: row;
         gap: 8px;
+        background: rgba(0,0,0,0.04); /* Even lighter for mobile */
     }
     .points-column {
         min-width: 80px;
         max-width: 120px;
         padding: 4px;
+        background: rgba(0,0,0,0.13); /* More transparent for mobile */
     }
     #match-end-message {
         font-size: 1.5rem;
@@ -216,5 +220,12 @@ h2 {
         width: 14px;
         height: 14px;
         margin: 1px;
+        background: rgba(224,231,239,0.45);
+    }
+    .point-box.green {
+        background: rgba(34,197,94,0.45);
+    }
+    .point-box.red {
+        background: rgba(239,68,68,0.45);
     }
 } 

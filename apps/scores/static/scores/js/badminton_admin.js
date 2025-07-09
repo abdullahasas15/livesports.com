@@ -85,28 +85,6 @@ function showPointsModal(winner) {
     };
 }
 
-function checkAutoWin() {
-    if (!isMatchEnded) {
-        if (scoreA === totalPoints - 1 && scoreB === totalPoints - 1) {
-            totalPoints += 2;
-            // The problematic line that caused a difference in behavior compared to volleyball:
-            // REMOVED: sendUpdate({ totalPoints }); // This was sending the totalPoints update to the backend prematurely.
-            updateUI(); // This updates the local UI.
-            return false;
-        }
-        if (scoreA === totalPoints) {
-            isMatchEnded = true;
-            showPointsModal('A');
-            return true;
-        } else if (scoreB === totalPoints) {
-            isMatchEnded = true;
-            showPointsModal('B');
-            return true;
-        }
-    }
-    return false;
-}
-
 function connectWS() {
     ws = new WebSocket(wsUrl);
 
@@ -136,18 +114,14 @@ window.addEventListener('DOMContentLoaded', () => {
         if (isMatchEnded) return;
         scoreA++;
         pointsHistory.push("A");
-        if (!checkAutoWin()) {
-            sendUpdate({ commentary: `${team1Name} scored a point!` });
-        }
+        sendUpdate({ commentary: `${team1Name} scored a point!` });
     };
 
     document.getElementById('teamB-plus').onclick = () => {
         if (isMatchEnded) return;
         scoreB++;
         pointsHistory.push("B");
-        if (!checkAutoWin()) {
-            sendUpdate({ commentary: `${team2Name} scored a point!` });
-        }
+        sendUpdate({ commentary: `${team2Name} scored a point!` });
     };
 
     document.getElementById('win-teamA').onclick = () => {
