@@ -61,4 +61,4 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     ws.onclose = () => setTimeout(() => location.reload(), 3000);
-}); 
+});

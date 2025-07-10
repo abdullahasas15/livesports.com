@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="throwball-bg"></div>
+<link rel="stylesheet" href="{% static 'scores/css/throwball_admin.css' %}">
+<div class="admin-container" id="admin-container">
+    <div id="scoring-section">
+        <div class="controls">
+            <button id="teamA-plus">Team A +1</button>
+            <button id="teamB-plus">Team B +1</button>
+            <button id="win-teamA" class="win-button">Win Team A</button>
+            <button id="win-teamB" class="win-button">Win Team B</button>
+            <select id="commentary-select"></select>
+            <button id="post-commentary">Post</button>
+        </div>
+        <div class="score-display-area">
+            <div class="team-row">
+                <div class="team-info">
+                    <span class="team-name">{{ match.team1.name }}</span>
+                    <p class="player-names">
+                        {% if match.throwball_player1_team1 %}{{ match.throwball_player1_team1 }}<br>{% endif %}
+                        {% if match.throwball_player2_team1 %}{{ match.throwball_player2_team1 }}<br>{% endif %}
+                        {% if match.throwball_player3_team1 %}{{ match.throwball_player3_team1 }}<br>{% endif %}
+                        {% if match.throwball_player4_team1 %}{{ match.throwball_player4_team1 }}<br>{% endif %}
+                        {% if match.throwball_player5_team1 %}{{ match.throwball_player5_team1 }}<br>{% endif %}
+                        {% if match.throwball_player6_team1 %}{{ match.throwball_player6_team1 }}<br>{% endif %}
+                        {% if match.throwball_player7_team1 %}{{ match.throwball_player7_team1 }}<br>{% endif %}
+                        {% if match.throwball_player8_team1 %}{{ match.throwball_player8_team1 }}<br>{% endif %}
+                        {% if match.throwball_player9_team1 %}{{ match.throwball_player9_team1 }}<br>{% endif %}
+                    </p>
+                </div>
+                <span class="score" id="score">{{ match.score_team1 }} - {{ match.score_team2 }}</span>
+                <div class="team-info">
+                    <span class="team-name">{{ match.team2.name }}</span>
+                    <p class="player-names">
+                        {% if match.throwball_player1_team2 %}{{ match.throwball_player1_team2 }}<br>{% endif %}
+                        {% if match.throwball_player2_team2 %}{{ match.throwball_player2_team2 }}<br>{% endif %}
+                        {% if match.throwball_player3_team2 %}{{ match.throwball_player3_team2 }}<br>{% endif %}
+                        {% if match.throwball_player4_team2 %}{{ match.throwball_player4_team2 }}<br>{% endif %}
+                        {% if match.throwball_player5_team2 %}{{ match.throwball_player5_team2 }}<br>{% endif %}
+                        {% if match.throwball_player6_team2 %}{{ match.throwball_player6_team2 }}<br>{% endif %}
+                        {% if match.throwball_player7_team2 %}{{ match.throwball_player7_team2 }}<br>{% endif %}
+                        {% if match.throwball_player8_team2 %}{{ match.throwball_player8_team2 }}<br>{% endif %}
+                        {% if match.throwball_player9_team2 %}{{ match.throwball_player9_team2 }}<br>{% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="points-row">
+                <div id="teamA-points" class="points-column"></div>
+                <div id="teamB-points" class="points-column"></div>
+            </div>
+            <div>
+                Points to play: <span id="total-points">{{ match.total_points }}</span>
+            </div>
+        </div>
+        <div id="commentary-log"></div>
+    </div>
+    <div id="match-end-message" style="display:none;"></div>
+</div>
+<div id="points-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:12px; max-width:350px; width:90%; margin:auto; padding:32px 24px; box-shadow:0 8px 32px rgba(0,0,0,0.18); text-align:center;">
+    <h3 style="margin-bottom:18px; font-size:1.3rem; color:#2563eb;">Enter Points for Teams</h3>
+    <div style="margin-bottom:14px;">
+      <label for="points-team1" style="font-weight:600; color:#222;">Points for <span id="modal-team1-name"></span>:</label>
+      <input type="number" id="points-team1" min="0" value="2" style="width:80px; margin-left:10px; padding:6px 8px; border-radius:6px; border:1px solid #ccc; color:#222;">
+    </div>
+    <div style="margin-bottom:22px;">
+      <label for="points-team2" style="font-weight:600; color:#222;">Points for <span id="modal-team2-name"></span>:</label>
+      <input type="number" id="points-team2" min="0" value="0" style="width:80px; margin-left:10px; padding:6px 8px; border-radius:6px; border:1px solid #ccc; color:#222;">
+    </div>
+    <button id="points-modal-done" style="background:#2563eb; color:#fff; font-weight:700; border:none; border-radius:8px; padding:10px 28px; font-size:1.1rem; cursor:pointer;">Done</button>
+  </div>
+</div>
+<script>
+    const matchId = "{{ match.id }}";
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const wsUrl = `${wsScheme}://${window.location.host}/ws/throwball/${matchId}/`;
+    const team1Name = "{{ match.team1.name|escapejs }}";
+    const team2Name = "{{ match.team2.name|escapejs }}";
+    let scoreA = {{ match.score_team1|default:0 }};
+    let scoreB = {{ match.score_team2|default:0 }};
+    let totalPoints = {{ match.total_points|default:25 }};
+    let matchStatusFromTemplate = "{{ match.status|default:'scheduled'|escapejs }}";
+</script>
+<script src="{% static 'scores/js/throwball_admin.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="tabletennis-bg"></div>
+<link rel="stylesheet" href="{% static 'scores/css/tabletennis_live.css' %}">
+<div class="viewer-container" id="live-container">
+    <h2>Table Tennis Live Score</h2>
+    <div class="score-display-area">
+        <div class="team-row">
+            <div class="team-info">
+                <span class="team-name">{{ match.team1.name }}</span>
+                <p class="player-names">
+                    {% if match.tabletennis_player1_team1 %}{{ match.tabletennis_player1_team1 }}<br>{% endif %}
+                    {% if match.tabletennis_player2_team1 %}{{ match.tabletennis_player2_team1 }}<br>{% endif %}
+                </p>
+            </div>
+            <span class="score" id="score">{{ match.score_team1 }} - {{ match.score_team2 }}</span>
+            <div class="team-info">
+                <span class="team-name">{{ match.team2.name }}</span>
+                <p class="player-names">
+                    {% if match.tabletennis_player1_team2 %}{{ match.tabletennis_player1_team2 }}<br>{% endif %}
+                    {% if match.tabletennis_player2_team2 %}{{ match.tabletennis_player2_team2 }}<br>{% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="points-row">
+            <div id="teamA-points" class="points-column"></div>
+            <div id="teamB-points" class="points-column"></div>
+        </div>
+        <div class="points-to-play">
+            Points to play: <span id="total-points">{{ match.total_points }}</span>
+        </div>
+    </div>
+    <div id="commentary"></div>
+    <div id="match-end-message" style="display:none;"></div>
+</div>
+<input type="hidden" id="ws-url" value="{% if request.is_secure %}wss{% else %}ws{% endif %}://{{ request.get_host }}/ws/tabletennis/{{ match.id }}/">
+<script>
+    const matchId = "{{ match.id }}";
+    const team1Name = "{{ match.team1.name|escapejs }}";
+    const team2Name = "{{ match.team2.name|escapejs }}";
+    let scoreA = {{ match.score_team1|default:0 }};
+    let scoreB = {{ match.score_team2|default:0 }};
+    let totalPoints = {{ match.total_points|default:11 }};
+</script>
+<script src="{% static 'scores/js/tabletennis_live.js' %}"></script>
+{% endblock %}

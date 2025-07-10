@@ -1,0 +1,253 @@
+/* ---- Immersive Throwball Background ---- */
+body, html {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.throwball-bg {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 0;
+    background: url('/static/images/throwball_bg_desktop.jpg') center center/cover no-repeat;
+    filter: brightness(0.45) blur(2px) grayscale(0.1);
+    transition: background-image 0.3s;
+}
+
+@media (max-width: 768px) {
+    .throwball-bg {
+        background-image: url('/static/images/throwball_bg_mobile.jpg');
+        filter: brightness(0.38) blur(1.5px) grayscale(0.08);
+    }
+}
+
+.throwball-bg::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(120deg, rgba(30,41,59,0.7) 0%, rgba(30,41,59,0.5) 100%);
+    pointer-events: none;
+}
+
+/* --- rest of tabletennis_admin.css styles below, unchanged except for background class --- */
+
+.admin-container {
+    max-width: 650px;
+    margin: 40px auto;
+    background: rgba(42,42,58,0.35); /* Semi-transparent glassy */
+    padding: 35px 30px;
+    border-radius: 18px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12); /* Softer shadow */
+    color: #e0e0e0;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+}
+
+h2 {
+    color: #facc15;
+    font-size: 2.2rem;
+    margin-bottom: 25px;
+    font-weight: 700;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+    background: rgba(0,0,0,0.10); /* Subtle transparency */
+    border-radius: 10px;
+}
+
+button, select, input[type="number"] {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.10);
+    font-weight: 600;
+    background: rgba(58,58,74,0.18); /* More transparent */
+    color: #fff;
+}
+
+button {
+    background: rgba(59,130,246,0.18); /* Transparent blue */
+    color: #ffffff;
+    border: 1.5px solid rgba(59,130,246,0.25);
+}
+
+button:hover {
+    background: rgba(37,99,235,0.28);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.18);
+}
+
+button:disabled {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.7;
+    box-shadow: none;
+    transform: none;
+}
+
+.win-button {
+    background: rgba(239,68,68,0.18); /* Transparent red */
+    border: 1.5px solid rgba(239,68,68,0.25);
+}
+
+.win-button:hover {
+    background: rgba(220,38,38,0.28);
+}
+
+select {
+    background: rgba(58,58,74,0.18);
+    color: #e0e0e0;
+    border: 1px solid #555;
+    padding: 9px 15px;
+}
+
+input[type="number"] {
+    background: rgba(58,58,74,0.18);
+    color: #e0e0e0;
+    border: 1px solid #555;
+    width: 80px;
+    text-align: center;
+}
+
+.score-display-area {
+    background: rgba(58,58,74,0.18);
+    border-radius: 12px;
+    padding: 25px 20px;
+    margin-bottom: 25px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.team-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.team-info {
+    flex: 1;
+    text-align: center;
+}
+
+.team-name {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #facc15;
+    margin-bottom: 5px;
+}
+
+.player-names {
+    font-size: 0.95rem;
+    color: #a0a0a0;
+    font-weight: 400;
+    min-height: 1.2em;
+}
+
+.score {
+    font-size: 3.2rem;
+    color: #facc15;
+    font-weight: bold;
+    margin: 0 25px;
+    min-width: 120px;
+}
+
+.points-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 20px;
+    margin-top: 20px;
+    background: rgba(0,0,0,0.05); /* Add slight transparency to row */
+    border-radius: 10px;
+}
+
+.points-column {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    width: 45%;
+    gap: 6px;
+    justify-content: center;
+    padding: 10px;
+    background: rgba(0,0,0,0.18); /* More transparent */
+    border-radius: 8px;
+    border: 1px solid #444;
+    min-width: 120px;
+    max-width: 180px;
+}
+
+.point-box {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1.5px solid #3b82f6;
+    background: rgba(224,231,239,0.55); /* Lighter and more transparent */
+    margin: 2px;
+    box-shadow: 0 1px 4px rgba(59,130,246,0.08);
+    transition: background 0.2s, border 0.2s, transform 0.15s;
+}
+
+.point-box.green {
+    background: rgba(34,197,94,0.55); /* Transparent green */
+    border-color: #16a34a;
+    box-shadow: 0 2px 8px rgba(34,197,94,0.15);
+}
+
+.point-box.red {
+    background: rgba(239,68,68,0.55); /* Transparent red */
+    border-color: #dc2626;
+    box-shadow: 0 2px 8px rgba(239,68,68,0.15);
+}
+
+.point-box:hover {
+    transform: scale(1.12);
+    border-color: #2563eb;
+    box-shadow: 0 4px 12px rgba(59,130,246,0.18);
+}
+
+#commentary-log {
+    background: #3a3a4a;
+    border-radius: 10px;
+    padding: 15px;
+    min-height: 50px;
+    font-size: 1.05rem;
+    color: #e0e0e0;
+    margin-top: 25px;
+    max-height: 150px;
+    overflow-y: auto;
+    text-align: left;
+    box-shadow: inset 0 1px 5px rgba(0,0,0,0.1);
+}
+
+#commentary-log div {
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #444;
+}
+#commentary-log div:last-child {
+    border-bottom: none;
+}
+
+.fixed.inset-0 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+} 

@@ -1,5 +1,7 @@
+
 let ws = null;
 let matchEnded = false;
+let totalPoints = Number("{{ match.total_points }}");
 
 function renderBoxes(history, total) {
     const teamA = document.getElementById('teamA-points');
@@ -61,4 +63,4 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     ws.onclose = () => setTimeout(() => location.reload(), 3000);
-}); 
+});

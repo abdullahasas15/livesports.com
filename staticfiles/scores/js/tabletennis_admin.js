@@ -1,3 +1,6 @@
+// Table Tennis Admin JS - based on volleyball_admin.js
+// ... Will be filled with adapted code ...
+
 let pointsHistory = [];
 let isMatchEnded = false;
 
@@ -99,7 +102,7 @@ function checkAutoWin() {
 function connectWS() {
     ws = new WebSocket(wsUrl);
 
-    ws.onopen = () => console.log("Volleyball Admin WebSocket connected.");
+    ws.onopen = () => console.log("Table Tennis Admin WebSocket connected.");
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (typeof data.scoreA === "number") scoreA = data.scoreA;
@@ -161,10 +164,10 @@ window.addEventListener('DOMContentLoaded', () => {
         commentarySelect.style.display = '';
         commentarySelect.innerHTML = `
             <option value="">Select Commentary</option>
-            <option value="Powerful spike by ${team1Name}!">Powerful spike by ${team1Name}!</option>
-            <option value="Great block, ${team2Name} scores!">Great block, ${team2Name} scores!</option>
+            <option value="Brilliant rally by ${team1Name}!">Brilliant rally by ${team1Name}!</option>
+            <option value="Great serve, ${team2Name} scores!">Great serve, ${team2Name} scores!</option>
             <option value="Unforced error by ${team1Name}.">Unforced error by ${team1Name}.</option>
-            <option value="${team2Name} dominates the net!">${team2Name} dominates the net!</option>
+            <option value="${team2Name} dominates the table!">${team2Name} dominates the table!</option>
         `;
     }
 });
@@ -184,4 +187,4 @@ function sendUpdate(extra = {}) {
         points_team1: extra.points_team1,
         points_team2: extra.points_team2
     }));
-} 
+}

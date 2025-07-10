@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from apps.tournaments.models import Match, Game # Import models
+from django.utils.text import slugify  # <-- Add this import
 
 @login_required
 def admin_match_detail_view(request, game_name, match_id):
@@ -17,8 +18,9 @@ def admin_match_detail_view(request, game_name, match_id):
     game = get_object_or_404(Game, name__iexact=game_name) # Case-insensitive game name lookup
     match = get_object_or_404(Match, id=match_id, game=game) # Ensure match belongs to this game
 
-    # For now, just render the template
-    return render(request, f'scores/{game_name.lower()}_admin.html', {
+    # Use slugified game_name for template lookup
+    template_slug = slugify(game_name)
+    return render(request, f'scores/{template_slug}_admin.html', {
         'match': match, # Pass the full match object
         'game': game,
         'tournament': match.tournament, # Pass tournament context
@@ -31,8 +33,9 @@ def viewer_live_match_view(request, game_name, match_id):
     game = get_object_or_404(Game, name__iexact=game_name)
     match = get_object_or_404(Match, id=match_id, game=game)
 
-    # For now, just render the template
-    return render(request, f'scores/{game_name.lower()}_live.html', {
+    # Use slugified game_name for template lookup
+    template_slug = slugify(game_name)
+    return render(request, f'scores/{template_slug}_live.html', {
         'match': match, # Pass the full match object
         'game': game,
         'tournament': match.tournament, # Pass tournament context

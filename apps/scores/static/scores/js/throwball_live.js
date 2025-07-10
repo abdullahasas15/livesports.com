@@ -1,6 +1,7 @@
 let ws = null;
 let matchEnded = false;
 
+
 function renderBoxes(history, total) {
     const teamA = document.getElementById('teamA-points');
     const teamB = document.getElementById('teamB-points');
