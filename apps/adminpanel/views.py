@@ -172,6 +172,10 @@ def manage_matches_view(request, tournament_id):
                         match_data[f'throwball_player{p}_team1'] = match.throwball_player1_team1
                         match_data[f'throwball_player{p}_team2'] = match.throwball_player1_team2
                     match_data['totalPoints'] = match.total_points
+                elif game_obj.name == 'Kabaddi':
+                    for p in range(1, 8):
+                        match_data[f'kabaddi_player{p}_team1'] = match.kabaddi_player1_team1
+                        match_data[f'kabaddi_player{p}_team2'] = match.kabaddi_player1_team2
                 matches_list.append(match_data)
             existing_matches_by_game_data[game_obj.id] = {
                 'numMatches': matches.count(),
@@ -235,6 +239,10 @@ def manage_matches_view(request, tournament_id):
                                 match_kwargs[f'throwball_player{p}_team1'] = request.POST.get(f'game_{game_obj.id}_match_{i}_throwball_player{p}_team1', '').strip()
                                 match_kwargs[f'throwball_player{p}_team2'] = request.POST.get(f'game_{game_obj.id}_match_{i}_throwball_player{p}_team2', '').strip()
                             match_kwargs['total_points'] = request.POST.get(f'game_{game_obj.id}_match_{i}_total_points')
+                        elif game_obj.name == 'Kabaddi':
+                            for p in range(1, 8):
+                                match_kwargs[f'kabaddi_player{p}_team1'] = request.POST.get(f'game_{game_obj.id}_match_{i}_kabaddi_player{p}_team1', '').strip()
+                                match_kwargs[f'kabaddi_player{p}_team2'] = request.POST.get(f'game_{game_obj.id}_match_{i}_kabaddi_player{p}_team2', '').strip()
                         # Add description if present
                         match_kwargs['description'] = request.POST.get(f'game_{game_obj.id}_match_{i}_description', '').strip()
 
@@ -399,6 +407,11 @@ def add_more_matches_view(request, tournament_id, game_id):
             match_data['player2Team1Name'] = match.player2_team1
             match_data['player1Team2Name'] = match.player1_team2
             match_data['player2Team2Name'] = match.player2_team2
+        # Kabaddi fields for add_more_matches context
+        if game.name == 'Kabaddi':
+            for p in range(1, 8):
+                match_data[f'kabaddiPlayer{p}Team1'] = getattr(match, f'kabaddi_player{p}_team1', '')
+                match_data[f'kabaddiPlayer{p}Team2'] = getattr(match, f'kabaddi_player{p}_team2', '')
         existing_match_data.append(match_data)
 
     if request.method == 'POST':
@@ -510,16 +523,15 @@ def add_more_matches_view(request, tournament_id, game_id):
                     val_team2 = request.POST.get(key_team2, '').strip()
                     match_dict[f'volleyball_player{p}_team1'] = val_team1
                     match_dict[f'volleyball_player{p}_team2'] = val_team2
-
-            # Add throwball player fields if game is Throw Ball
-            if game.name == 'Throw Ball':
-                for p in range(1, 10):
-                    key_team1 = f'game_{game.id}_match_{i}_throwball_player{p}_team1'
-                    key_team2 = f'game_{game.id}_match_{i}_throwball_player{p}_team2'
+            # Add kabaddi player fields if game is Kabaddi
+            if game.name == 'Kabaddi':
+                for p in range(1, 8):
+                    key_team1 = f'game_{game.id}_match_{i}_kabaddi_player{p}_team1'
+                    key_team2 = f'game_{game.id}_match_{i}_kabaddi_player{p}_team2'
                     val_team1 = request.POST.get(key_team1, '').strip()
                     val_team2 = request.POST.get(key_team2, '').strip()
-                    match_dict[f'throwball_player{p}_team1'] = val_team1
-                    match_dict[f'throwball_player{p}_team2'] = val_team2
+                    match_dict[f'kabaddi_player{p}_team1'] = val_team1
+                    match_dict[f'kabaddi_player{p}_team2'] = val_team2
 
             # Append the complete dictionary
             new_match_data_list.append(match_dict)
@@ -565,14 +577,13 @@ def add_more_matches_view(request, tournament_id, game_id):
                                 match_kwargs[f'volleyball_player{p}_team1'] = new_match_info[f'volleyball_player{p}_team1']
                             if new_match_info.get(f'volleyball_player{p}_team2'):
                                 match_kwargs[f'volleyball_player{p}_team2'] = new_match_info[f'volleyball_player{p}_team2']
-                    # Add throwball players if game is Throwball
-                    if game.name == 'Throwball':
-                        for p in range(1, 10):
-                            if new_match_info.get(f'throwball_player{p}_team1'):
-                                match_kwargs[f'throwball_player{p}_team1'] = new_match_info[f'throwball_player{p}_team1']
-                            if new_match_info.get(f'throwball_player{p}_team2'):
-                                match_kwargs[f'throwball_player{p}_team2'] = new_match_info[f'throwball_player{p}_team2']
-                        match_kwargs['total_points'] = new_match_info['total_points']
+                    # Add kabaddi players if game is Kabaddi
+                    if game.name == 'Kabaddi':
+                        for p in range(1, 8):
+                            if new_match_info.get(f'kabaddi_player{p}_team1'):
+                                match_kwargs[f'kabaddi_player{p}_team1'] = new_match_info[f'kabaddi_player{p}_team1']
+                            if new_match_info.get(f'kabaddi_player{p}_team2'):
+                                match_kwargs[f'kabaddi_player{p}_team2'] = new_match_info[f'kabaddi_player{p}_team2']
                     print(f"[DEBUG] Creating match: tournament={tournament.name}, game={game.name}, match_number={next_match_number}, team1={team1.name}, team2={team2.name}")
                     Match.objects.create(**match_kwargs)
             messages.success(request, f"Matches for tournament '{tournament.name}' configured successfully!")

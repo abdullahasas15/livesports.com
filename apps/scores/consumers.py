@@ -2,6 +2,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from apps.tournaments.models import Match
 from asgiref.sync import sync_to_async
+from apps.scores.models import KabaddiRaid
 
 class BadmintonConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -381,3 +382,4 @@ class ThrowballConsumer(AsyncWebsocketConsumer):
             match.save()
         except Exception as e:
             print(f"Error saving throwball match state: {e}")
+            

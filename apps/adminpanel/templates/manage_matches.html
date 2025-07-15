@@ -220,7 +220,7 @@
                     let playerInputsHtml = '';
                     let descriptionHtml = '';
 
-                    if (gameName === 'Badminton' || gameName === 'Table Tennis' || gameName === 'Volleyball') {
+                    if (['Badminton', 'Table Tennis', 'Volleyball', 'Kabaddi', 'Throw Ball'].map(g => g.toLowerCase()).includes(gameName.trim().toLowerCase())) {
                         const savedMatch = (currentConfig.matches && currentConfig.matches.length >= i) ? currentConfig.matches[i - 1] : null;
                         const savedTotalPoints = savedMatch && savedMatch.totalPoints ? savedMatch.totalPoints : '21';
                         totalPointsHtml = `
@@ -295,6 +295,17 @@
                             volleyballPlayersTeam2 += `<div class='player-input-group'><label>Player ${p} (Team 2):</label><input type='text' name='game_${gameId}_match_${i}_volleyball_player${p}_team2' id='game_${gameId}_match_${i}_volleyball_player${p}_team2' class='form-control' value='${val2}' placeholder='Optional'></div>`;
                         }
                         playerInputsHtml = `<div class='players-container'><div>${volleyballPlayersTeam1}</div><div>${volleyballPlayersTeam2}</div></div>`;
+                    } else if (gameName.trim().toLowerCase() === 'kabaddi') {
+                        const savedMatch = (currentConfig.matches && currentConfig.matches.length >= i) ? currentConfig.matches[i - 1] : null;
+                        let kabaddiPlayersTeam1 = '';
+                        let kabaddiPlayersTeam2 = '';
+                        for (let p = 1; p <= 7; p++) {
+                            const val1 = savedMatch && savedMatch[`kabaddiPlayer${p}Team1`] ? savedMatch[`kabaddiPlayer${p}Team1`] : '';
+                            const val2 = savedMatch && savedMatch[`kabaddiPlayer${p}Team2`] ? savedMatch[`kabaddiPlayer${p}Team2`] : '';
+                            kabaddiPlayersTeam1 += `<div class='player-input-group'><label>Player ${p} (Team 1):</label><input type='text' name='game_${gameId}_match_${i}_kabaddi_player${p}_team1' id='game_${gameId}_match_${i}_kabaddi_player${p}_team1' class='form-control' value='${val1}' placeholder='Optional'></div>`;
+                            kabaddiPlayersTeam2 += `<div class='player-input-group'><label>Player ${p} (Team 2):</label><input type='text' name='game_${gameId}_match_${i}_kabaddi_player${p}_team2' id='game_${gameId}_match_${i}_kabaddi_player${p}_team2' class='form-control' value='${val2}' placeholder='Optional'></div>`;
+                        }
+                        playerInputsHtml = `<div class='players-container'><div>${kabaddiPlayersTeam1}</div><div>${kabaddiPlayersTeam2}</div></div>`;
                     }
 
                     // Conditionally add throwball player inputs for Throw Ball
@@ -332,6 +343,40 @@
                     `;
 
                     if (gameName.trim().toLowerCase() === 'volleyball' || gameName.trim().toLowerCase() === 'throw ball') {
+                        // Volleyball and Throw Ball: Show Players button
+                        matchGroup.innerHTML = `
+                            <h4>Match ${i}</h4>
+                            <div class="team-select-group">
+                                <label for="game_${gameId}_match_${i}_team1">Team 1:</label>
+                                <div id="select_container_team1_${gameId}_${i}"></div>
+                            </div>
+                            <button type='button' class='toggle-players-btn' data-match='${i}'>Show Players ▼</button>
+                            <div class='players-container' id='players_fields_${i}' style='display:none;'>${playerInputsHtml}</div>
+                            <span class="vs-text">vs</span>
+                            <div class="team-select-group">
+                                <label for="game_${gameId}_match_${i}_team2">Team 2:</label>
+                                <div id="select_container_team2_${gameId}_${i}"></div>
+                            </div>
+                            ${totalPointsHtml}
+                            ${descriptionHtml}
+                        `;
+                        setTimeout(() => {
+                            const btn = matchGroup.querySelector('.toggle-players-btn');
+                            const fields = matchGroup.querySelector(`#players_fields_${i}`);
+                            if (btn && fields) {
+                                btn.addEventListener('click', function() {
+                                    if (fields.style.display === 'none') {
+                                        fields.style.display = 'block';
+                                        btn.textContent = 'Hide Players';
+                                    } else {
+                                        fields.style.display = 'none';
+                                        btn.textContent = 'Show Players ▼';
+                                    }
+                                });
+                            }
+                        }, 0);
+                    } else if (gameName.trim().toLowerCase() === 'kabaddi') {
+                        // Kabaddi: Show Players button (7 per team)
                         matchGroup.innerHTML = `
                             <h4>Match ${i}</h4>
                             <div class="team-select-group">
@@ -397,6 +442,9 @@
 
         gameTabButtons.forEach(button => {
             button.addEventListener('click', function() {
+                // Remove .active from all, add to clicked
+                gameTabButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
                 const gameId = this.getAttribute('data-game-id');
                 const gameName = this.getAttribute('data-game-name');
                 renderGameConfig(gameId, gameName);

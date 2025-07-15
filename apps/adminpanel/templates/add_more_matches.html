@@ -147,7 +147,7 @@
 
                 // Points field (for games that use it)
                 let totalPointsHtml = '';
-                if (['badminton', 'table tennis', 'throw ball', 'volleyball'].includes(gameName)) {
+                if (['badminton', 'table tennis', 'throw ball', 'volleyball', 'kabaddi'].includes(gameName)) {
                     const savedTotalPoints = savedMatch && savedMatch.totalPoints ? savedMatch.totalPoints : '21';
                     totalPointsHtml = `
                         <div class="form-group total-points-group">
@@ -216,6 +216,16 @@
                         volleyballPlayersTeam2 += `<div class='player-input-group'><label>Player ${p} (Team 2):</label><input type='text' name='game_{{ game.id }}_match_${i}_volleyball_player${p}_team2' id='game_{{ game.id }}_match_${i}_volleyball_player${p}_team2' class='form-control' value='${val2}' placeholder='Optional'></div>`;
                     }
                     playerInputsHtml = `<div class='players-container'><div>${volleyballPlayersTeam1}</div><div>${volleyballPlayersTeam2}</div></div>`;
+                } else if (gameName === 'kabaddi') {
+                    let kabaddiPlayersTeam1 = '';
+                    let kabaddiPlayersTeam2 = '';
+                    for (let p = 1; p <= 7; p++) {
+                        const val1 = savedMatch && savedMatch[`kabaddiPlayer${p}Team1`] ? savedMatch[`kabaddiPlayer${p}Team1`] : '';
+                        const val2 = savedMatch && savedMatch[`kabaddiPlayer${p}Team2`] ? savedMatch[`kabaddiPlayer${p}Team2`] : '';
+                        kabaddiPlayersTeam1 += `<div class='player-input-group'><label>Player ${p} (Team 1):</label><input type='text' name='game_{{ game.id }}_match_${i}_kabaddi_player${p}_team1' id='game_{{ game.id }}_match_${i}_kabaddi_player${p}_team1' class='form-control' value='${val1}' placeholder='Optional'></div>`;
+                        kabaddiPlayersTeam2 += `<div class='player-input-group'><label>Player ${p} (Team 2):</label><input type='text' name='game_{{ game.id }}_match_${i}_kabaddi_player${p}_team2' id='game_{{ game.id }}_match_${i}_kabaddi_player${p}_team2' class='form-control' value='${val2}' placeholder='Optional'></div>`;
+                    }
+                    playerInputsHtml = `<div class='players-container'><div>${kabaddiPlayersTeam1}</div><div>${kabaddiPlayersTeam2}</div></div>`;
                 } else if (gameName === 'throw ball') {
                     let throwballPlayersTeam1 = '';
                     let throwballPlayersTeam2 = '';
@@ -229,7 +239,7 @@
                 }
 
                 // Compose the match group HTML
-                if (gameName === 'volleyball' || gameName === 'throw ball') {
+                if (gameName === 'volleyball' || gameName === 'throw ball' || gameName === 'kabaddi') {
                     matchGroup.innerHTML = `
                         <h4>Match ${i}</h4>
                         <div class="team-select-group">
@@ -274,7 +284,7 @@
                 if (team2Container) team2Container.appendChild(team2Select);
 
                 // Add toggle functionality for player fields (for Volleyball/Throw Ball)
-                if (gameName === 'volleyball' || gameName === 'throw ball') {
+                if (gameName === 'volleyball' || gameName === 'throw ball' || gameName === 'kabaddi') {
                     const btn = matchGroup.querySelector('.toggle-players-btn');
                     const fields = matchGroup.querySelector(`#players_fields_${i}`);
                     if (btn && fields) {
