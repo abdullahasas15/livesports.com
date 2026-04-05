@@ -47,11 +47,14 @@
                 {% csrf_token %} {# Django's CSRF token for form security #}
                 <h3>Create a New Account</h3>
                 
-                {# Display non-field errors if any #}
-                {% if signup_form.non_field_errors %}
+                {# Display field and non-field errors for signup form #}
+                {% if signup_form.errors %}
                     <div class="form-error-messages">
-                        {% for error in signup_form.non_field_errors %}
-                            <p>{{ error }}</p>
+                        {{ signup_form.non_field_errors }}
+                        {% for field in signup_form %}
+                            {% for error in field.errors %}
+                                <p>{{ field.label }}: {{ error }}</p>
+                            {% endfor %}
                         {% endfor %}
                     </div>
                 {% endif %}

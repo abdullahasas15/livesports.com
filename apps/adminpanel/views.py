@@ -165,17 +165,17 @@ def manage_matches_view(request, tournament_id):
                     match_data['player2Team2Name'] = match.player2_team2
                 elif game_obj.name == 'Volleyball':
                     for p in range(1, 7):
-                        match_data[f'volleyball_player{p}_team1'] = match.volleyball_player1_team1
-                        match_data[f'volleyball_player{p}_team2'] = match.volleyball_player1_team2
+                        match_data[f'volleyball_player{p}_team1'] = getattr(match, f'volleyball_player{p}_team1', '')
+                        match_data[f'volleyball_player{p}_team2'] = getattr(match, f'volleyball_player{p}_team2', '')
                 elif game_obj.name == 'Throwball':
                     for p in range(1, 10):
-                        match_data[f'throwball_player{p}_team1'] = match.throwball_player1_team1
-                        match_data[f'throwball_player{p}_team2'] = match.throwball_player1_team2
+                        match_data[f'throwball_player{p}_team1'] = getattr(match, f'throwball_player{p}_team1', '')
+                        match_data[f'throwball_player{p}_team2'] = getattr(match, f'throwball_player{p}_team2', '')
                     match_data['totalPoints'] = match.total_points
                 elif game_obj.name == 'Kabaddi':
                     for p in range(1, 8):
-                        match_data[f'kabaddi_player{p}_team1'] = match.kabaddi_player1_team1
-                        match_data[f'kabaddi_player{p}_team2'] = match.kabaddi_player1_team2
+                        match_data[f'kabaddi_player{p}_team1'] = getattr(match, f'kabaddi_player{p}_team1', '')
+                        match_data[f'kabaddi_player{p}_team2'] = getattr(match, f'kabaddi_player{p}_team2', '')
                 matches_list.append(match_data)
             existing_matches_by_game_data[game_obj.id] = {
                 'numMatches': matches.count(),

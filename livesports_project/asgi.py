@@ -14,11 +14,13 @@ from channels.auth import AuthMiddlewareStack
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'livesports_project.settings')
 
+django_asgi_application = get_asgi_application()
+
+from livesports_project.routing import websocket_urlpatterns
+
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
+    "http": django_asgi_application,
     "websocket": AuthMiddlewareStack(
-        URLRouter(
-            __import__('apps.scores.routing').scores.routing.websocket_urlpatterns
-        )
+        URLRouter(websocket_urlpatterns)
     ),
 })
